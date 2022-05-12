@@ -10,7 +10,6 @@ import {ethers} from "ethers";
 import {isEmpty, startCase, truncate} from "lodash";
 import {toHex} from "web3-utils";
 import { useForm } from 'react-hook-form';
-import {type} from "os";
 
 
 export const classNames = (...classes) => {
