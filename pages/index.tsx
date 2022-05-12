@@ -12,7 +12,7 @@ import {toHex} from "web3-utils";
 import { useForm } from 'react-hook-form';
 
 
-export const classNames = (...classes) => {
+export const classNames = (...classes: any[]) => {
     return classes.filter(Boolean)
         .join(' ');
 };
@@ -33,7 +33,7 @@ export const providerOptions = {
     }
 };
 
-const navigation = [
+const navigation: any[] = [
     // {name: 'Product', href: '#'},
     // {name: 'Features', href: '#'},
     // {name: 'Marketplace', href: '#'},
@@ -73,7 +73,7 @@ const Home: NextPage = () => {
     };
 
     const isWalletConnected = !isEmpty(account);
-    const handleFormSubmit = (formData) => {
+    const handleFormSubmit = (formData: {}) => {
         if (isWalletConnected) {
             // do submit of form to contract via ABI
         } else {
@@ -84,14 +84,17 @@ const Home: NextPage = () => {
 
     const switchNetwork = async () => {
         try {
+            // @ts-ignore
             await library.provider.request({
                 method: "wallet_switchEthereumChain",
                 params: [{chainId: toHex(137)}],
             });
         } catch (switchError) {
             // This error code indicates that the chain has not been added to MetaMask.
+            // @ts-ignore
             if (switchError.code === 4902) {
                 try {
+                    // @ts-ignore
                     await library.provider.request({
                         method: "wallet_addEthereumChain",
                         params: [
@@ -116,6 +119,7 @@ const Home: NextPage = () => {
             cacheProvider: true, // optional
             providerOptions // required
         });
+        // @ts-ignore
         setWeb3Modal(web3ModalTemp)
     }, []);
 
