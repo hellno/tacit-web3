@@ -41,7 +41,7 @@ const navigation: any[] = [
 ]
 
 
-const Home: NextPage = () => {
+export default function Home() {
     const [web3Modal, setWeb3Modal] = useState();
     const [provider, setProvider] = useState();
     const [library, setLibrary] = useState();
@@ -52,7 +52,8 @@ const Home: NextPage = () => {
         handleSubmit
     } = useForm();
 
-    const connectWallet = async () => {
+    // @ts-ignore
+    const connectWallet = async (web3Modal) => {
         try {
             // @ts-ignore
             const newProvider = await web3Modal.connect();
@@ -73,11 +74,12 @@ const Home: NextPage = () => {
     };
 
     const isWalletConnected = !isEmpty(account);
+
     const handleFormSubmit = (formData: {}) => {
         if (isWalletConnected) {
             // do submit of form to contract via ABI
         } else {
-            connectWallet()
+            connectWallet(web3Modal)
         }
     };
 
@@ -113,6 +115,13 @@ const Home: NextPage = () => {
         }
     };
 
+    const disconnectWallet = () => {
+        // @ts-ignore
+        setAccount(null);
+        // @ts-ignore
+        setProvider(null);
+    }
+
     useEffect(() => {
         const web3ModalTemp = new Web3Modal({
             network: "mainnet", // optional
@@ -121,6 +130,10 @@ const Home: NextPage = () => {
         });
         // @ts-ignore
         setWeb3Modal(web3ModalTemp)
+
+        if (web3ModalTemp.cachedProvider) {
+            connectWallet(web3ModalTemp)
+        }
     }, []);
 
     const renderWalletConnectComponent = () => {
@@ -131,7 +144,7 @@ const Home: NextPage = () => {
                 Wallet Address: {truncate(account, {'length': 10})}
             </span>) :
                 (<button
-                    onClick={connectWallet}
+                    onClick={() => connectWallet(web3Modal)}
                     className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400 hover:bg-yellow-300">
                     Connect Wallet
                 </button>)
@@ -294,14 +307,16 @@ const Home: NextPage = () => {
                       WAGMI
                     </span>
                                         <span className="ml-4 text-sm">Thanks for being here</span>
-                                        <ChevronRightIcon className="ml-2 w-5 h-5 text-gray-500" aria-hidden="true"/>
+                                        <ChevronRightIcon className="ml-2 w-5 h-5 text-gray-500"
+                                                          aria-hidden="true"/>
                                     </a>
                                     <h1 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                                         <span className="md:block">Crowd search tasks</span>{' '}
                                         <span className="text-yellow-400 md:block">for service DAOs</span>
                                     </h1>
                                     <p className="mt-3 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                                        Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat
+                                        Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem
+                                        cupidatat
                                         commodo. Elit sunt
                                         amet fugiat veniam occaecat fugiat aliqua ad ad non deserunt sunt.
                                     </p>
@@ -340,11 +355,17 @@ const Home: NextPage = () => {
                                     <div className="px-4 py-8 sm:px-10">
                                         <div className="mt-6">
                                             <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-                                                {renderFormField({name: "walletAddress", type: "text", value: account, disabled: true})}
+                                                {renderFormField({
+                                                    name: "walletAddress",
+                                                    type: "text",
+                                                    value: account,
+                                                    disabled: true
+                                                })}
                                                 {renderFormField({name: "Email", type: "email"})}
                                                 {renderAmountAndCurrencyFormfield()}
                                                 <div className="">
-                                                    <label htmlFor="about" className="block text-sm font-medium text-gray-700">
+                                                    <label htmlFor="about"
+                                                           className="block text-sm font-medium text-gray-700">
                                                         Task Description
                                                     </label>
                                                     <div className="mt-1">
@@ -356,14 +377,16 @@ const Home: NextPage = () => {
                                                         defaultValue={''}
                                                     />
                                                     </div>
-                                                    <p className="mt-2 text-sm text-gray-500">Write a few sentences about the task and how others can fulfill it.</p>
+                                                    <p className="mt-2 text-sm text-gray-500">Write a few sentences
+                                                        about the task and how others can fulfill it.</p>
                                                 </div>
                                                 <div>
                                                     <button
                                                         type="submit"
                                                         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none"
                                                     >
-                                                        {isWalletConnected ? "Submit Task" : <span className="flex">Connect Wallet</span>}
+                                                        {isWalletConnected ? "Submit Task" :
+                                                            <span className="flex">Connect Wallet</span>}
                                                     </button>
                                                 </div>
                                             </form>
@@ -392,4 +415,3 @@ const Home: NextPage = () => {
     )
 }
 
-export default Home
