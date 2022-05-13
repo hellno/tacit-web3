@@ -11,6 +11,7 @@ import {toHex} from "web3-utils";
 import {useForm} from 'react-hook-form';
 import {getUserFriendlyNameForChainId} from "../src/utils";
 import abi from "../src/abi/TaskPortal.json";
+import {DEPLOYED_CONTRACTS, isSupportedNetwork} from "../src/utilsDeployedContracts";
 
 const contractABI = abi.abi;
 const contractAddress = '0xAb3160358410B2912f319C2Ec61a6d88bF138520';
@@ -121,14 +122,11 @@ export default function Home() {
     };
 
     const renderChainSwitcher = () => {
-        if (isEmpty(process.env.DEPLOYED_CONTRACTS) || isEmpty(network)) {
+        if (isEmpty(DEPLOYED_CONTRACTS) || isEmpty(network)) {
             return
         }
-        const deployedContracts = process.env.DEPLOYED_CONTRACTS
         // @ts-ignore
-        const chains = deployedContracts.filter((chain) => chain.chainId !== network.chainId);
-        // @ts-ignore
-        const isSupportedNetwork = includes(map(deployedContracts, 'chainId'), network.chainId);
+        const chains = DEPLOYED_CONTRACTS.filter((chain) => chain.chainId !== network.chainId);
 
         // @ts-ignore
         const currentChainName = startCase(getUserFriendlyNameForChainId(network.chainId) || network.name);
@@ -137,8 +135,8 @@ export default function Home() {
         return (<Menu as="div" className="relative inline-block text-left">
             <div>
                 <Menu.Button
-                    className="inline-flex justify-center w-full rounded-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
-                    Select Chain
+                    className="inline-flex justify-center w-36 rounded-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-gray-500">
+                    Network
                     <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true"/>
                 </Menu.Button>
             </div>
@@ -153,12 +151,12 @@ export default function Home() {
                 leaveTo="transform opacity-0 scale-95"
             >
                 <Menu.Items
-                    className="origin-top-right absolute right-0 mt-2 w-full rounded-sm shadow-md bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    className="origin-top-right absolute right-0 mt-2 w-full rounded-sm shadow-md bg-white divide-y divide-gray-200 ring-1 ring-black ring-opacity-5 focus:outline-none">
                     <div className="py-1">
                         <Menu.Item>
                             <span className="w-full text-left text-gray-700 block px-4 py-2 text-sm">
                                 {currentChainName}{" "}
-                                {isSupportedNetwork ? "✅" : "(Unsupported)"}
+                                {isSupportedNetwork(network.chainId) ? "✅" : "(Unsupported)"}
                             </span>
                         </Menu.Item>
                         {map(chains, (chain: { chainId: number, name: string, }) => {
@@ -178,6 +176,8 @@ export default function Home() {
                                 </Menu.Item>
                             )
                         })}
+                    </div>
+                    <div>
                         <Menu.Item>
                             {({active}) => (
                                 <button
@@ -286,7 +286,7 @@ export default function Home() {
             {isWalletConnected ?
                 (<span
                     className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400">
-                Wallet Address: {truncate(account, {'length': 10})}
+                Wallet {truncate(account, {'length': 14})}
             </span>) :
                 (<button
                     onClick={() => connectWallet(web3Modal)}
@@ -334,7 +334,7 @@ export default function Home() {
                     type="text"
                     name="price"
                     id="price"
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-sm"
+                    className="focus:ring-yellow-500 focus:border-yellow-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-sm"
                     placeholder="0.00001"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center">
@@ -344,7 +344,7 @@ export default function Home() {
                     <select
                         id="currency"
                         name="currency"
-                        className="focus:ring-indigo-500 focus:border-indigo-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-sm"
+                        className="focus:ring-yellow-500 focus:border-yellow-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-sm"
                     >
                         <option>ETH</option>
                         <option>DAI</option>
@@ -465,7 +465,7 @@ export default function Home() {
                         className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
                       WAGMI
                     </span>
-                                        <span className="ml-4 text-sm">Thanks for being here</span>
+                                        <span className="ml-4 text-sm">Thank you for being here</span>
                                         <ChevronRightIcon className="ml-2 w-5 h-5 text-gray-500"
                                                           aria-hidden="true"/>
                                     </a>
@@ -546,7 +546,7 @@ export default function Home() {
                                                         name="description"
                                                         required
                                                         rows={3}
-                                                        className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
+                                                        className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
                                                         defaultValue={''}
                                                     />
                                                     </div>
