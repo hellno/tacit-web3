@@ -65,6 +65,8 @@ export default function Home() {
         handleSubmit
     } = useForm();
 
+    const { chainId }: any = network;
+
     useEffect(() => {
         if (window.ethereum) {
             window.ethereum.on("chainChanged", () => {
@@ -108,17 +110,12 @@ export default function Home() {
     const isWalletConnected = !isEmpty(account);
 
     const handleFormSubmit = (formData: { taskTitle: string, description: string, email: string, bountyAmount: bigint, bountyCurrency: string }) => {
-        if (isWalletConnected) {
-            console.log()
-            addTask({
-                title: formData.taskTitle,
-                description: formData.description,
-                bountyAmount: formData.bountyAmount,
-                bountyCurrency: formData.bountyCurrency
-            })
-        } else {
-            connectWallet(web3Modal)
-        }
+        addTask({
+            title: formData.taskTitle,
+            description: formData.description,
+            bountyAmount: formData.bountyAmount,
+            bountyCurrency: formData.bountyCurrency
+        })
     };
 
     const renderChainSwitcher = () => {
@@ -156,7 +153,7 @@ export default function Home() {
                         <Menu.Item>
                             <span className="w-full text-left text-gray-700 block px-4 py-2 text-sm">
                                 {currentChainName}{" "}
-                                {isSupportedNetwork(network.chainId) ? "✅" : "(Unsupported)"}
+                                {isSupportedNetwork(chainId) ? "✅" : "(Unsupported)"}
                             </span>
                         </Menu.Item>
                         {map(chains, (chain: { chainId: number, name: string, }) => {
@@ -361,7 +358,6 @@ export default function Home() {
     // @ts-ignore
     return (
         <div
-            // className="relative bg-gradient-to-br from-yellow-400 via-red-500 to-pink-500 overflow-hidden min-h-screen">
             className="relative bg-gradient-to-tr from-red-500 via-gray-700 to-gray-800 overflow-hidden min-h-screen">
             <div className="relative pt-6 pb-16 sm:pb-24">
                 <Popover>
@@ -399,8 +395,7 @@ export default function Home() {
                         <div className="hidden md:flex">
                             {renderWalletConnectComponent()}
                             <div className="ml-2">
-                                {/*{isWalletConnected && renderChainSwitcher()}*/}
-                                {renderChainSwitcher()}
+                                {isWalletConnected && renderChainSwitcher()}
                             </div>
                         </div>
                     </nav>
@@ -419,33 +414,34 @@ export default function Home() {
                             className="absolute z-10 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
                         >
                             <div
-                                className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5 overflow-hidden">
+                                className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5">
                                 <div className="px-5 py-2 flex items-center justify-between">
-                                    <div
-                                        className="block w-full py-3"
-                                    >
+                                    <div className="block w-full">
                                         {renderWalletConnectComponent()}
                                     </div>
                                     <div className="-mr-2">
                                         <Popover.Button
                                             className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
                                             <span className="sr-only">Close menu</span>
-                                            <XIcon className="h-6 w-6" aria-hidden="true"/>
+                                            <XIcon className="h-7 w-7" aria-hidden="true"/>
                                         </Popover.Button>
                                     </div>
                                 </div>
-                                {/*<div className="px-2 pt-2 pb-3 space-y-1">*/}
-                                {/*    {navigation.map((item) => (*/}
-                                {/*        <a*/}
-                                {/*            key={item.name}*/}
-                                {/*            href={item.href}*/}
-                                {/*            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"*/}
-                                {/*        >*/}
-                                {/*            {item.name}*/}
-                                {/*        </a>*/}
-                                {/*    ))}*/}
-                                {/*</div>*/}
-
+                                <div className="px-5 pt-2 pb-6 space-y-1">
+                                    {/* weird behaviour -> overflow-y-visible
+                                    this div has extra padding in the bottom so that
+                                    the chain switcher component has a layer to be rendered on */}
+                                    {isWalletConnected && renderChainSwitcher()}
+                                    {/*{navigation.map((item) => (*/}
+                                    {/*    <a*/}
+                                    {/*        key={item.name}*/}
+                                    {/*        href={item.href}*/}
+                                    {/*        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"*/}
+                                    {/*    >*/}
+                                    {/*        {item.name}*/}
+                                    {/*    </a>*/}
+                                    {/*))}*/}
+                                </div>
                             </div>
                         </Popover.Panel>
                     </Transition>
