@@ -1,16 +1,19 @@
-import type {NextPage} from 'next'
 import {Fragment, useEffect, useState} from 'react'
-import {Popover, Transition} from '@headlessui/react'
+import {Menu, Popover, Transition} from '@headlessui/react'
 import {MenuIcon, XIcon} from '@heroicons/react/outline'
-import {ChevronRightIcon} from '@heroicons/react/solid'
+import {ChevronDownIcon, ChevronRightIcon} from '@heroicons/react/solid'
 import Web3Modal from "web3modal";
 import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
 import WalletConnect from "@walletconnect/web3-provider";
 import {ethers} from "ethers";
-import {isEmpty, startCase, truncate} from "lodash";
+import {includes, isEmpty, map, startCase, truncate} from "lodash";
 import {toHex} from "web3-utils";
-import { useForm } from 'react-hook-form';
+import {useForm} from 'react-hook-form';
+import {getUserFriendlyNameForChainId} from "../src/utils";
+import abi from "../src/abi/TaskPortal.json";
 
+const contractABI = abi.abi;
+const contractAddress = '0xAb3160358410B2912f319C2Ec61a6d88bF138520';
 
 export const classNames = (...classes: any[]) => {
     return classes.filter(Boolean)
@@ -40,6 +43,13 @@ const navigation: any[] = [
     // {name: 'Company', href: '#'},
 ]
 
+enum TaskSubmissionState {
+    WaitForSending,
+    StartedSending,
+    WaitingForUserAccept,
+    Success,
+    UserRejected,
+}
 
 export default function Home() {
     const [web3Modal, setWeb3Modal] = useState();
@@ -47,10 +57,23 @@ export default function Home() {
     const [library, setLibrary] = useState();
     const [account, setAccount] = useState();
     const [network, setNetwork] = useState();
+    const [taskSubmissionState, setTaskSubmissionState] = useState<TaskSubmissionState>(TaskSubmissionState.WaitForSending);
+
     const {
         register,
         handleSubmit
     } = useForm();
+
+    useEffect(() => {
+        if (window.ethereum) {
+            window.ethereum.on("chainChanged", () => {
+                window.location.reload();
+            });
+            window.ethereum.on("accountsChanged", () => {
+                window.location.reload();
+            });
+        }
+    });
 
     // @ts-ignore
     const connectWallet = async (web3Modal) => {
@@ -69,27 +92,149 @@ export default function Home() {
             // @ts-ignore
             setNetwork(newNetwork);
         } catch (error) {
+            // @ts-ignore
+            switch (error.code) {
+                case -32602:
+                    setTaskSubmissionState(TaskSubmissionState.UserRejected)
+                    break;
+                default:
+                    break;
+            }
             console.error(error);
         }
     };
 
     const isWalletConnected = !isEmpty(account);
 
-    const handleFormSubmit = (formData: {}) => {
+    const handleFormSubmit = (formData: { taskTitle: string, description: string, email: string, bountyAmount: bigint, bountyCurrency: string }) => {
         if (isWalletConnected) {
-            // do submit of form to contract via ABI
+            console.log()
+            addTask({
+                title: formData.taskTitle,
+                description: formData.description,
+                bountyAmount: formData.bountyAmount,
+                bountyCurrency: formData.bountyCurrency
+            })
         } else {
             connectWallet(web3Modal)
         }
     };
 
+    const renderChainSwitcher = () => {
+        if (isEmpty(process.env.DEPLOYED_CONTRACTS) || isEmpty(network)) {
+            return
+        }
+        const deployedContracts = process.env.DEPLOYED_CONTRACTS
+        // @ts-ignore
+        const chains = deployedContracts.filter((chain) => chain.chainId !== network.chainId);
+        // @ts-ignore
+        const isSupportedNetwork = includes(map(deployedContracts, 'chainId'), network.chainId);
 
-    const switchNetwork = async () => {
+        // @ts-ignore
+        const currentChainName = startCase(getUserFriendlyNameForChainId(network.chainId) || network.name);
+
+        // @ts-ignore
+        return (<Menu as="div" className="relative inline-block text-left">
+            <div>
+                <Menu.Button
+                    className="inline-flex justify-center w-full rounded-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                    Select Chain
+                    <ChevronDownIcon className="-mr-1 ml-2 h-5 w-5" aria-hidden="true"/>
+                </Menu.Button>
+            </div>
+
+            <Transition
+                as={Fragment}
+                enter="transition ease-out duration-100"
+                enterFrom="transform opacity-0 scale-95"
+                enterTo="transform opacity-100 scale-100"
+                leave="transition ease-in duration-75"
+                leaveFrom="transform opacity-100 scale-100"
+                leaveTo="transform opacity-0 scale-95"
+            >
+                <Menu.Items
+                    className="origin-top-right absolute right-0 mt-2 w-full rounded-sm shadow-md bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                    <div className="py-1">
+                        <Menu.Item>
+                            <span className="w-full text-left text-gray-700 block px-4 py-2 text-sm">
+                                {currentChainName}{" "}
+                                {isSupportedNetwork ? "✅" : "(Unsupported)"}
+                            </span>
+                        </Menu.Item>
+                        {map(chains, (chain: { chainId: number, name: string, }) => {
+                            console.log(chain.name)
+                            return (<Menu.Item>
+                                    {({active}) => (
+                                        <button
+                                            onClick={() => switchNetwork(chain.chainId)}
+                                            className={classNames(
+                                                active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                                'w-full text-left block px-4 py-2 text-sm'
+                                            )}
+                                        >
+                                            {getUserFriendlyNameForChainId(chain.chainId) || chain.name}
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            )
+                        })}
+                        <Menu.Item>
+                            {({active}) => (
+                                <button
+                                    onClick={disconnectWallet}
+                                    className={classNames(
+                                        active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
+                                        'w-full text-left block px-4 py-2 text-sm'
+                                    )}
+                                >
+                                    Disconnect
+                                </button>
+                            )}
+                        </Menu.Item>
+                    </div>
+                </Menu.Items>
+            </Transition>
+        </Menu>)
+    }
+
+    const addTask = async ({
+                               title,
+                               description,
+                               bountyAmount,
+                               bountyCurrency
+                           }: { title: string, description: string, bountyAmount: bigint, bountyCurrency: string }) => {
+        try {
+            if (library) {
+                // @ts-ignore
+                const signer = library.getSigner();
+                const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+                let count = await wavePortalContract.getTotalWaves();
+                console.log("Retrieved total wave count...", count.toNumber());
+
+                const waveTxn = await wavePortalContract.addTask(title, description);
+                console.log("Mining...", waveTxn.hash);
+
+                await waveTxn.wait();
+                console.log("Mined -- ", waveTxn.hash);
+
+                count = await wavePortalContract.getTotalWaves();
+                console.log("Retrieved total wave count...", count.toNumber());
+            } else {
+                console.log("Ethereum provider object doesn't exist!");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+
+    const switchNetwork = async (chainId: number) => {
         try {
             // @ts-ignore
             await library.provider.request({
                 method: "wallet_switchEthereumChain",
-                params: [{chainId: toHex(137)}],
+                params: [{chainId: toHex(chainId)}],
             });
         } catch (switchError) {
             // This error code indicates that the chain has not been added to MetaMask.
@@ -137,7 +282,7 @@ export default function Home() {
     }, []);
 
     const renderWalletConnectComponent = () => {
-        return <>
+        return <div className="">
             {isWalletConnected ?
                 (<span
                     className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400">
@@ -145,14 +290,20 @@ export default function Home() {
             </span>) :
                 (<button
                     onClick={() => connectWallet(web3Modal)}
-                    className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400 hover:bg-yellow-300">
+                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none">
                     Connect Wallet
                 </button>)
             }
-        </>
+        </div>
     }
 
-    const renderFormField = ({name, type, value = undefined, disabled = false} : {name: string; type: string, value?: string, disabled?: boolean }) => {
+
+    const renderFormField = ({
+                                 name,
+                                 type,
+                                 value = undefined,
+                                 required = false
+                             }: { name: string; type: string, value?: string, required?: boolean }) => {
         return (<div>
             <label htmlFor={name} className="block text-sm font-medium text-gray-700">
                 {startCase(name)}
@@ -165,9 +316,8 @@ export default function Home() {
                 autoComplete={name}
                 placeholder={startCase(name)}
                 value={value}
-                disabled={disabled}
-                className={classNames(
-                    disabled ? "select-none text-gray-600" : "text-gray-900",
+                required={required}
+                className={classNames("text-gray-900",
                     "mt-1 block w-full shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border-gray-300 rounded-sm"
                 )}
             />
@@ -205,9 +355,14 @@ export default function Home() {
         </div>
     }
 
+    // @ts-ignore
+    const onFormSubmit = handleSubmit(handleFormSubmit)
+
+    // @ts-ignore
     return (
         <div
-            className="relative bg-gradient-to-br from-yellow-400 via-red-500 to-pink-500 overflow-hidden min-h-screen">
+            // className="relative bg-gradient-to-br from-yellow-400 via-red-500 to-pink-500 overflow-hidden min-h-screen">
+            className="relative bg-gradient-to-tr from-red-500 via-gray-700 to-gray-800 overflow-hidden min-h-screen">
             <div className="relative pt-6 pb-16 sm:pb-24">
                 <Popover>
                     <nav
@@ -243,6 +398,10 @@ export default function Home() {
                         </div>
                         <div className="hidden md:flex">
                             {renderWalletConnectComponent()}
+                            <div className="ml-2">
+                                {/*{isWalletConnected && renderChainSwitcher()}*/}
+                                {renderChainSwitcher()}
+                            </div>
                         </div>
                     </nav>
 
@@ -354,14 +513,26 @@ export default function Home() {
                                     className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-sm sm:overflow-hidden">
                                     <div className="px-4 py-8 sm:px-10">
                                         <div className="mt-6">
-                                            <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-                                                {renderFormField({
-                                                    name: "walletAddress",
-                                                    type: "text",
-                                                    value: account,
-                                                    disabled: true
-                                                })}
-                                                {renderFormField({name: "Email", type: "email"})}
+                                            <form onSubmit={onFormSubmit} className="space-y-6">
+                                                <div>
+                                                    <label htmlFor="walletAddress"
+                                                           className="block text-sm font-medium text-gray-700">
+                                                        Wallet Address
+                                                    </label>
+                                                    {isWalletConnected ? (
+                                                        <input
+                                                            type="text"
+                                                            name="walletAddress"
+                                                            id="walletAddress"
+                                                            placeholder="Wallet Address"
+                                                            value={account}
+                                                            disabled={true}
+                                                            className="select-none text-gray-600 mt-1 block w-full shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border-gray-300 rounded-sm"
+                                                        />
+                                                    ) : <div className="mt-1">{renderWalletConnectComponent()}</div>}
+                                                </div>
+                                                {renderFormField({name: "email", type: "email", required: true})}
+                                                {renderFormField({name: "taskTitle", type: "text", required: true})}
                                                 {renderAmountAndCurrencyFormfield()}
                                                 <div className="">
                                                     <label htmlFor="about"
@@ -370,10 +541,12 @@ export default function Home() {
                                                     </label>
                                                     <div className="mt-1">
                                                     <textarea
+                                                        {...register("description")}
                                                         id="description"
                                                         name="description"
+                                                        required
                                                         rows={3}
-                                                        className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                                        className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
                                                         defaultValue={''}
                                                     />
                                                     </div>
@@ -383,10 +556,10 @@ export default function Home() {
                                                 <div>
                                                     <button
                                                         type="submit"
-                                                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none"
+                                                        disabled={!isWalletConnected}
+                                                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
                                                     >
-                                                        {isWalletConnected ? "Submit Task" :
-                                                            <span className="flex">Connect Wallet</span>}
+                                                        Submit Task
                                                     </button>
                                                 </div>
                                             </form>
