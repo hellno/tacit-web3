@@ -65,8 +65,6 @@ export default function Home() {
         handleSubmit
     } = useForm();
 
-    const { chainId }: any = network;
-
     useEffect(() => {
         if (window.ethereum) {
             window.ethereum.on("chainChanged", () => {
@@ -122,8 +120,10 @@ export default function Home() {
         if (isEmpty(DEPLOYED_CONTRACTS) || isEmpty(network)) {
             return
         }
+        const { chainId }: any = network;
+
         // @ts-ignore
-        const chains = DEPLOYED_CONTRACTS.filter((chain) => chain.chainId !== network.chainId);
+        const chains:any = DEPLOYED_CONTRACTS.filter((chain) => chain.chainId !== network.chainId);
 
         // @ts-ignore
         const currentChainName = startCase(getUserFriendlyNameForChainId(network.chainId) || network.name);
