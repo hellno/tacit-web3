@@ -157,7 +157,6 @@ export default function Home() {
                             </span>
                         </Menu.Item>
                         {map(chains, (chain: { chainId: number, name: string, }) => {
-                            console.log(chain.name)
                             return (<Menu.Item>
                                     {({active}) => (
                                         <button

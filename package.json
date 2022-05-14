@@ -1,23 +1,8 @@
 {
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
   },
   "dependencies": {
-    "@coinbase/wallet-sdk": "^3.0.12",
-    "@headlessui/react": "^1.6.1",
-    "@heroicons/react": "^1.0.6",
-    "@tailwindcss/forms": "^0.5.1",
-    "@walletconnect/web3-provider": "^1.7.8",
-    "lodash": "^4.17.21",
-    "next": "latest",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-hook-form": "^7.31.1",
-    "web3": "^1.7.3",
-    "web3modal": "^1.9.7"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
@@ -38,9 +23,7 @@
     "hardhat-gas-reporter": "^1.0.8",
     "postcss": "^8.4.5",
     "prettier": "^2.5.1",
-    "prettier-plugin-tailwindcss": "^0.1.1",
     "solidity-coverage": "^0.7.21",
-    "tailwindcss": "^3.0.7",
     "ts-node": "^10.7.0",
     "typescript": "4.5.4"
   }
