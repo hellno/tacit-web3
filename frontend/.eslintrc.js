@@ -3,22 +3,32 @@ module.exports = {
     browser: false,
     es2021: true,
     mocha: true,
-    node: true,
+    node: true
   },
-  plugins: ["@typescript-eslint"],
+  plugins: ['@typescript-eslint'],
   extends: [
-    "standard",
-    "plugin:prettier/recommended",
-    "plugin:node/recommended",
+    'standard',
+    'plugin:node/recommended'
   ],
-  parser: "@typescript-eslint/parser",
+  parser: '@typescript-eslint/parser',
   parserOptions: {
-    ecmaVersion: 12,
+    ecmaVersion: 12
   },
   rules: {
-    "node/no-unsupported-features/es-syntax": [
-      "error",
-      { ignores: ["modules"] },
-    ],
+    'node/no-unsupported-features/es-syntax': [
+      'error',
+      { ignores: ['modules'] }
+    ]
   },
-};
+  overrides: [{
+    files: ['pages/*.tsx'],
+    rules: {
+      'node/no-unpublished-import': 'off',
+      'node/no-extraneous-import': 'off',
+      'no-unused-vars': 'off',
+      'spaced-comment': 'off',
+      'multiline-ternary': 'off'
+    }
+  }
+  ]
+}
