@@ -16,6 +16,7 @@ import { ClockIcon } from '@heroicons/react/outline'
 import Web3Modal from 'web3modal'
 import { renderWalletAddressInputField } from '../src/formUtils'
 import Image from 'next/image'
+import Web3NavBar from '../src/components/Web3NavBar'
 
 const taskObject = {
   title: 'Looking for a MONOSPACE design agency 👀',
@@ -247,7 +248,7 @@ export default function SharePage () {
   return (
     <div className="relative bg-gradient-to-tr from-red-500 via-gray-700 to-gray-800 overflow-hidden min-h-screen">
       <div className="relative pt-6 pb-16 sm:pb-24">
-        {/* <Web3NavBar web3Modal={web3Modal} /> */}
+        <Web3NavBar web3Modal={web3Modal} />
         {renderShareModal &&
           <ModalComponent
             renderContent={renderShareModalContent}
