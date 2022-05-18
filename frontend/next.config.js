@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
-  env: {}
+  env: {},
+  images: {
+    domains: ['images.unsplash.com']
+  }
 }

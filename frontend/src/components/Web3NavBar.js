@@ -33,7 +33,9 @@ const Web3NavBar = ({
             <span className="sr-only">Tacit</span>
             <Image
               className="h-8 w-auto sm:h-10"
-              src={'./tacit_t.png'}
+              src="/tacit_t.png"
+              height="35px"
+              width="35px"
               alt=""
             />
           </a>

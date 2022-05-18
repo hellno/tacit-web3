@@ -207,25 +207,29 @@ export default function Home () {
                   <div className="mt-5 w-full sm:mx-auto sm:max-w-lg lg:ml-0">
                     <div className="flex flex-wrap items-start justify-between">
                       <div className="flex justify-center px-1">
-                        <Image
-                          className="h-9 sm:h-10"
-                          src="https://tailwindui.com/img/logos/tuple-logo-gray-400.svg"
-                          alt="Tuple"
-                        />
+                        {/* <Image */}
+                        {/*   className="h-9 sm:h-10" */}
+                        {/*   src="https://tailwindui.com/img/logos/tuple-logo-gray-400.svg" */}
+                        {/*   alt="Tuple" */}
+                        {/* /> */}
                       </div>
                       <div className="flex justify-center px-1">
                         <Image
                           className="h-9 sm:h-10 invert"
-                          src="./arweave.png"
-                          alt="Workcation"
+                          src="/arweave.png"
+                          alt="Arweave"
+                          height="28"
+                          width="130"
                         />
                       </div>
                       <div className="flex justify-center px-1">
-                        <Image
-                          className="h-9 sm:h-10"
-                          src="https://tailwindui.com/img/logos/statickit-logo-gray-400.svg"
-                          alt="StaticKit"
-                        />
+                        {/* <Image */}
+                        {/*   className="h-9 sm:h-10" */}
+                        {/*   src="https://tailwindui.com/img/logos/statickit-logo-gray-400.svg" */}
+                        {/*   alt="StaticKit" */}
+                        {/*   height="28" */}
+                        {/*   width="28" */}
+                        {/* /> */}
                       </div>
                     </div>
                   </div>
