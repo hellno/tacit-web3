@@ -8,7 +8,8 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   extends: [
     'standard',
-    'plugin:node/recommended'
+    'plugin:node/recommended',
+    'plugin:@next/next/recommended'
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
