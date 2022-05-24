@@ -1,8 +1,18 @@
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
-  env: {},
+  env: {
+    WEB3STORAGE_TOKEN: process.env.WEB3STORAGE_TOKEN,
+    SITE: process.env.SITE
+  },
   images: {
     domains: ['images.unsplash.com']
-  }
+  },
+  exclude:
+    [
+      'node_modules',
+      '**/__tests__',
+      '**/*.test.js',
+      '**/*.spec.js'
+    ]
 }

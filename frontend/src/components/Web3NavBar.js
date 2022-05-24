@@ -13,11 +13,10 @@ const navigation = [// {name: 'Product', href: '#'},
   // {name: 'Company', href: '#'},
 ]
 
-const Web3NavBar = ({
-  web3Modal
-}) => {
+const Web3NavBar = () => {
   const [state, dispatch] = useContext(AppContext)
   const {
+    web3Modal,
     account
   } = state
   const isWalletConnected = !isEmpty(account)

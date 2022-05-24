@@ -1,3 +1,4 @@
+/* eslint no-unused-vars: 0 */
 export enum SharePageState {
   Default,
   ShareIntent,
@@ -22,3 +23,12 @@ export const solveStates = [
   SharePageState.SuccessSubmitSolve,
   SharePageState.FailSubmitSolve
 ]
+
+export enum CreateTaskState {
+  Default,
+  ErrorCreatingTask,
+  DoneCreatingTask,
+}
+
+// MUST BE SYNCED TO ENUM DEFINED IN SMART CONTRACT
+export enum NodeType {Task, Solution, Share}

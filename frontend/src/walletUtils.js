@@ -1,8 +1,8 @@
-import abi from './abi/TaskPortal.json'
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk'
 import WalletConnect from '@walletconnect/web3-provider'
 import { ethers } from 'ethers'
 import { isEmpty, truncate } from 'lodash'
+import Web3Modal from 'web3modal'
 
 /**
  * @param {number} chainId
@@ -13,13 +13,12 @@ export const getUserFriendlyNameForChainId = (chainId) => {
       return 'Ethereum'
     case 5:
       return 'Görli Testnet'
+    case 1338:
+      return 'Foundry Local Testnet'
     default:
       return ''
   }
 }
-
-export const contractABI = abi.abi
-export const contractAddress = '0xAb3160358410B2912f319C2Ec61a6d88bF138520'
 
 export const providerOptions = {
   coinbasewallet: {
@@ -42,26 +41,41 @@ export const connectWallet = async (web3Modal, dispatch) => {
     const provider = await web3Modal.connect()
     const library = new ethers.providers.Web3Provider(provider)
     const accounts = await library.listAccounts()
-    const network = await library.getNetwork()
 
+    let network = null
+    try {
+      network = await library.getNetwork()
+    } catch (e) {
+      console.log('failed to get network', e)
+    }
+    let account = null
+    if (!isEmpty(accounts)) {
+      account = accounts[0]
+    }
     dispatch({
       type: 'SET_STATE',
       state: {
         provider,
         library,
-        network,
-        account: accounts[0]
+        account,
+        network
       }
     })
   } catch (error) {
-    switch (error.code) {
-      case -32602:
-        // setTaskSubmissionState(TaskSubmissionState.UserRejected)
-        break
-      default:
-        break
-    }
     console.error(error)
+  }
+}
+
+export const handleChainInteractionError = (error) => {
+  switch (error.code) {
+    case -32602:
+      // User Rejected OR Error processing the transaction
+      break
+    case -32003:
+      // out of gas
+      break
+    default:
+      break
   }
 }
 
@@ -81,4 +95,21 @@ export const renderWalletConnectComponent = (account, web3Modal, dispatch) => {
         Connect Wallet
       </button>}
   </div>
+}
+
+export const loadWeb3Modal = (dispatch) => {
+  const web3Modal = new Web3Modal({
+    network: 'localhost', // optional
+    cacheProvider: true, // optional
+    providerOptions // required
+  })
+
+  dispatch({
+    type: 'SET_WEB3_MODAL',
+    web3Modal
+  })
+
+  if (web3Modal.cachedProvider) {
+    connectWallet(web3Modal, dispatch)
+  }
 }

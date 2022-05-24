@@ -2,7 +2,7 @@ import { Fragment, useContext } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/solid'
 import { isEmpty, map, startCase } from 'lodash'
-import { DEPLOYED_CONTRACTS, isSupportedNetwork } from '../utilsDeployedContracts'
+import { DEPLOYED_CONTRACTS, isSupportedNetwork } from '../constDeployedContracts'
 import { getUserFriendlyNameForChainId } from '../walletUtils'
 import { classNames } from '../utils'
 import { toHex } from 'web3-utils'
@@ -16,10 +16,10 @@ const Web3ChainSwitcher = () => {
   } = state
 
   if (isEmpty(DEPLOYED_CONTRACTS) || isEmpty(network)) {
-    return
+    return <></>
   }
-  const { chainId } = network
 
+  const { chainId } = network
   const disconnectWallet = () => {
     dispatch({
       type: 'SET_PROVIDER',
@@ -102,7 +102,7 @@ const Web3ChainSwitcher = () => {
             </Menu.Item>
             {map(chains, (chain) => {
               return (
-                <Menu.Item>
+                <Menu.Item key={chain.chainId}>
                   {({ active }) => (
                     <button
                       onClick={() => switchNetwork(chain.chainId)}
@@ -125,7 +125,7 @@ const Web3ChainSwitcher = () => {
             <Menu.Item>
               {({ active }) => (
                 <button
-                  onClick={disconnectWallet}
+                  onClick={() => disconnectWallet()}
                   className={classNames(
                     active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
                     'w-full text-left block px-4 py-2 text-sm'
