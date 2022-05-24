@@ -38,13 +38,16 @@ export default async function handler (req, res) {
     res.status(200).json({})
   }
 
-  const defaultChainId = 1338
-  const chainId = defaultChainId
+  const chainId = 5 // 1338 // local
   console.log('shareId')
   try {
-    const network = ' http://127.0.0.1:8545/'
-    const provider = new ethers.providers.JsonRpcProvider(network)
-    // const alchemyProvider = new ethers.providers.AlchemyProvider(goerli, process.env.ALCHEMY_API_KEY)
+    // const network = ' http://127.0.0.1:8545/'
+    // const provider = new ethers.providers.JsonRpcProvider(network)
+    const network = {
+      name: 'goerli',
+      chainId: 5
+    }
+    const provider = new ethers.providers.AlchemyProvider(network, process.env.ALCHEMY_API_KEY)
 
     // Signer
     const signer = new ethers.Wallet(process.env.STAGING_PRIVATE_KEY, provider)
