@@ -42,8 +42,8 @@ export default function CreateTaskComponent ({
     defaultValues: {
       email: 'test@test.com',
       title: 'this is a sweet test title',
-      description: 'amazing test description'
-      // tokenAmount: '0.01'
+      description: 'amazing test description',
+      tokenAmount: '0.01'
     }
   })
 
@@ -109,7 +109,7 @@ export default function CreateTaskComponent ({
         tokenAmount = tokenAmount * 10 ** tokenAddressToDecimals[tokenAddress]
         // need to check that contract has enough allowance to withdraw tokens
       }
-      const gasPrice = ethers.utils.parseUnits('1', 'gwei')
+      const gasPrice = ethers.utils.parseUnits('100', 'gwei')
       const gasLimit = 3000000
       options = {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
