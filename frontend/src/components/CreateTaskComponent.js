@@ -17,6 +17,8 @@ import {
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
 
+const unit = require('ethjs-unit')
+
 const CreateTaskState = require('../const.ts').CreateTaskState
 
 export default function CreateTaskComponent ({
@@ -40,8 +42,8 @@ export default function CreateTaskComponent ({
     defaultValues: {
       email: 'test@test.com',
       title: 'this is a sweet test title',
-      description: 'amazing test description',
-      tokenAmount: 1
+      description: 'amazing test description'
+      // tokenAmount: '0.01'
     }
   })
 
@@ -84,27 +86,30 @@ export default function CreateTaskComponent ({
     const dataPath = await uploadTaskDataToIpfs({
       title,
       description
-    }).then(uploadUserDataToSupabase({
-      email,
-      account
-    }))
+    })
+    // uploadUserDataToSupabase({
+    //   email,
+    //   account
+    // })
 
-    // const dataPath = ethers.utils.toUtf8Bytes('bafybeigyhfbk2s3pbt34qdyrxpst2wbqengha3n7eziqkv4krbavvjo5mm/1c21055d221e684d8739678a1e51a474')
+    // const dataPath = ethers.utils.toUtf8Bytes('bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d')
     try {
+      console.log('create contract instance')
       const signer = library.getSigner()
       const { contractAddress } = getDeployedContractForChainId(network.chainId)
       const taskPortalContract = new ethers.Contract(contractAddress, contractABI, signer)
 
+      console.log('create options payload for on-chain transaction')
       let options = {}
       if (isEthBounty) {
-        const tokenAmountInWei = tokenAmount * 10 ** 18
-        options = { value: ethers.utils.parseUnits(tokenAmountInWei.toString(), 'wei') }
+        tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
+        options = { value: tokenAmount }
       } else {
         tokenAmount = tokenAmount * 10 ** tokenAddressToDecimals[tokenAddress]
         // need to check that contract has enough allowance to withdraw tokens
       }
-      const gasPrice = ethers.utils.parseUnits('10', 'gwei')
-      const gasLimit = 30000000
+      const gasPrice = ethers.utils.parseUnits('1', 'gwei')
+      const gasLimit = 3000000
       options = {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
         ...options,
@@ -114,6 +119,7 @@ export default function CreateTaskComponent ({
           gasLimit
         }
       }
+      console.log('creating on-chain transaction with options', options)
       const addTaskTransaction = await taskPortalContract.addTask(dataPath, tokenAddress, tokenAmount, options)
       console.log('Waiting to add the task on-chain...', addTaskTransaction.hash)
       const res = await addTaskTransaction.wait()

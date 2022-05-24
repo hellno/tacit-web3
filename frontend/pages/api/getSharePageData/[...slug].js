@@ -52,7 +52,7 @@ export default async function handler (req, res) {
 
     const { contractAddress } = getDeployedContractForChainId(chainId)
     const taskPortalContract = new ethers.Contract(contractAddress, contractABI, signer)
-    const nodesResult = await taskPortalContract.nodes(shareId)
+    const nodesResult = await taskPortalContract.getNode(shareId)
     console.log('response from getNode with shareId', nodesResult)
     const { taskPath } = nodesResult
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskPath)
