@@ -5,7 +5,7 @@ import { ethers } from 'ethers'
 export const DEPLOYED_CONTRACTS = [{
   chainId: 5,
   name: 'Görli Testnet',
-  contractAddress: '0xa1d5a33b8e1936690de2a042806ba0c2dbbb379c'
+  contractAddress: '0xcafda016ed4c37464318e3f73d66fe9c92d1f2d4'
 }, {
   chainId: 1337,
   name: 'Local Hardhat Testnet',
