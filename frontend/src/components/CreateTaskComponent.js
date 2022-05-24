@@ -66,6 +66,7 @@ export default function CreateTaskComponent ({
       })
   }
 
+  // eslint-disable-next-line no-unused-vars
   const uploadUserDataToSupabase = async (data) => {
 
   }
