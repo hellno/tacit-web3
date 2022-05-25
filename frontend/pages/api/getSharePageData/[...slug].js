@@ -53,22 +53,11 @@ export default async function handler (req, res) {
     // const signer = new ethers.Wallet(process.env.STAGING_PRIVATE_KEY, provider)
     const { contractAddress } = getDeployedContractForChainId(chainId)
     const taskPortalContract = new ethers.Contract(contractAddress, contractABI, provider)
-
-    // console.log('contract code exists', await provider.getCode(contractAddress))
-    const allTasks = await taskPortalContract.getAllTasks()
-    console.log('all tasks:', allTasks)
-    for (const task of allTasks) {
-      const taskResult = await getNodeFromContractAsObject(taskPortalContract, task)
-      console.log('taskResult', taskResult)
-    }
-    console.log('getting node from contract with id: ', shareId)
     const nodesResult = await getNodeFromContractAsObject(taskPortalContract, shareId)
-    console.log('response from getNode with shareId', nodesResult)
     const { taskPath } = nodesResult
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskPath)
-
-    console.log('taskNodeData', taskNodeData)
     const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
+
     console.log('ipfsPath', ipfsPath)
     const [cid, fname] = ipfsPath.split('/')
     const taskObject = await getObjectInIPFS(cid, fname)

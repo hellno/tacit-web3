@@ -3,7 +3,7 @@ module.exports = {
   reactStrictMode: true,
   env: {
     WEB3STORAGE_TOKEN: process.env.WEB3STORAGE_TOKEN,
-    SITE: process.env.SITE
+    SITE: process.env.SITE || process.env.VERCEL_URL
   },
   images: {
     domains: ['images.unsplash.com']
