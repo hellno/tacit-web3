@@ -117,15 +117,14 @@ export default function CreateTaskComponent ({
       const gasLimit = 3000000
       options = {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
-        ...options,
-        // eslint-disable-next-line node/no-unsupported-features/es-syntax
+        ...options, // eslint-disable-next-line node/no-unsupported-features/es-syntax
         ...{
           gasPrice,
           gasLimit
         }
       }
       console.log('creating on-chain transaction with options', options)
-      const addTaskTransaction = await taskPortalContract.addTask(dataPath, tokenAddress, tokenAmount, options)
+      const addTaskTransaction = await taskPortalContract.addTask(ethers.utils.toUtf8Bytes(dataPath), tokenAddress, tokenAmount, options)
       console.log('Waiting to add the task on-chain...', addTaskTransaction.hash)
       const res = await addTaskTransaction.wait()
       console.log('Transaction successfully executed:', addTaskTransaction, res)
@@ -218,8 +217,8 @@ export default function CreateTaskComponent ({
               {isWalletConnected
                 ? renderWalletAddressInputField(account)
                 : (<div className="mt-1">
-                  {renderWalletConnectComponent(account, web3Modal, dispatch)}
-                </div>)}
+                {renderWalletConnectComponent(account, web3Modal, dispatch)}
+              </div>)}
             </div>
             {renderFormField({
               register,
@@ -274,6 +273,5 @@ export default function CreateTaskComponent ({
           Thank you for being early (🫡, 🫡)
         </p>
       </div>
-    </>
-  )
+    </>)
 }
