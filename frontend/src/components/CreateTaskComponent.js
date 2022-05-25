@@ -16,6 +16,7 @@ import {
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
+import { sleep } from '../utils'
 
 const unit = require('ethjs-unit')
 
@@ -81,20 +82,22 @@ export default function CreateTaskComponent ({
   }) => {
     if (!library || !network) {
       console.log('Wallet provider object doesn\'t exist!')
-      setState('TASK_ERROR_LOCAL_CONNECT')
+      setState({ name: CreateTaskState.ErrorWalletConnect })
       return
     }
 
-    // const dataPath = await uploadTaskDataToIpfs({
-    //   title,
-    //   description
-    // })
+    setState({ name: CreateTaskState.PendingUploadToIpfs })
+    const dataPath = await uploadTaskDataToIpfs({
+      title,
+      description
+    })
     // uploadUserDataToSupabase({
     //   email,
     //   account
     // })
 
-    const dataPath = ethers.utils.toUtf8Bytes('bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d')
+    setState({ name: CreateTaskState.PendingContractTransaction })
+    // const dataPath = ethers.utils.toUtf8Bytes('bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d')
     try {
       console.log('create contract instance')
       const signer = library.getSigner()
@@ -133,6 +136,9 @@ export default function CreateTaskComponent ({
         taskPath: shareEvent.args.parent,
         sharePath: shareEvent.args.path
       }
+
+      await sleep(1000) // just a random wait, so that the transaction actually shows up in etherscan and share link will work
+      // todo: maybe we can trigger a render of the share page in the background, so it's cached already??!?
       console.log('setting data in state', data)
       setState({
         name: CreateTaskState.DoneCreatingTask,
@@ -198,8 +204,7 @@ export default function CreateTaskComponent ({
 
   const onFormSubmit = handleSubmit(handleFormSubmit)
 
-  return (<div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
-    <div className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-sm sm:overflow-hidden">
+  return (<>
       <div className="px-4 py-8 sm:px-10">
         <div className="mt-6">
           <form onSubmit={onFormSubmit} className="space-y-6">
@@ -266,23 +271,9 @@ export default function CreateTaskComponent ({
       </div>
       <div className="px-4 py-6 bg-gray-50 border-t-2 border-gray-200 sm:px-10">
         <p className="text-xs leading-5 text-gray-500">
-          By signing up, you agree to be{' '}
-          <a
-            href="#"
-            className="font-medium text-gray-900 hover:underline"
-          >
-            kind
-          </a>{' '}
-          and{' '}
-          <a
-            href="#"
-            className="font-medium text-gray-900 hover:underline"
-          >
-            extra chill
-          </a>
-          .
+          Thank you for being early (🫡, 🫡)
         </p>
       </div>
-    </div>
-  </div>)
+    </>
+  )
 }

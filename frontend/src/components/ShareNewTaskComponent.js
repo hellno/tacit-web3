@@ -20,8 +20,7 @@ const ShareNewTaskComponent = ({
   const transactionLink = `${blockExplorerForChain}/tx/${state.data.transactionHash}`
   const userTasksLink = `${process.env.SITE}/tasks/${globalState.account}`
 
-  return (<div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
-    <div className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-sm sm:overflow-hidden">
+  return (<>
       <div className="px-4 py-8 sm:px-10">
         <div className="mt-6">
           <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
@@ -85,8 +84,7 @@ const ShareNewTaskComponent = ({
           Thank you for being early (🫡, 🫡)
         </p>
       </div>
-    </div>
-  </div>)
+    </>)
 }
 
 export default ShareNewTaskComponent

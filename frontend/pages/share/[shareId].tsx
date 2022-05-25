@@ -58,7 +58,7 @@ export default function SharePage () {
   // } = {
   //   taskObject: exampleSharePageObject,
   //   isError: false,
-  //   isLoading: false
+  //   isLoading: true
   // }
   // useEffect(() => {
   //   setIsLoading(isLoading)
@@ -72,11 +72,15 @@ export default function SharePage () {
 
   if (isError) return <div>failed to load - this should not happen</div>
   if (isLoading) {
-    return <div>
-      <div className="animate-pulse flex max-w-lg">
-        <div className="h-4 w-32 bg-slate-200 rounded">Loading</div>
+    return <main className="mt-16 mx-auto max-w-7xl px-4 sm:mt-24">
+      <div className="item-center text-center">
+        <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+          <span className="block xl:inline"><p className="animate-pulse flex max-w-lg">
+            Loading
+          </p></span>
+        </h1>
       </div>
-    </div>
+    </main>
   }
 
   // console.log('test retrieving IPFS data')

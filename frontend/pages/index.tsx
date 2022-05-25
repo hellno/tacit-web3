@@ -10,9 +10,20 @@ import { get } from 'lodash'
 import { CreateTaskState } from '../src/const'
 import ShareNewTaskComponent from '../src/components/ShareNewTaskComponent'
 
+const exampleSuccessStateData = {
+  transactionHash: '0xd852a40d8bd87f34315f7fc0280a31df974bf0089fed2c8f49df38759a43f755',
+  taskPath: '0xd57faf7a3206b1ba5e791ec7a2dc5a2ab5bfbdd6ee81a1bb4fd5c5c6b6ed4768',
+  sharePath: '0xb698c3b07d39d2d9ea1867f042ab8c62f1ddbcda185e55cee33cdd041d84dd46'
+
+}
+
 export default function Home () {
   const [, dispatch] = useContext(AppContext)
-  const [taskSubmissionState, setTaskSubmissionState] = useState<CreateTaskState>(CreateTaskState.Default)
+  const [taskSubmissionState, setTaskSubmissionState] = useState({ name: CreateTaskState.Default })
+  // const [taskSubmissionState, setTaskSubmissionState] = useState({
+  //   name: CreateTaskState.DoneCreatingTask,
+  //   data: exampleSuccessStateData
+  // })
 
   useEffect(() => {
     if (window.ethereum) {
@@ -30,6 +41,110 @@ export default function Home () {
   useEffect(() => {
     loadWeb3Modal(dispatch)
   }, [])
+
+  const renderTaskComponent = () => {
+    return (<div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
+        <div className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-sm sm:overflow-hidden">
+          {getTaskComponentDependingOnState()}
+        </div>
+      </div>
+    )
+  }
+
+  function getTaskComponentDependingOnState () {
+    const stateName = get(taskSubmissionState, 'name')
+    // todo: handle user rejection state etc
+    switch (stateName) {
+      case CreateTaskState.Default:
+        return <CreateTaskComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
+      case CreateTaskState.PendingUploadToIpfs:
+        return <div className="px-4 py-8 sm:px-10">
+          <div className="mt-0">
+            {renderStepIndicator(1)}
+          </div>
+        </div>
+      case CreateTaskState.PendingContractTransaction:
+        return <div className="px-4 py-8 sm:px-10">
+          <div className="mt-0">
+            {renderStepIndicator(2)}
+          </div>
+        </div>
+      case CreateTaskState.DoneCreatingTask:
+        return <>
+          <div className="mt-8">{renderStepIndicator(3)}</div>
+          <ShareNewTaskComponent state={taskSubmissionState} />
+        </>
+      default:
+        return <div className="px-4 py-8 sm:px-10">
+          <div className="mt-0">
+            Error - you shouldn't see this :)
+            <div className="mt-5 sm:mt-2 sm:flex-shrink-0 sm:flex sm:items-center">
+              <button
+                onClick={() => setTaskSubmissionState({ name: CreateTaskState.Default })}
+                type="button"
+                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:text-sm"
+              >
+                Start over
+              </button>
+            </div>
+            {/* {get(taskSubmissionState, 'error')} */}
+          </div>
+        </div>
+    }
+  }
+
+  const renderStepIndicator = (currStepId) => {
+    const steps = [
+      {
+        name: 'Step 1',
+        href: '#',
+        status: 'complete'
+      },
+      {
+        name: 'Step 2',
+        href: '#',
+        status: 'current'
+      },
+      {
+        name: 'Step 3',
+        href: '#',
+        status: 'upcoming'
+      },
+      {
+        name: 'Step 4',
+        href: '#',
+        status: 'upcoming'
+      }
+    ]
+    return <nav className="flex items-center justify-center" aria-label="Progress">
+      <p className="text-sm font-medium">
+        Step {currStepId + 1} of {steps.length}
+      </p>
+      <ol role="list" className="ml-8 flex items-center space-x-5">
+        {steps.map((step, idx) => (
+          <li key={step.name}>
+            {idx < currStepId ? (
+              <div className="block w-2.5 h-2.5 bg-indigo-600 rounded-full hover:bg-indigo-900">
+                <span className="sr-only">{step.name}</span>
+              </div>
+            ) : idx === currStepId ? (
+              <div className="relative flex items-center justify-center" aria-current="step">
+                <span className="absolute w-5 h-5 p-px flex" aria-hidden="true">
+                  <span className="w-full h-full rounded-full bg-indigo-200" />
+                </span>
+                <span className="relative block w-2.5 h-2.5 bg-indigo-600 rounded-full" aria-hidden="true" />
+                <span className="sr-only">{step.name}</span>
+              </div>
+            ) : (
+              <div className="block w-2.5 h-2.5 bg-gray-200 rounded-full hover:bg-gray-400">
+                <span className="sr-only">{step.name}</span>
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  }
 
   // @ts-ignore
   return (
@@ -106,10 +221,7 @@ export default function Home () {
                   </div>
                 </div>
               </div>
-              {get(taskSubmissionState, 'name') === CreateTaskState.DoneCreatingTask
-                ? <ShareNewTaskComponent state={taskSubmissionState} />
-                : <CreateTaskComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
-              }
+              {renderTaskComponent()}
             </div>
           </div>
         </main>
