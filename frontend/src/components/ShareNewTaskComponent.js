@@ -17,7 +17,7 @@ const ShareNewTaskComponent = ({
   const blockExplorerForChain = 'https://etherscan.io'
 
   const taskShareLink = `${process.env.SITE}/share/${state.data.sharePath}`
-  const transactionLink = `${blockExplorerForChain}/transaction/${state.data.transactionHash}`
+  const transactionLink = `${blockExplorerForChain}/tx/${state.data.transactionHash}`
   const userTasksLink = `${process.env.SITE}/tasks/${globalState.account}`
 
   return (<div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">

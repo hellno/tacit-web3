@@ -5,7 +5,7 @@ import { ethers } from 'ethers'
 export const DEPLOYED_CONTRACTS = [{
   chainId: 5,
   name: 'Görli Testnet',
-  contractAddress: '0xcafda016ed4c37464318e3f73d66fe9c92d1f2d4'
+  contractAddress: '0x32aabdef1fdb495fc73160d529752bea125f812b'
 }, {
   chainId: 1337,
   name: 'Local Hardhat Testnet',
@@ -35,6 +35,19 @@ export const tokenAddressToDecimals = {
 
 export const isEthBounty = (tokenAddress) => tokenAddress === ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT
 export const contractABI = abi.abi
+
+export const getNodeFromContractAsObject = async (contract, nodePath) => {
+  const [parent, owner, nodeType, data, nodes, isOpen, taskPath] = await contract.getNode(nodePath)
+  return {
+    parent,
+    owner,
+    nodeType,
+    data,
+    nodes,
+    isOpen,
+    taskPath
+  }
+}
 
 export const getTaskFromContractAsObject = async (contract, taskPath) => {
   let [ownerAddress, taskData, taskIsOpen, bountyTokenAddress, bountyAmount] = await contract.getTask(taskPath)

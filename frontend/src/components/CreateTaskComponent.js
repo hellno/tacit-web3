@@ -110,7 +110,7 @@ export default function CreateTaskComponent ({
         tokenAmount = tokenAmount * 10 ** tokenAddressToDecimals[tokenAddress]
         // need to check that contract has enough allowance to withdraw tokens
       }
-      const gasPrice = ethers.utils.parseUnits('100', 'gwei')
+      const gasPrice = ethers.utils.parseUnits('5', 'gwei')
       const gasLimit = 3000000
       options = {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax

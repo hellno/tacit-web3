@@ -270,7 +270,7 @@ export default function SharePage () {
                       WAGMI
                     </span>
                 <span className="ml-4 text-sm">
-                      Thank you for being here {sharePageState}
+                      Thank you for being here
                     </span>
                 <ChevronRightIcon
                   className="ml-2 w-5 h-5 text-gray-500"

@@ -2,6 +2,7 @@ import { ethers } from 'ethers'
 import {
   contractABI,
   getDeployedContractForChainId,
+  getNodeFromContractAsObject,
   getTaskFromContractAsObject
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
@@ -32,36 +33,43 @@ export default async function handler (req, res) {
   } = req
 
   console.log('slug is', slug)
-  // const [shareId, chainId] = slug
-  const [shareId] = slug
+  let [shareId, chainId] = slug
   if (isUndefined(shareId) || shareId === 'undefined') {
     res.status(200).json({})
+    return
   }
 
-  const chainId = 5 // 1338 // local
-  console.log('shareId')
+  chainId = 5 // 1338 // local
   try {
     // const network = ' http://127.0.0.1:8545/'
     // const provider = new ethers.providers.JsonRpcProvider(network)
-    const network = {
-      name: 'goerli',
-      chainId: 5
-    }
-    const provider = new ethers.providers.AlchemyProvider(network, process.env.ALCHEMY_API_KEY)
+    // const network = {
+    //   name: 'goerli',
+    //   chainId: 5
+    // }
+    // const provider = new ethers.providers.AlchemyProvider('goerli', process.env.ALCHEMY_API_KEY)
+    const provider = new ethers.providers.JsonRpcProvider(process.env.STAGING_ALCHEMY_URL)
 
-    // Signer
-    const signer = new ethers.Wallet(process.env.STAGING_PRIVATE_KEY, provider)
-    // const signer = VoidSigner('0x5fbdb2315678afecb367f032d93f642f64180aa3', provider)
-
+    // const signer = new ethers.Wallet(process.env.STAGING_PRIVATE_KEY, provider)
     const { contractAddress } = getDeployedContractForChainId(chainId)
-    const taskPortalContract = new ethers.Contract(contractAddress, contractABI, signer)
-    const nodesResult = await taskPortalContract.getNode(shareId)
+    const taskPortalContract = new ethers.Contract(contractAddress, contractABI, provider)
+
+    // console.log('contract code exists', await provider.getCode(contractAddress))
+    const allTasks = await taskPortalContract.getAllTasks()
+    console.log('all tasks:', allTasks)
+    for (const task of allTasks) {
+      const taskResult = await getNodeFromContractAsObject(taskPortalContract, task)
+      console.log('taskResult', taskResult)
+    }
+    console.log('getting node from contract with id: ', shareId)
+    const nodesResult = await getNodeFromContractAsObject(taskPortalContract, shareId)
     console.log('response from getNode with shareId', nodesResult)
     const { taskPath } = nodesResult
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskPath)
-    // const taskNodeResult = await taskPortalContract.getTask(taskPath)
+
     console.log('taskNodeData', taskNodeData)
     const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
+    console.log('ipfsPath', ipfsPath)
     const [cid, fname] = ipfsPath.split('/')
     const taskObject = await getObjectInIPFS(cid, fname)
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
