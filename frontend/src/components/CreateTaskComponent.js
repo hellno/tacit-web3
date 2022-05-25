@@ -51,6 +51,7 @@ export default function CreateTaskComponent ({
     addTask(formData)
   }
 
+  // eslint-disable-next-line no-unused-vars
   const uploadTaskDataToIpfs = async (data) => {
     console.log('starting to upload form data to ipfs')
     const fname = generateHashForObject(data)
@@ -84,16 +85,16 @@ export default function CreateTaskComponent ({
       return
     }
 
-    const dataPath = await uploadTaskDataToIpfs({
-      title,
-      description
-    })
+    // const dataPath = await uploadTaskDataToIpfs({
+    //   title,
+    //   description
+    // })
     // uploadUserDataToSupabase({
     //   email,
     //   account
     // })
 
-    // const dataPath = ethers.utils.toUtf8Bytes('bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d')
+    const dataPath = ethers.utils.toUtf8Bytes('bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d')
     try {
       console.log('create contract instance')
       const signer = library.getSigner()
