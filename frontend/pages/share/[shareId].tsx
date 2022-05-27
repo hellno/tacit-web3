@@ -29,7 +29,9 @@ const exampleSharePageObject = {
 
 export async function getStaticProps ({ params }) {
   const { shareId } = params
-  const res = await fetch(`${process.env.SITE}/api/getSharePageData/${shareId}/`)
+  console.log('getStaticProps with', shareId, process.env.SITE)
+  const apiUrl = `${process.env.SITE}/api/getSharePageData/${shareId}/`
+  const res = await fetch(apiUrl)
   const taskObject = await res.json()
   return {
     props: {
