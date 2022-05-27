@@ -7,6 +7,7 @@ const _contracts = [{
   name: 'Görli Testnet',
   contractAddress: '0x32aabdef1fdb495fc73160d529752bea125f812b'
 }]
+
 export const getDeployedContracts = () => {
   let contracts = _contracts
 

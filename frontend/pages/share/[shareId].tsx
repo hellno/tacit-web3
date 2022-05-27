@@ -29,8 +29,9 @@ const exampleSharePageObject = {
 
 export async function getStaticProps ({ params }) {
   const { shareId } = params
-  console.log('getStaticProps with', shareId, process.env.SITE)
-  const apiUrl = `${process.env.SITE}/api/getSharePageData/${shareId}/`
+  const apiEndpoint = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
+  const apiUrl = `${apiEndpoint}/api/getSharePageData/${shareId}/`
+  console.log('getStaticProps with internal API URL', apiUrl)
   const res = await fetch(apiUrl)
   const taskObject = await res.json()
   return {

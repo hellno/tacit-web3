@@ -27,7 +27,6 @@ export default async function handler (req, res) {
   const {
     query: {
       slug
-      // chainId
     }
     // method
   } = req
@@ -39,18 +38,20 @@ export default async function handler (req, res) {
     return
   }
 
-  chainId = 5 // 1338 // local
-  try {
-    // const network = ' http://127.0.0.1:8545/'
-    // const provider = new ethers.providers.JsonRpcProvider(network)
-    // const network = {
-    //   name: 'goerli',
-    //   chainId: 5
-    // }
-    // const provider = new ethers.providers.AlchemyProvider('goerli', process.env.ALCHEMY_API_KEY)
-    const provider = new ethers.providers.JsonRpcProvider(process.env.STAGING_ALCHEMY_URL)
+  if (isUndefined(chainId) || chainId === 'undefined') {
+    chainId = 5 // 1338 // local
+  }
 
-    // const signer = new ethers.Wallet(process.env.STAGING_PRIVATE_KEY, provider)
+  let provider
+
+  if (process.env.NODE_ENV === 'development' && process.env.USE_LOCAL_NODE) {
+    const url = ' http://127.0.0.1:8545/'
+    provider = new ethers.providers.JsonRpcProvider(url)
+  } else {
+    provider = new ethers.providers.AlchemyProvider('goerli', process.env.ALCHEMY_API_KEY)
+  }
+
+  try {
     const { contractAddress } = getDeployedContractForChainId(chainId)
     const taskPortalContract = new ethers.Contract(contractAddress, contractABI, provider)
     const nodesResult = await getNodeFromContractAsObject(taskPortalContract, shareId)
