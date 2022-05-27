@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { CheckCircleIcon, ChevronRightIcon } from '@heroicons/react/solid'
-import { includes, isEmpty } from 'lodash'
+import { get, includes, invert, isEmpty } from 'lodash'
 import { useForm } from 'react-hook-form'
 import { loadWeb3Modal, renderWalletConnectComponent } from '../../src/walletUtils'
 import { sleep } from '../../src/utils'
@@ -15,6 +15,8 @@ import { renderWalletAddressInputField } from '../../src/formUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import BlockiesComponent from '../../src/components/BlockiesComponent'
+import { isEthBounty, nameToTokenAddress } from '../../src/constDeployedContracts'
+import { ethers } from 'ethers'
 
 // eslint-disable-next-line no-unused-vars
 const exampleSharePageObject = {
@@ -253,6 +255,17 @@ export default function SharePage ({ taskObject }) {
   const renderShareModal = includes(shareStates, sharePageState)
   const renderSolveModal = includes(solveStates, sharePageState)
 
+  const renderBounty = () => {
+    if (isEthBounty(taskObject.bountyTokenAddress)) {
+      return `${taskObject.bountyAmount} ETH`
+    } else {
+      const tokenAmountStr = ethers.utils.formatUnits(taskObject.bountyAmount)
+      const userTokenAmount = Math.round((parseFloat(tokenAmountStr) + Number.EPSILON) * 100) / 100
+      const tokenCurrency = get(invert(nameToTokenAddress), taskObject.bountyTokenAddress)
+      return `${userTokenAmount} ${tokenCurrency}`
+    }
+  }
+
   function renderPageContent () {
     if (isEmpty(taskObject)) {
       return <></>
@@ -267,13 +280,13 @@ export default function SharePage ({ taskObject }) {
                 href="#"
                 className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base hover:text-gray-200"
               >
-                    <span
-                      className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
-                      WAGMI
-                    </span>
+                <span
+                  className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
+                  WAGMI
+                </span>
                 <span className="ml-4 text-sm">
-                      Thank you for being here
-                    </span>
+                  Thank you for being here
+                </span>
                 <ChevronRightIcon
                   className="ml-2 w-5 h-5 text-gray-500"
                   aria-hidden="true"
@@ -283,72 +296,70 @@ export default function SharePage ({ taskObject }) {
                 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                 {/* <span className="md:block">asdasd</span>{' '} */}
                 <span className="text-yellow-400 md:block">
-                      {taskObject.title}
-                    </span>
+                  {taskObject.title}
+                </span>
               </h1>
-              <div className="">
-                <div className="lg:max-w-6xl lg:mx-auto">
-                  <div className="py-6 md:flex md:items-center md:justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center">
-
-                        <BlockiesComponent
-                          opts={{
-                            seed: taskObject.ownerAddress,
-                            color: '#dfe'
-                            // size: 15
-                            // scale: 3,
-                          }} />
-                        {/* <Image */}
-                        {/*   className="hidden h-16 w-16 rounded-full sm:block" */}
-                        {/*   // src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80" */}
-                        {/*   src={`url(${blockies.create({ */}
-                        {/*     seed: taskObject.ownerAddress, */}
-                        {/*     size: 8, */}
-                        {/*     scale: 16 */}
-                        {/*   }).toDataURL()})`} */}
-                        {/*   alt="" */}
-                        {/*   width="50" */}
-                        {/*   height="50" */}
-                        {/* /> */}
-                        <div>
-                          <div className="flex items-center">
-                            {/* <Image */}
-                            {/*   className="h-12 w-12 rounded-full sm:hidden" */}
-                            {/*   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80" */}
-                            {/*   alt="" */}
-                            {/*   width="30" */}
-                            {/*   height="30" */}
-                            {/* /> */}
-                            <h1
-                              className="ml-3 text-xl font-bold leading-7 text-gray-100 sm:leading-9 sm:truncate">
-                              {taskObject
-                                ? taskObject.ownerAddress
-                                : (<div className="animate-pulse flex max-w-lg">
-                                  <div className="h-4 w-32 bg-slate-200 rounded">Loading</div>
-                                </div>)}
-                            </h1>
-                          </div>
-                          <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
-                            {/* <dt className="sr-only">Created at</dt> */}
-                            {/* <dd className="flex items-center text-sm text-gray-400 font-medium capitalize sm:mr-6"> */}
-                            {/*   <ClockIcon */}
-                            {/*     className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" */}
-                            {/*     aria-hidden="true" */}
-                            {/*   /> */}
-                            {/*   {taskObject.createdAt} */}
-                            {/* </dd> */}
-                            <dt className="sr-only">Account status</dt>
-                            <dd
-                              className="mt-3 flex items-center text-sm text-gray-400 font-medium sm:mr-6 sm:mt-0 capitalize">
-                              <CheckCircleIcon
-                                className="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400"
-                                aria-hidden="true"
-                              />
-                              Verified account
-                            </dd>
-                          </dl>
+              <h1
+                className="mt-2 text-2xl tracking-tight font-bold text-white sm:leading-none lg:mt-2 lg:text-2xl xl:text-4xl">
+                {/* <span className="md:block">asdasd</span>{' '} */}
+                Bounty: {renderBounty()}
+              </h1>
+              <div className="lg:max-w-6xl lg:mx-auto">
+                <div className="py-6 md:flex md:items-center md:justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center">
+                      <BlockiesComponent
+                        opts={{
+                          seed: taskObject.ownerAddress,
+                          color: '#dfe'
+                          // size: 15
+                          // scale: 3,
+                        }} />
+                      {/* <Image */}
+                      {/*   className="hidden h-16 w-16 rounded-full sm:block" */}
+                      {/*   // src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80" */}
+                      {/*   src={`url(${blockies.create({ */}
+                      {/*     seed: taskObject.ownerAddress, */}
+                      {/*     size: 8, */}
+                      {/*     scale: 16 */}
+                      {/*   }).toDataURL()})`} */}
+                      {/*   alt="" */}
+                      {/*   width="50" */}
+                      {/*   height="50" */}
+                      {/* /> */}
+                      <div>
+                        <div className="flex items-center">
+                          {/* <Image */}
+                          {/*   className="h-12 w-12 rounded-full sm:hidden" */}
+                          {/*   src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.6&w=256&h=256&q=80" */}
+                          {/*   alt="" */}
+                          {/*   width="30" */}
+                          {/*   height="30" */}
+                          {/* /> */}
+                          <h1
+                            className="ml-3 text-xl font-bold leading-7 text-gray-100 sm:leading-9 sm:truncate">
+                            {taskObject.ownerAddress}
+                          </h1>
                         </div>
+                        <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
+                          {/* <dt className="sr-only">Created at</dt> */}
+                          {/* <dd className="flex items-center text-sm text-gray-400 font-medium capitalize sm:mr-6"> */}
+                          {/*   <ClockIcon */}
+                          {/*     className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" */}
+                          {/*     aria-hidden="true" */}
+                          {/*   /> */}
+                          {/*   {taskObject.createdAt} */}
+                          {/* </dd> */}
+                          <dt className="sr-only">Account status</dt>
+                          <dd
+                            className="mt-3 flex items-center text-sm text-gray-400 font-medium sm:mr-6 sm:mt-0 capitalize">
+                            <CheckCircleIcon
+                              className="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400"
+                              aria-hidden="true"
+                            />
+                            Verified account
+                          </dd>
+                        </dl>
                       </div>
                     </div>
                   </div>

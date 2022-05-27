@@ -1,9 +1,9 @@
 import { ethers } from 'ethers'
 import {
-  contractABI,
   getDeployedContractForChainId,
   getNodeFromContractAsObject,
-  getTaskFromContractAsObject
+  getTaskFromContractAsObject,
+  taskPortalContractAbi
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
 import { isUndefined } from 'lodash'
@@ -44,7 +44,7 @@ export default async function handler (req, res) {
 
   let provider
 
-  if (process.env.NODE_ENV === 'development' && process.env.USE_LOCAL_NODE) {
+  if (process.env.NODE_ENV === 'development' && process.env.USE_LOCAL_NODE === 'true') {
     const url = ' http://127.0.0.1:8545/'
     provider = new ethers.providers.JsonRpcProvider(url)
   } else {
@@ -53,7 +53,7 @@ export default async function handler (req, res) {
 
   try {
     const { contractAddress } = getDeployedContractForChainId(chainId)
-    const taskPortalContract = new ethers.Contract(contractAddress, contractABI, provider)
+    const taskPortalContract = new ethers.Contract(contractAddress, taskPortalContractAbi, provider)
     const nodesResult = await getNodeFromContractAsObject(taskPortalContract, shareId)
     const { taskPath } = nodesResult
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskPath)

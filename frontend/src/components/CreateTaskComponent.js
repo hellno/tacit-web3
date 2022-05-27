@@ -1,4 +1,5 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
+import { InformationCircleIcon } from '@heroicons/react/solid'
 
 import { ethers } from 'ethers'
 import { useForm } from 'react-hook-form'
@@ -7,10 +8,17 @@ import { AppContext } from '../context'
 import { renderFormField, renderWalletAddressInputField } from '../formUtils'
 import { isEmpty, map } from 'lodash'
 import { generateHashForObject, storeObjectInIPFS } from '../storageUtils'
-import { contractABI, getDeployedContractForChainId, isEthBounty, nameToTokenAddress } from '../constDeployedContracts'
+import {
+  erc20ContractAbi,
+  getDeployedContractForChainId,
+  isEthBounty,
+  nameToTokenAddress,
+  taskPortalContractAbi
+} from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
 import { sleep } from '../utils'
+import { XIcon } from '@heroicons/react/outline'
 
 const unit = require('ethjs-unit')
 
@@ -28,6 +36,7 @@ export default function CreateTaskComponent ({
     network
   } = globalState
 
+  const [showUserMessage, setShowUserMessage] = useState(true)
   const isWalletConnected = !isEmpty(account)
 
   const {
@@ -38,7 +47,8 @@ export default function CreateTaskComponent ({
       email: 'test@test.com',
       title: 'this is a sweet test title',
       description: 'amazing test description',
-      tokenAmount: '0.01'
+      tokenAmount: '2',
+      tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
     }
   })
 
@@ -81,33 +91,41 @@ export default function CreateTaskComponent ({
     }
 
     setState({ name: CreateTaskState.PendingUploadToIpfs })
-    // const dataPath = await uploadTaskDataToIpfs({
-    //   title,
-    //   description
-    // })
+    const dataPath = await uploadTaskDataToIpfs({
+      title,
+      description
+    })
     // uploadUserDataToSupabase({
     //   email,
     //   account
     // })
 
     setState({ name: CreateTaskState.PendingUserApproval })
-    const dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
+    // const dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
     try {
       console.log('create contract instance')
       const signer = library.getSigner()
       const { contractAddress } = getDeployedContractForChainId(network.chainId)
-      const taskPortalContract = new ethers.Contract(contractAddress, contractABI, signer)
+      const taskPortalContract = new ethers.Contract(contractAddress, taskPortalContractAbi, signer)
 
       console.log('create options payload for on-chain transaction')
-      console.log('isEthBounty', tokenAddress, isEthBounty(tokenAddress))
       let options = {}
       if (isEthBounty(tokenAddress)) {
         tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
         options = { value: tokenAmount }
       } else {
-        // tokenAmount = tokenAmount * 10 ** tokenAddressToDecimals[tokenAddress]
-        // todo: add approve call to token Contract, needs erc20 contract abi, signer is same
-        // const tokenContract = new ethers.Contract(contractAddress, contractABI, signer)
+        const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, signer)
+        // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
+        tokenAmount = ethers.utils.parseUnits(tokenAmount, 18)
+        const allowance = await (erc20TokenContract.allowance(account, contractAddress))
+
+        if (allowance.isZero()) {
+          const approvalResponse = await erc20TokenContract.approve(contractAddress, tokenAmount)
+          console.log(approvalResponse)
+        } else {
+          const approvalResponse = await erc20TokenContract.approve(contractAddress, allowance.add(tokenAmount))
+          console.log(approvalResponse)
+        }
       }
       const gasPrice = ethers.utils.parseUnits('5', 'gwei')
       const gasLimit = 3000000
@@ -144,10 +162,19 @@ export default function CreateTaskComponent ({
       })
     } catch (error) {
       console.log(error)
-      setState({
-        name: CreateTaskState.ErrorCreatingTask,
-        error
-      })
+      switch (error.code) {
+        case -32602:
+          setState({
+            name: CreateTaskState.Default,
+            message: error.message
+          })
+          break
+        default:
+          setState({
+            name: CreateTaskState.ErrorCreatingTask,
+            error
+          })
+      }
     }
   }
 
@@ -197,68 +224,138 @@ export default function CreateTaskComponent ({
 
   const onFormSubmit = handleSubmit(handleFormSubmit)
 
-  return (<>
-    <div className="px-4 py-8 sm:px-10">
-      <div className="mt-6">
-        <form onSubmit={onFormSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="walletAddress"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Wallet Address
-            </label>
-            {isWalletConnected
-              ? renderWalletAddressInputField(account)
-              : (<div className="mt-1">
-                {renderWalletConnectComponent(account, web3Modal, dispatch)}
-              </div>)}
-          </div>
-          {renderFormField({
-            register,
-            name: 'email',
-            type: 'email',
-            required: true
-          })}
-          {renderFormField({
-            register,
-            name: 'title',
-            type: 'text',
-            required: true
-          })}
-          {renderAmountAndCurrencyFormFields()}
-          <div className="">
-            <label
-              htmlFor="about"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Task Description
-            </label>
-            <div className="mt-1">
+  function renderUseInfoMessage () {
+    return showUserMessage && (<div className="rounded-md bg-blue-50 p-3 mb-4">
+      <div className="flex">
+        <div className="flex-shrink-0 p-1">
+          <InformationCircleIcon className="h-5 w-5 text-blue-400" aria-hidden="true" />
+        </div>
+        <div className="ml-2 flex-1 md:flex md:justify-between items-center">
+          <p className="text-sm text-blue-700">
+            {localState.message}
+          </p>
+          <p className="mt-3 text-sm md:mt-0 md:ml-6">
+            <button
+              onClick={() => setShowUserMessage(false)}
+              className="bg-white rounded-md p-1 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
+              <span className="sr-only">Close menu</span>
+              <XIcon className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>)
+  }
+
+  const renderTaskDescriptionFormPart = () => {
+    return <>
+      {isWalletConnected && renderWalletAddressInputField(account)}
+      {renderFormField({
+        register,
+        name: 'email',
+        type: 'email',
+        required: true
+      })}
+      {renderFormField({
+        register,
+        name: 'title',
+        type: 'text',
+        required: true
+      })}
+      <div className="">
+        <label
+          htmlFor="about"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Task Description
+        </label>
+        <div className="mt-1">
                             <textarea
                               {...register('description')}
                               id="description"
                               name="description"
                               required
-                              rows={3}
+                              rows={8}
                               className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
                               defaultValue={''}
                             />
-            </div>
-            <p className="mt-2 text-sm text-gray-500">
-              Write a few sentences about the task and how others
-              can fulfill it.
-            </p>
-          </div>
-          <div>
-            <button
-              type="submit"
-              disabled={!isWalletConnected}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-            >
-              Submit Task
-            </button>
-          </div>
+        </div>
+        <p className="mt-2 text-sm text-gray-500">
+          Write a few sentences about the task and how others
+          can fulfill it.
+        </p>
+      </div>
+    </>
+  }
+
+  const renderTaskBountyFormPart = () => {
+    return <>
+      {renderAmountAndCurrencyFormFields()}
+      <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+        {/* <div className="sm:col-span-2"> */}
+        {/*   <dt className="text-md font-medium text-gray-500">Your share-able link</dt> */}
+        {/*   <dd className="mt-1 text-md text-gray-900 truncate underline"> */}
+        {/*     <a href={taskShareLink} target="_blank" rel="noopener noreferrer"> */}
+        {/*       {taskShareLink} */}
+        {/*     </a> */}
+        {/*   </dd> */}
+        {/* </div> */}
+        <div className="sm:col-span-2">
+          <dt className="text-md font-medium text-gray-500">What happens with my bounty?</dt>
+          <dd className="mt-1 text-md text-gray-900">
+            Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa consequat.
+            Excepteur
+            qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in ea officia proident. Irure
+            nostrud
+            pariatur mollit ad adipisicing reprehenderit deserunt qui eu.
+          </dd>
+        </div>
+      </dl>
+    </>
+  }
+
+  function onNextStepSubmit (event) {
+    event.preventDefault()
+    setState({ name: CreateTaskState.PendingUserInputBounty })
+  }
+
+  const renderFormSubmitButton = () => {
+    return localState.name === CreateTaskState.PendingUserInputBounty
+      ? (<button
+        type="submit"
+        disabled={!isWalletConnected}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+      >
+        Submit Task & Bounty
+      </button>)
+      : (<button
+        onClick={(event) => onNextStepSubmit(event)}
+        disabled={!isWalletConnected}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+      >
+        Submit Task
+      </button>)
+  }
+
+  return (<>
+    <div className="px-4 py-8 sm:px-10">
+      {localState.message && renderUseInfoMessage()}
+      <div className="mt-2">
+        <div>
+          {localState.name === CreateTaskState.Default && (<label
+            htmlFor="walletAddress"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Wallet Address
+          </label>)}
+          {!isWalletConnected && (<div className="mt-1 mb-6">
+            {renderWalletConnectComponent(account, web3Modal, dispatch)}
+          </div>)}
+        </div>
+        <form onSubmit={onFormSubmit} className="space-y-6">
+          {localState.name === CreateTaskState.Default && renderTaskDescriptionFormPart()}
+          {localState.name === CreateTaskState.PendingUserInputBounty && renderTaskBountyFormPart()}
+          {renderFormSubmitButton()}
         </form>
       </div>
     </div>

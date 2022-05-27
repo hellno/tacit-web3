@@ -16,7 +16,8 @@ const ShareNewTaskComponent = ({
 
   const blockExplorerForChain = 'https://goerli.etherscan.io'
 
-  const taskShareLink = `/share/${state.data.sharePath}`
+  const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
+  const taskShareLink = `${url}/share/${state.data.sharePath}`
   const transactionLink = `${blockExplorerForChain}/tx/${state.data.transactionHash}`
   const userTasksLink = `/tasks/${globalState.account}`
 

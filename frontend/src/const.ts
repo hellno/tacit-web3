@@ -26,6 +26,7 @@ export const solveStates = [
 
 export enum CreateTaskState {
   Default,
+  PendingUserInputBounty,
   DoneCreatingTask,
   PendingUploadToIpfs,
   PendingContractTransaction,
@@ -34,5 +35,5 @@ export enum CreateTaskState {
   ErrorCreatingTask,
 }
 
-// MUST BE SYNCED TO ENUM DEFINED IN SMART CONTRACT
+// MUST BE SYNCED FROM ENUM DEFINED IN SMART CONTRACT AS SOURCE OF TRUTH
 export enum NodeType {Task, Solution, Share}

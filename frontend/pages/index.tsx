@@ -56,6 +56,7 @@ export default function Home () {
     // todo: handle user rejection state etc
     switch (stateName) {
       case CreateTaskState.Default:
+      case CreateTaskState.PendingUserInputBounty:
         return <CreateTaskComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
       case CreateTaskState.PendingUploadToIpfs:
         return <div className="px-4 py-8 sm:px-10">
@@ -214,6 +215,7 @@ export default function Home () {
                     </span>
                     <span className="ml-4 text-sm">
                       Thank you for being here
+                      {taskSubmissionState.name}
                     </span>
                     <ChevronRightIcon
                       className="ml-2 w-5 h-5 text-gray-500"

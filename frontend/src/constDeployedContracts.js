@@ -1,6 +1,10 @@
 import { filter, includes, map, union } from 'lodash'
-import abi from './abi/TaskPortal.json'
+import taskPortalAbi from './abi/TaskPortal.json'
+import erc20Abi from './abi/IERC20.json'
 import { ethers } from 'ethers'
+
+export const taskPortalContractAbi = taskPortalAbi.abi
+export const erc20ContractAbi = erc20Abi.abi
 
 const _contracts = [{
   chainId: 5,
@@ -49,7 +53,6 @@ export const tokenAddressToDecimals = {
 }
 
 export const isEthBounty = (tokenAddress) => tokenAddress === ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT
-export const contractABI = abi.abi
 
 export const getNodeFromContractAsObject = async (contract, nodePath) => {
   const [parent, owner, nodeType, data, nodes, isOpen, taskPath] = await contract.getNode(nodePath)
