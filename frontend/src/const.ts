@@ -29,6 +29,7 @@ export enum CreateTaskState {
   DoneCreatingTask,
   PendingUploadToIpfs,
   PendingContractTransaction,
+  PendingUserApproval,
   ErrorWalletConnect,
   ErrorCreatingTask,
 }

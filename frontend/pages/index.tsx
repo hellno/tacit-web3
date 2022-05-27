@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { ChevronRightIcon } from '@heroicons/react/solid'
+import { CheckCircleIcon, ChevronRightIcon } from '@heroicons/react/solid'
 import { loadWeb3Modal } from '../src/walletUtils'
 import Web3NavBar from '../src/components/Web3NavBar'
 import { AppContext } from '../src/context'
@@ -63,15 +63,20 @@ export default function Home () {
             {renderStepIndicator(1)}
           </div>
         </div>
-      case CreateTaskState.PendingContractTransaction:
+      case CreateTaskState.PendingUserApproval:
         return <div className="px-4 py-8 sm:px-10">
           <div className="mt-0">
             {renderStepIndicator(2)}
           </div>
         </div>
+      case CreateTaskState.PendingContractTransaction:
+        return <div className="px-4 py-8 sm:px-10">
+          <div className="mt-0">
+            {renderStepIndicator(3)}
+          </div>
+        </div>
       case CreateTaskState.DoneCreatingTask:
         return <>
-          <div className="mt-8">{renderStepIndicator(3)}</div>
           <ShareNewTaskComponent state={taskSubmissionState} />
         </>
       default:
@@ -96,54 +101,96 @@ export default function Home () {
   const renderStepIndicator = (currStepId) => {
     const steps = [
       {
-        name: 'Step 1',
+        name: 'Step 1 - Submit task details',
         href: '#',
         status: 'complete'
       },
       {
-        name: 'Step 2',
+        name: 'Step 2 - Upload public data to IPFS',
         href: '#',
         status: 'current'
       },
       {
-        name: 'Step 3',
+        name: 'Step 3 - Approve transaction',
         href: '#',
         status: 'upcoming'
       },
       {
-        name: 'Step 4',
+        name: 'Step 4 - Wait for on-chain transaction',
         href: '#',
         status: 'upcoming'
       }
     ]
-    return <nav className="flex items-center justify-center" aria-label="Progress">
-      <p className="text-sm font-medium">
-        Step {currStepId + 1} of {steps.length}
-      </p>
-      <ol role="list" className="ml-8 flex items-center space-x-5">
-        {steps.map((step, idx) => (
-          <li key={step.name}>
-            {idx < currStepId ? (
-              <div className="block w-2.5 h-2.5 bg-indigo-600 rounded-full hover:bg-indigo-900">
-                <span className="sr-only">{step.name}</span>
-              </div>
-            ) : idx === currStepId ? (
-              <div className="relative flex items-center justify-center" aria-current="step">
-                <span className="absolute w-5 h-5 p-px flex" aria-hidden="true">
-                  <span className="w-full h-full rounded-full bg-indigo-200" />
-                </span>
-                <span className="relative block w-2.5 h-2.5 bg-indigo-600 rounded-full" aria-hidden="true" />
-                <span className="sr-only">{step.name}</span>
-              </div>
-            ) : (
-              <div className="block w-2.5 h-2.5 bg-gray-200 rounded-full hover:bg-gray-400">
-                <span className="sr-only">{step.name}</span>
-              </div>
-            )}
-          </li>
-        ))}
-      </ol>
-    </nav>
+    return <div className="py-12 px-4 sm:px-6 lg:px-8">
+      <nav className="flex justify-center" aria-label="Progress">
+        <ol role="list" className="space-y-6">
+          {steps.map((step, idx) => (
+            <li key={step.name}>
+              {idx < currStepId ? (
+                <a href={step.href} className="group">
+                  <span className="flex items-start">
+                    <span className="flex-shrink-0 relative h-5 w-5 flex items-center justify-center">
+                      <CheckCircleIcon
+                        className="h-full w-full text-indigo-600 group-hover:text-indigo-800"
+                        aria-hidden="true"
+                      />
+                    </span>
+                    <span className="ml-3 text-sm font-medium text-gray-500 group-hover:text-gray-900">
+                      {step.name}
+                    </span>
+                  </span>
+                </a>
+              ) : idx === currStepId ? (
+                <a href={step.href} className="flex items-start" aria-current="step">
+                  <span className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center" aria-hidden="true">
+                    <span className="absolute h-4 w-4 rounded-full bg-indigo-200" />
+                    <span className="relative block w-2 h-2 bg-indigo-600 rounded-full" />
+                  </span>
+                  <span className="ml-3 text-sm font-medium text-indigo-600">{step.name}</span>
+                </a>
+              ) : (
+                <a href={step.href} className="group">
+                  <div className="flex items-start">
+                    <div className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center" aria-hidden="true">
+                      <div className="h-2 w-2 bg-gray-300 rounded-full group-hover:bg-gray-400" />
+                    </div>
+                    <p className="ml-3 text-sm font-medium text-gray-500 group-hover:text-gray-900">{step.name}</p>
+                  </div>
+                </a>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    </div>
+    // <nav className="flex items-center justify-center" aria-label="Progress">
+    //   <p className="text-sm font-medium">
+    //     Step {currStepId + 1} of {steps.length}
+    //   </p>
+    //   <ol role="list" className="ml-8 flex items-center space-x-5">
+    //     {steps.map((step, idx) => (
+    //       <li key={step.name}>
+    //         {idx < currStepId ? (
+    //           <div className="block w-2.5 h-2.5 bg-indigo-600 rounded-full hover:bg-indigo-900">
+    //             <span className="sr-only">{step.name}</span>
+    //           </div>
+    //         ) : idx === currStepId ? (
+    //           <div className="relative flex items-center justify-center" aria-current="step">
+    //             <span className="absolute w-5 h-5 p-px flex" aria-hidden="true">
+    //               <span className="w-full h-full rounded-full bg-indigo-200" />
+    //             </span>
+    //             <span className="relative block w-2.5 h-2.5 bg-indigo-600 rounded-full" aria-hidden="true" />
+    //             <span className="sr-only">{step.name}</span>
+    //           </div>
+    //         ) : (
+    //           <div className="block w-2.5 h-2.5 bg-gray-200 rounded-full hover:bg-gray-400">
+    //             <span className="sr-only">{step.name}</span>
+    //           </div>
+    //         )}
+    //       </li>
+    //     ))}
+    //   </ol>
+    // </nav>
   }
 
   // @ts-ignore

@@ -7,13 +7,7 @@ import { AppContext } from '../context'
 import { renderFormField, renderWalletAddressInputField } from '../formUtils'
 import { isEmpty, map } from 'lodash'
 import { generateHashForObject, storeObjectInIPFS } from '../storageUtils'
-import {
-  contractABI,
-  ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT,
-  getDeployedContractForChainId,
-  isEthBounty,
-  tokenAddressToDecimals
-} from '../constDeployedContracts'
+import { contractABI, getDeployedContractForChainId, isEthBounty, nameToTokenAddress } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
 import { sleep } from '../utils'
@@ -87,17 +81,17 @@ export default function CreateTaskComponent ({
     }
 
     setState({ name: CreateTaskState.PendingUploadToIpfs })
-    const dataPath = await uploadTaskDataToIpfs({
-      title,
-      description
-    })
+    // const dataPath = await uploadTaskDataToIpfs({
+    //   title,
+    //   description
+    // })
     // uploadUserDataToSupabase({
     //   email,
     //   account
     // })
 
-    setState({ name: CreateTaskState.PendingContractTransaction })
-    // const dataPath = ethers.utils.toUtf8Bytes('bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d')
+    setState({ name: CreateTaskState.PendingUserApproval })
+    const dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
     try {
       console.log('create contract instance')
       const signer = library.getSigner()
@@ -105,13 +99,15 @@ export default function CreateTaskComponent ({
       const taskPortalContract = new ethers.Contract(contractAddress, contractABI, signer)
 
       console.log('create options payload for on-chain transaction')
+      console.log('isEthBounty', tokenAddress, isEthBounty(tokenAddress))
       let options = {}
-      if (isEthBounty) {
+      if (isEthBounty(tokenAddress)) {
         tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
         options = { value: tokenAmount }
       } else {
-        tokenAmount = tokenAmount * 10 ** tokenAddressToDecimals[tokenAddress]
-        // need to check that contract has enough allowance to withdraw tokens
+        // tokenAmount = tokenAmount * 10 ** tokenAddressToDecimals[tokenAddress]
+        // todo: add approve call to token Contract, needs erc20 contract abi, signer is same
+        // const tokenContract = new ethers.Contract(contractAddress, contractABI, signer)
       }
       const gasPrice = ethers.utils.parseUnits('5', 'gwei')
       const gasLimit = 3000000
@@ -125,6 +121,9 @@ export default function CreateTaskComponent ({
       }
       console.log('creating on-chain transaction with options', options)
       const addTaskTransaction = await taskPortalContract.addTask(ethers.utils.toUtf8Bytes(dataPath), tokenAddress, tokenAmount, options)
+      setState({
+        name: CreateTaskState.PendingContractTransaction
+      })
       console.log('Waiting to add the task on-chain...', addTaskTransaction.hash)
       const res = await addTaskTransaction.wait()
       console.log('Transaction successfully executed:', addTaskTransaction, res)
@@ -153,11 +152,6 @@ export default function CreateTaskComponent ({
   }
 
   const renderCurrencyDropdown = () => {
-    const nameToTokenAddress = {
-      ETH: ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT,
-      DAI: '0x0123',
-      OHM: '0x0246'
-    }
     return (<>
       <label htmlFor="bounty-token" className="sr-only">
         Bounty Token
@@ -204,43 +198,43 @@ export default function CreateTaskComponent ({
   const onFormSubmit = handleSubmit(handleFormSubmit)
 
   return (<>
-      <div className="px-4 py-8 sm:px-10">
-        <div className="mt-6">
-          <form onSubmit={onFormSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="walletAddress"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Wallet Address
-              </label>
-              {isWalletConnected
-                ? renderWalletAddressInputField(account)
-                : (<div className="mt-1">
+    <div className="px-4 py-8 sm:px-10">
+      <div className="mt-6">
+        <form onSubmit={onFormSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="walletAddress"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Wallet Address
+            </label>
+            {isWalletConnected
+              ? renderWalletAddressInputField(account)
+              : (<div className="mt-1">
                 {renderWalletConnectComponent(account, web3Modal, dispatch)}
               </div>)}
-            </div>
-            {renderFormField({
-              register,
-              name: 'email',
-              type: 'email',
-              required: true
-            })}
-            {renderFormField({
-              register,
-              name: 'title',
-              type: 'text',
-              required: true
-            })}
-            {renderAmountAndCurrencyFormFields()}
-            <div className="">
-              <label
-                htmlFor="about"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Task Description
-              </label>
-              <div className="mt-1">
+          </div>
+          {renderFormField({
+            register,
+            name: 'email',
+            type: 'email',
+            required: true
+          })}
+          {renderFormField({
+            register,
+            name: 'title',
+            type: 'text',
+            required: true
+          })}
+          {renderAmountAndCurrencyFormFields()}
+          <div className="">
+            <label
+              htmlFor="about"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Task Description
+            </label>
+            <div className="mt-1">
                             <textarea
                               {...register('description')}
                               id="description"
@@ -250,28 +244,28 @@ export default function CreateTaskComponent ({
                               className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
                               defaultValue={''}
                             />
-              </div>
-              <p className="mt-2 text-sm text-gray-500">
-                Write a few sentences about the task and how others
-                can fulfill it.
-              </p>
             </div>
-            <div>
-              <button
-                type="submit"
-                disabled={!isWalletConnected}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-              >
-                Submit Task
-              </button>
-            </div>
-          </form>
-        </div>
+            <p className="mt-2 text-sm text-gray-500">
+              Write a few sentences about the task and how others
+              can fulfill it.
+            </p>
+          </div>
+          <div>
+            <button
+              type="submit"
+              disabled={!isWalletConnected}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+            >
+              Submit Task
+            </button>
+          </div>
+        </form>
       </div>
-      <div className="px-4 py-6 bg-gray-50 border-t-2 border-gray-200 sm:px-10">
-        <p className="text-xs leading-5 text-gray-500">
-          Thank you for being early (🫡, 🫡)
-        </p>
-      </div>
-    </>)
+    </div>
+    <div className="px-4 py-6 bg-gray-50 border-t-2 border-gray-200 sm:px-10">
+      <p className="text-xs leading-5 text-gray-500">
+        Thank you for being early (🫡, 🫡)
+      </p>
+    </div>
+  </>)
 }

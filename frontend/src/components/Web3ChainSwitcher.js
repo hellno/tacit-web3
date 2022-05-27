@@ -2,7 +2,7 @@ import { Fragment, useContext } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/solid'
 import { isEmpty, map, startCase } from 'lodash'
-import { DEPLOYED_CONTRACTS, isSupportedNetwork } from '../constDeployedContracts'
+import { getDeployedContracts, isSupportedNetwork } from '../constDeployedContracts'
 import { getUserFriendlyNameForChainId } from '../walletUtils'
 import { classNames } from '../utils'
 import { toHex } from 'web3-utils'
@@ -15,7 +15,7 @@ const Web3ChainSwitcher = () => {
     library
   } = state
 
-  if (isEmpty(DEPLOYED_CONTRACTS) || isEmpty(network)) {
+  if (isEmpty(network)) {
     return <></>
   }
 
@@ -46,11 +46,17 @@ const Web3ChainSwitcher = () => {
             method: 'wallet_addEthereumChain',
             params: [
               {
-                chainId: toHex(137),
-                chainName: 'Polygon',
-                rpcUrls: ['https://polygon-rpc.com/'],
-                blockExplorerUrls: ['https://polygonscan.com/']
+                chainId: toHex(5),
+                chainName: 'Ethereum Goerli Testnet',
+                rpcUrls: ['https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
+                blockExplorerUrls: ['https://goerli.etherscan.io']
               }
+              // {
+              //   chainId: toHex(137),
+              //   chainName: 'Polygon',
+              //   rpcUrls: ['https://polygon-rpc.com/'],
+              //   blockExplorerUrls: ['https://polygonscan.com/']
+              // }
             ]
           })
         } catch (addError) {
@@ -61,7 +67,7 @@ const Web3ChainSwitcher = () => {
     }
   }
 
-  const chains = DEPLOYED_CONTRACTS.filter(
+  const chains = getDeployedContracts().filter(
     (chain) => chain.chainId !== network.chainId
   )
 

@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form'
 import { loadWeb3Modal, renderWalletConnectComponent } from '../../src/walletUtils'
 import { sleep } from '../../src/utils'
 import { AppContext } from '../../src/context'
-import { useRouter } from 'next/router'
 import ReactMarkdown from 'react-markdown'
 import rehypeFormat from 'rehype-format'
 import remarkGfm from 'remark-gfm'
@@ -13,9 +12,8 @@ import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import { SharePageState, shareStates, solveStates } from '../../src/const'
 import { renderWalletAddressInputField } from '../../src/formUtils'
-import { getSharePageData } from '../../src/apiUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
-
+import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import BlockiesComponent from '../../src/components/BlockiesComponent'
 
 // eslint-disable-next-line no-unused-vars
@@ -29,9 +27,37 @@ const exampleSharePageObject = {
   bountyAmount: '12.0'
 }
 
-export default function SharePage () {
-  const { query } = useRouter()
+export async function getStaticProps ({ params }) {
+  const { shareId } = params
+  const res = await fetch(`${process.env.SITE}/api/getSharePageData/${shareId}/`)
+  const taskObject = await res.json()
+  return {
+    props: {
+      taskObject
+    }
+    // revalidate: 42000
+  }
+}
+
+export async function getStaticPaths () {
+  // can add some paths by reading from shares on smart-contract by default later
+  const paths = []
+
+  // fallback: true means that the missing pages
+  // will not 404, and instead can render a fallback.
+  return {
+    paths,
+    fallback: true
+  }
+}
+
+export default function SharePage ({ taskObject }) {
+  console.log({ taskObject })
   const [state, dispatch] = useContext(AppContext)
+  const isLoading = isEmpty(taskObject)
+  // const [isLoading, setIsLoading] = useState(false)
+  // const [isError, setIsError] = useState()
+  // const [taskObject, setTaskObject] = useState(false)
 
   const {
     web3Modal,
@@ -45,47 +71,17 @@ export default function SharePage () {
     handleSubmit
   } = useForm()
 
-  const {
-    data: taskObject,
-    isError,
-    isLoading
-  } = getSharePageData(query.shareId,
-    network ? network.chainId : undefined)
-  // const {
-  //   taskObject,
-  //   isError,
-  //   isLoading
-  // } = {
-  //   taskObject: exampleSharePageObject,
-  //   isError: false,
-  //   isLoading: true
-  // }
-  // useEffect(() => {
-  //   setIsLoading(isLoading)
-  //   setIsError(isError)
-  //   setTaskObject(taskObject)
-  // }, [network])
-
   useEffect(() => {
     loadWeb3Modal(dispatch)
   }, [])
 
-  if (isError) return <div>failed to load - this should not happen</div>
-  if (isLoading) {
-    return <main className="mt-16 mx-auto max-w-7xl px-4 sm:mt-24">
-      <div className="item-center text-center">
-        <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-          <span className="block xl:inline"><p className="animate-pulse flex max-w-lg">
-            Loading
-          </p></span>
-        </h1>
-      </div>
-    </main>
-  }
+  const renderLoadingScreen = () => (
+    <LoadingScreenComponent subtitle={'Fetching on-chain data and task details from IPFS'} />
+  )
 
-  // console.log('test retrieving IPFS data')
-  // const retrieval = await getObjectInIPFS(id)
-  // console.log(retrieval)
+  if (isLoading) {
+    return renderLoadingScreen()
+  }
 
   const isWalletConnected = !isEmpty(account)
 
@@ -491,26 +487,3 @@ export default function SharePage () {
     </div>
   )
 }
-
-// export async function getStaticProps (context) {
-//   const { params } = context
-//   const { id } = params
-//   // todo: replace library with Alchemy RPC
-//   // and replace network with url parameter ?chainId=1338
-//   const signer = library.getSigner()
-//   const { contractAddress } = getDeployedContractForChainId(network.chainId)
-//   const taskPortalContract = new ethers.Contract(contractAddress, contractABI, signer)
-//   let res = await taskPortalContract.nodes(id)
-//   console.log({ res })
-//   const { taskPath } = res
-//   res = await taskPortalContract.nodes(taskPath)
-//   const ipfsPath = ethers.utils.toUtf8String(res.data)
-//   console.log(ipfsPath)
-//   const [cid, fname] = ipfsPath.split('/')
-//   const taskData = await getObjectInIPFS(cid, fname)
-//   console.log({ taskData })
-//
-//   return {
-//     props: taskData
-//   }
-// }

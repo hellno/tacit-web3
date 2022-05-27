@@ -1,36 +1,50 @@
-import { filter, includes, map } from 'lodash'
+import { filter, includes, map, union } from 'lodash'
 import abi from './abi/TaskPortal.json'
 import { ethers } from 'ethers'
 
-export const DEPLOYED_CONTRACTS = [{
+const _contracts = [{
   chainId: 5,
   name: 'Görli Testnet',
   contractAddress: '0x32aabdef1fdb495fc73160d529752bea125f812b'
-}, {
-  chainId: 1337,
-  name: 'Local Hardhat Testnet',
-  // must update this based on local re-deployments
-  contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
-}, {
-  chainId: 1338,
-  name: 'Local Foundry Testnet',
-  // must update this based on local re-deployments
-  contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
 }]
+export const getDeployedContracts = () => {
+  let contracts = _contracts
+
+  if (process.env.NODE_ENV === 'development') {
+    contracts = union(contracts, [{
+      chainId: 1337,
+      name: 'Local Hardhat Testnet', // must update this based on local re-deployments
+      contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+    }, {
+      chainId: 1338,
+      name: 'Local Foundry Testnet', // must update this based on local re-deployments
+      contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+    }])
+  }
+  return contracts
+}
 
 export function isSupportedNetwork (chainId) {
-  return includes(map(DEPLOYED_CONTRACTS, 'chainId'), chainId)
+  return includes(map(getDeployedContracts(), 'chainId'), chainId)
 }
 
 export function getDeployedContractForChainId (chainId) {
-  const contracts = filter(DEPLOYED_CONTRACTS, ['chainId', chainId])
+  const contracts = filter(getDeployedContracts(), ['chainId', chainId])
   return contracts && contracts[0]
 }
 
 export const ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT = '0x0000000000000000000000000000000000000000'
 
+export const nameToTokenAddress = {
+  ETH: ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT,
+  DAI: '0x73967c6a0904aA032C103b4104747E88c566B1A2',
+  'Faucet Token': '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
+}
+
 export const tokenAddressToDecimals = {
-  ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT: 18
+  ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT: 18,
+  '0x73967c6a0904aA032C103b4104747E88c566B1A2': 18,
+  '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc': 18
 }
 
 export const isEthBounty = (tokenAddress) => tokenAddress === ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT

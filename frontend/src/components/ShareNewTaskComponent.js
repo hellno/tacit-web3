@@ -14,11 +14,11 @@ const ShareNewTaskComponent = ({
   //   }
   // }
 
-  const blockExplorerForChain = 'https://etherscan.io'
+  const blockExplorerForChain = 'https://goerli.etherscan.io'
 
-  const taskShareLink = `${process.env.SITE}/share/${state.data.sharePath}`
+  const taskShareLink = `/share/${state.data.sharePath}`
   const transactionLink = `${blockExplorerForChain}/tx/${state.data.transactionHash}`
-  const userTasksLink = `${process.env.SITE}/tasks/${globalState.account}`
+  const userTasksLink = `/tasks/${globalState.account}`
 
   return (<>
     <div className="px-4 py-8 sm:px-10">
