@@ -61,8 +61,7 @@ export default function SharePage ({ taskObject }) {
 
   const {
     web3Modal,
-    account,
-    network
+    account
   } = state
   const [sharePageState, setSharePageState] = useState<SharePageState>(SharePageState.Default)
 
