@@ -17,7 +17,9 @@ export const renderFormField = ({
   name,
   type,
   value = undefined,
-  required = false
+  required = false,
+  label = '',
+  placeholder = ''
 }) => {
   return (
     <div>
@@ -25,15 +27,15 @@ export const renderFormField = ({
         htmlFor={name}
         className="block text-sm font-medium text-gray-700"
       >
-        {startCase(name)}
+        {label || startCase(name)}
       </label>
       <input
-        {...register(name)}
+        {...register(name, { required })}
         type={type}
         name={name}
         id={name}
         autoComplete={name}
-        placeholder={startCase(name)}
+        placeholder={placeholder || label || startCase(name)}
         value={value}
         required={required}
         className="text-gray-900 mt-1 block w-full shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border-gray-300 rounded-sm"

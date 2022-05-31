@@ -20,7 +20,9 @@ const PresentActionLinksComponent = ({
     <div className="mt-6">
       <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         {data.sharePath && (<div className="sm:col-span-2">
-          <dt className="text-md font-medium text-gray-500">Your share-able link</dt>
+          <dt className="text-md font-medium text-gray-500">
+            Your search task link for your friends
+          </dt>
           <dd className="mt-1 text-md text-gray-900 truncate underline">
             <a href={taskShareLink} target="_blank" rel="noopener noreferrer">
               {taskShareLink}
@@ -41,7 +43,7 @@ const PresentActionLinksComponent = ({
         </div>
         {data.taskPath && (<div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">
-            Manage this task and pay out the bounty
+            Dashboard for task and bounty
             <span
               className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 Not Live Yet
@@ -60,11 +62,8 @@ const PresentActionLinksComponent = ({
         <div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">What can you do now?!</dt>
           <dd className="mt-1 text-md text-gray-900">
-            Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa consequat.
-            Excepteur
-            qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in ea officia proident. Irure
-            nostrud
-            pariatur mollit ad adipisicing reprehenderit deserunt qui eu.
+            Share your search task link with your community and friends on Twitter, Disord, Whatsapp, mail… wherever you
+            want. Lean back and check your dashboard for results. ☕️
           </dd>
         </div>
       </dl>

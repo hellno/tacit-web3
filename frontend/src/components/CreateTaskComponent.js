@@ -22,6 +22,9 @@ import {
 import { NodeType } from '../const'
 import { sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
+import ReactMarkdown from 'react-markdown'
+import rehypeFormat from 'rehype-format'
+import remarkGfm from 'remark-gfm'
 
 const unit = require('ethjs-unit')
 
@@ -44,16 +47,20 @@ export default function CreateTaskComponent ({
 
   const {
     register,
-    handleSubmit
+    handleSubmit,
+    watch
   } = useForm({
     defaultValues: {
       email: 'test@test.com',
-      title: 'this is a sweet test title',
-      description: 'amazing test description',
+      // title: 'this is a sweet test title',
+      // description: 'amazing test description',
       tokenAmount: '2',
       tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
     }
   })
+
+  const formTaskTitle = watch('title')
+  const formTaskDescription = watch('description')
 
   const handleFormSubmit = (formData) => {
     addTask(formData)
@@ -252,13 +259,16 @@ export default function CreateTaskComponent ({
         register,
         name: 'email',
         type: 'email',
-        required: true
+        required: true,
+        label: 'Your Email'
       })}
       {renderFormField({
         register,
         name: 'title',
         type: 'text',
-        required: true
+        required: true,
+        label: 'Search Title',
+        placeholder: 'A short title of what you are looking for'
       })}
       <div className="">
         <label
@@ -269,19 +279,19 @@ export default function CreateTaskComponent ({
         </label>
         <div className="mt-1">
                             <textarea
-                              {...register('description')}
+                              {...register('description', { required: true })}
                               id="description"
                               name="description"
-                              required
                               rows={8}
                               className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
                               defaultValue={''}
+                              placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward."
                             />
         </div>
-        <p className="mt-2 text-sm text-gray-500">
-          Write a few sentences about the task and how others
-          can fulfill it.
-        </p>
+        {/* <p className="mt-2 text-sm text-gray-500"> */}
+        {/*   Write a few sentences about the task and how others */}
+        {/*   can fulfill it. */}
+        {/* </p> */}
       </div>
     </>
   }
@@ -290,22 +300,24 @@ export default function CreateTaskComponent ({
     return <>
       {renderAmountAndCurrencyFormFields()}
       <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-        {/* <div className="sm:col-span-2"> */}
-        {/*   <dt className="text-md font-medium text-gray-500">Your share-able link</dt> */}
-        {/*   <dd className="mt-1 text-md text-gray-900 truncate underline"> */}
-        {/*     <a href={taskShareLink} target="_blank" rel="noopener noreferrer"> */}
-        {/*       {taskShareLink} */}
-        {/*     </a> */}
-        {/*   </dd> */}
-        {/* </div> */}
+        <div className="sm:col-span-2">
+          <dt className="text-md font-medium text-gray-500">Task Preview
+          </dt>
+          <dd className="mt-1 text-md text-gray-900">
+            <ReactMarkdown
+              children={formTaskDescription}
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeFormat]}
+            />
+          </dd>
+        </div>
         <div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">What happens with my bounty?</dt>
           <dd className="mt-1 text-md text-gray-900">
-            Fugiat ipsum ipsum deserunt culpa aute sint do nostrud anim incididunt cillum culpa consequat.
-            Excepteur
-            qui ipsum aliquip consequat sint. Sit id mollit nulla mollit nostrud in ea officia proident. Irure
-            nostrud
-            pariatur mollit ad adipisicing reprehenderit deserunt qui eu.
+            After submitting your search task the selected token amount will be transferred to a smart contract. It
+            works like an escrow over which you have control. You receive a link which you can share with your friends
+            to contribute to your search. Entered results/referrals are collected in a dashboard which you can access
+            with your wallet. On the dashboard, you can accept or decline results.
           </dd>
         </div>
       </dl>
@@ -314,7 +326,9 @@ export default function CreateTaskComponent ({
 
   function onNextStepSubmit (event) {
     event.preventDefault()
-    setState({ name: CreateTaskState.PendingUserInputBounty })
+    if (formTaskTitle && formTaskDescription) {
+      setState({ name: CreateTaskState.PendingUserInputBounty })
+    }
   }
 
   const renderFormSubmitButton = () => {
@@ -331,7 +345,7 @@ export default function CreateTaskComponent ({
         disabled={!isWalletConnected}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
       >
-        Submit Task
+        Preview Task
       </button>)
   }
 
@@ -344,7 +358,7 @@ export default function CreateTaskComponent ({
             htmlFor="walletAddress"
             className="block text-sm font-medium text-gray-700"
           >
-            Wallet Address
+            Your Wallet Address
           </label>)}
           {!isWalletConnected && (<div className="mt-1 mb-6">
             {renderWalletConnectComponent(account, web3Modal, dispatch)}

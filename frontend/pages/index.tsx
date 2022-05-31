@@ -139,7 +139,7 @@ export default function Home () {
           {steps.map((step, idx) => (
             <li key={step.name}>
               {idx < currStepId ? (
-                <a href={step.href} className="group">
+                <div className="group">
                   <span className="flex items-start">
                     <span className="flex-shrink-0 relative h-5 w-5 flex items-center justify-center">
                       <CheckCircleIcon
@@ -151,24 +151,24 @@ export default function Home () {
                       {step.name}
                     </span>
                   </span>
-                </a>
+                </div>
               ) : idx === currStepId ? (
-                <a href={step.href} className="flex items-start" aria-current="step">
+                <div className="flex items-start" aria-current="step">
                   <span className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center" aria-hidden="true">
                     <span className="absolute h-4 w-4 rounded-full bg-indigo-200" />
                     <span className="relative block w-2 h-2 bg-indigo-600 rounded-full" />
                   </span>
                   <span className="ml-3 text-sm font-medium text-indigo-600">{step.name}</span>
-                </a>
+                </div>
               ) : (
-                <a href={step.href} className="group">
+                <div className="group">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center" aria-hidden="true">
                       <div className="h-2 w-2 bg-gray-300 rounded-full group-hover:bg-gray-400" />
                     </div>
                     <p className="ml-3 text-sm font-medium text-gray-500 group-hover:text-gray-900">{step.name}</p>
                   </div>
-                </a>
+                </div>
               )}
             </li>
           ))}
@@ -225,8 +225,7 @@ export default function Home () {
                       WAGMI
                     </span>
                     <span className="ml-4 text-sm">
-                      Thank you for being here
-                      {taskSubmissionState.name}
+                      Find what you are looking for
                     </span>
                     <ChevronRightIcon
                       className="ml-2 w-5 h-5 text-gray-500"
@@ -235,15 +234,15 @@ export default function Home () {
                   </a>
                   <h1
                     className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
-                    <span className="md:block">Crowd search tasks</span>{' '}
+                    <span className="md:block">Crowdsourced search </span>{' '}
                     <span className="text-yellow-400 md:block">
-                      for service DAOs
+                      for Web3 communities
                     </span>
                   </h1>
                   <p className="mt-3 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                    Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure
-                    qui lorem cupidatat commodo. Elit sunt amet fugiat veniam
-                    occaecat fugiat aliqua ad ad non deserunt sunt.
+                    Create a search task, attach a token reward, and share it with your friends, who can share it again
+                    with their friends … ∞ Receive results and reward the contributors. Everyone who contributes to
+                    finding what you are looking for gets a share of the reward.
                   </p>
                   <p className="mt-8 text-sm text-white uppercase tracking-wide font-semibold sm:mt-10">
                     Used by

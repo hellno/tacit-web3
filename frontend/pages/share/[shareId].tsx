@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { CheckCircleIcon, ChevronRightIcon } from '@heroicons/react/solid'
+import { CheckCircleIcon } from '@heroicons/react/solid'
 import { includes, isEmpty } from 'lodash'
 import { useForm } from 'react-hook-form'
 import {
@@ -17,7 +17,7 @@ import remarkGfm from 'remark-gfm'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType, SharePageState, shareStates, solveStates } from '../../src/const'
-import { renderWalletAddressInputField } from '../../src/formUtils'
+import { renderFormField, renderWalletAddressInputField } from '../../src/formUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import BlockiesComponent from '../../src/components/BlockiesComponent'
@@ -120,24 +120,36 @@ export default function SharePage ({ shareObject }) {
       <div className="mx-auto py-12">
         <h2 className="text-3xl font-extrabold tracking-tight text-gray-100 sm:text-4xl">
           <span className="block">Ready to dive in?</span>
-          {/* <span className="block text-yellow-600">Start your free trial today.</span> */}
         </h2>
-        <div className="mt-4 flex">
-          <div className="inline-flex rounded-sm shadow">
-            <button
-              onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
-              className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-white bg-yellow-600 hover:bg-yellow-700"
-            >
-              Share task and earn referral
-            </button>
+        <div className="mt-4 flex grid grid-cols-2 gap-x-4">
+          <div>
+            <div className="inline-flex rounded-sm shadow">
+              <button
+                onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
+                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-200 hover:bg-yellow-100"
+              >
+                Get unique link to share and earn
+              </button>
+            </div>
+            <span className="block mt-2 pr-4 text-base font-normal text-gray-100">
+              You get part of the reward if someone downstream from your unique link enters a winning result
+            </span>
           </div>
-          <div className="ml-3 inline-flex">
-            <button
-              onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
-              className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-700 bg-yellow-100 hover:bg-yellow-200"
-            >
-              Solve this
-            </button>
+          <div>
+            <div className="inline-flex">
+              <button
+                onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
+                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-100 hover:bg-yellow-200"
+              >
+                Enter results
+              </button>
+            </div>
+            <span className="block mt-2 pr-4 text-base font-normal text-gray-100">
+              Enter requested
+              results to
+              become eligible
+              for a reward
+            </span>
           </div>
         </div>
       </div>)
@@ -146,6 +158,7 @@ export default function SharePage ({ shareObject }) {
   const renderShareModalContent = () => {
     switch (sharePageData.name) {
       case SharePageState.ShareIntent:
+        // @ts-ignore
         return <div><p className="text-sm text-gray-500">
           I want to share this task with someone.
           Let me login with my wallet and generate a link.
@@ -161,8 +174,18 @@ export default function SharePage ({ shareObject }) {
               {!isWalletConnected && renderWalletConnectComponent(account, web3Modal, dispatch)}
             </div>
             <form onSubmit={handleSubmit(handleShareFormSubmit)} className="space-y-6">
+              {isWalletConnected && renderWalletAddressInputField(account)}
               <div>
-                {isWalletConnected && renderWalletAddressInputField(account)}
+                {renderFormField({
+                  register,
+                  name: 'email',
+                  type: 'email',
+                  // @ts-ignore
+                  label: 'Your Email'
+                })}
+                <p className="mt-2 text-sm text-gray-500">
+                  Enter your email so that the poster can get in touch with you if needed (not stored on-chain).
+                </p>
               </div>
               <div>
                 <button
@@ -187,6 +210,8 @@ export default function SharePage ({ shareObject }) {
           </p>
           <PresentActionLinksComponent data={sharePageData.data} />
         </div>
+      default:
+        break
     }
   }
 
@@ -208,8 +233,18 @@ export default function SharePage ({ shareObject }) {
               {!isWalletConnected && renderWalletConnectComponent(account, web3Modal, dispatch)}
             </div>
             <form onSubmit={handleSubmit(handleSolveFormSubmit)} className="space-y-6">
+              {isWalletConnected && renderWalletAddressInputField(account)}
               <div>
-                {isWalletConnected && renderWalletAddressInputField(account)}
+                {renderFormField({
+                  register,
+                  name: 'email',
+                  type: 'email',
+                  // @ts-ignore
+                  label: 'Your Email'
+                })}
+                <p className="mt-2 text-sm text-gray-500">
+                  Enter your email so that the poster can get in touch with you if needed (not stored on-chain).
+                </p>
               </div>
               <div className="">
                 <label
@@ -219,18 +254,18 @@ export default function SharePage ({ shareObject }) {
                   Solution Description
                 </label>
                 <div className="mt-1">
-                            <textarea
-                              {...register('solution')}
-                              id="solution"
-                              name="solution"
-                              required
-                              rows={3}
-                              className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
-                              defaultValue={''}
-                            />
+                  <textarea
+                    {...register('solution')}
+                    id="solution"
+                    name="solution"
+                    required
+                    rows={3}
+                    className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
+                  />
                 </div>
                 <p className="mt-2 text-sm text-gray-500">
-                  Check out the task description and submit your answer here.
+                  This could be your email address, your Discord name, your Twitter handle or something else the poster
+                  requested.
                 </p>
               </div>
               <div>
@@ -252,7 +287,7 @@ export default function SharePage ({ shareObject }) {
       case SharePageState.SuccessSubmitSolve:
         return <div>
           <p className="text-sm text-gray-500">
-            You did it 🥳
+            You did it 🥳 The poster has now received your answer and will be in touch.
           </p>
           <PresentActionLinksComponent data={sharePageData.data} />
         </div>
@@ -272,22 +307,17 @@ export default function SharePage ({ shareObject }) {
           <div
             className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
             <div>
-              <a
-                href="#"
-                className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base hover:text-gray-200"
+              <div
+                className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base"
               >
                 <span
                   className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
                   WAGMI
                 </span>
-                <span className="ml-4 text-sm">
+                <span className="ml-4 mr-2 text-sm">
                   Thank you for being here
                 </span>
-                <ChevronRightIcon
-                  className="ml-2 w-5 h-5 text-gray-500"
-                  aria-hidden="true"
-                />
-              </a>
+              </div>
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                 {/* <span className="md:block">asdasd</span>{' '} */}
