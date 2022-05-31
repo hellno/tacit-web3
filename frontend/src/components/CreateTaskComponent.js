@@ -117,7 +117,7 @@ export default function CreateTaskComponent ({
         tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
         options = { value: tokenAmount }
       } else {
-        const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, signer)
+        const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, library.getSigner())
         // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
         tokenAmount = ethers.utils.parseUnits(tokenAmount, 18)
         const allowance = await (erc20TokenContract.allowance(account, contractAddress))
