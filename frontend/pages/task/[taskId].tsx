@@ -97,6 +97,7 @@ export default function TaskPage ({ taskObject }) {
 
   function renderRow (nodeObject) {
     const nodeOwnerStr = nodeObject.owner === taskObject.owner ? 'You' : nodeObject.owner
+    const rowData = ethers.utils.toUtf8String(nodeObject.data)
 
     return <tr key={`${nodeObject.owner}-${nodeObject.data}`} className="bg-white">
       <td className="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
@@ -111,7 +112,7 @@ export default function TaskPage ({ taskObject }) {
       </td>
       <td className="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
         <span className="text-gray-900 font-medium">
-          {ethers.utils.toUtf8String(nodeObject.data)}
+          {rowData}
         </span>
         {/* {transaction.currency} */}
       </td>

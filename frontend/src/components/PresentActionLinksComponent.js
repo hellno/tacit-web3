@@ -41,7 +41,7 @@ const PresentActionLinksComponent = ({
         </div>
         {data.taskPath && (<div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">
-            See all your tasks
+            Manage this task and pay out the bounty
             <span
               className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 Not Live Yet

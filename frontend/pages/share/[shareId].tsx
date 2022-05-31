@@ -75,7 +75,7 @@ export default function SharePage ({ shareObject }) {
 
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(library, network.chainId)
     const options = getDefaultTransactionGasOptions()
-    const solutionData = ethers.utils.toUtf8Bytes(JSON.stringify(formData))
+    const solutionData = ethers.utils.toUtf8Bytes(JSON.stringify(formData.solution))
     const addSolutionTransaction = await taskPortalContract.addSolution(shareObject.path, solutionData, options)
     const res = await addSolutionTransaction.wait()
 
@@ -220,9 +220,9 @@ export default function SharePage ({ shareObject }) {
                 </label>
                 <div className="mt-1">
                             <textarea
-                              {...register('description')}
-                              id="description"
-                              name="description"
+                              {...register('solution')}
+                              id="solution"
+                              name="solution"
                               required
                               rows={3}
                               className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
@@ -278,7 +278,7 @@ export default function SharePage ({ shareObject }) {
               >
                 <span
                   className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
-                  WAGMI {JSON.stringify(sharePageData.data)}
+                  WAGMI
                 </span>
                 <span className="ml-4 text-sm">
                   Thank you for being here
