@@ -123,7 +123,7 @@ export default function Home () {
         status: 'current'
       },
       {
-        name: 'Step 3 - Approve transaction',
+        name: 'Step 3 - Approve transaction(s)',
         href: '#',
         status: 'upcoming'
       },

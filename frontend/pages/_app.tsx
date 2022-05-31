@@ -9,7 +9,7 @@ function MyApp ({
 }: AppProps) {
   return <AppContextProvider>
     <BannerComponent
-      title={'This is an early alpha release on Testnet - heavy work on UI and Smart Contracts in progress'} />
+      title={'This is an early alpha release on Goerli Testnet - heavy work on UI and Smart Contracts in progress'} />
     <Component {...pageProps} />
   </AppContextProvider>
 }
