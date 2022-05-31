@@ -118,9 +118,6 @@ export default function SharePage ({ shareObject }) {
   const renderActionButtonCard = () => {
     return (
       <div className="mx-auto py-12">
-        <h2 className="text-3xl font-extrabold tracking-tight text-gray-100 sm:text-4xl">
-          <span className="block">Ready to dive in?</span>
-        </h2>
         <div className="mt-4 flex grid grid-cols-2 gap-x-4">
           <div>
             <div className="inline-flex rounded-sm shadow">
