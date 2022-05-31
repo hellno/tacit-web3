@@ -15,6 +15,7 @@ import {
   XCircleIcon
 } from '@heroicons/react/outline'
 import { flattenNodesRecursively, getBountyStringFromTaskObject } from '../../src/utils'
+// eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../../src/const'
 import { ethers } from 'ethers'
 
