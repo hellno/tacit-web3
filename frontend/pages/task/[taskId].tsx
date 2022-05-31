@@ -449,8 +449,8 @@ export async function getStaticProps ({ params }) {
   return {
     props: {
       taskObject
-    },
-    revalidate: 300 // every 5mins
+    }
+    // revalidate: 300 // every 5mins
   }
 }
 
