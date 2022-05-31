@@ -3,6 +3,7 @@ import WalletConnect from '@walletconnect/web3-provider'
 import { ethers } from 'ethers'
 import { isEmpty, truncate } from 'lodash'
 import Web3Modal from 'web3modal'
+import { getDeployedContractForChainId, taskPortalContractAbi } from './constDeployedContracts'
 
 /**
  * @param {number} chainId
@@ -13,8 +14,9 @@ export const getUserFriendlyNameForChainId = (chainId) => {
       return 'Ethereum'
     case 5:
       return 'Görli Testnet'
+    case 1337:
     case 1338:
-      return 'Foundry Local Testnet'
+      return 'Localhost'
     default:
       return ''
   }
@@ -112,4 +114,19 @@ export const loadWeb3Modal = (dispatch) => {
   if (web3Modal.cachedProvider) {
     connectWallet(web3Modal, dispatch)
   }
+}
+
+export const getDefaultTransactionGasOptions = () => {
+  const gasPrice = ethers.utils.parseUnits('5', 'gwei')
+  const gasLimit = 1500000
+  return {
+    gasPrice,
+    gasLimit
+  }
+}
+
+export const getTaskPortalContractInstanceViaActiveWallet = (library, chainId) => {
+  const signer = library.getSigner()
+  const { contractAddress } = getDeployedContractForChainId(chainId)
+  return new ethers.Contract(contractAddress, taskPortalContractAbi, signer)
 }

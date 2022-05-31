@@ -68,7 +68,7 @@ export const getNodeFromContractAsObject = async (contract, nodePath) => {
 }
 
 export const getTaskFromContractAsObject = async (contract, taskPath) => {
-  let [ownerAddress, taskData, taskIsOpen, bountyTokenAddress, bountyAmount] = await contract.getTask(taskPath)
+  let [ownerAddress, taskData, taskIsOpen, nodes, bountyTokenAddress, bountyAmount] = await contract.getTask(taskPath)
   if (isEthBounty(bountyTokenAddress)) {
     bountyAmount = ethers.utils.formatUnits(bountyAmount)
   }
@@ -76,6 +76,7 @@ export const getTaskFromContractAsObject = async (contract, taskPath) => {
     ownerAddress,
     taskData,
     taskIsOpen,
+    nodes,
     bountyTokenAddress,
     bountyAmount
   }

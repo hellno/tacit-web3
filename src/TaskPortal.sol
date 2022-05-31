@@ -13,12 +13,12 @@ import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 // data structure inspired by https://medium.com/@sergiibomko/tree-in-solidity-90bd8b091263
     struct Node {
+        bytes32 path;     // this node's path
         bytes32 parent;   // parent node’s path
-        bytes32 path;
-        bytes32 taskPath;
-        address owner;  //
-        NodeType nodeType;   //
-        bytes data;         // node’s data
+        bytes32 taskPath; // path of task that this node belongs to
+        address owner;    // address that created this node and has full write rights
+        NodeType nodeType;
+        bytes data;
         bytes32[] nodes;  // list of linked nodes’ paths
         bool isOpen;
     }
@@ -46,6 +46,10 @@ contract TaskPortal {
         console.log(address(0));
     }
 
+    receive() external payable {
+        console.log("RECEIVED ETH");
+    }
+
     modifier nodeExists(bytes32 _path) {
         require(nodes[_path].parent.length > 0, "Node does not exist");
         _;
@@ -57,15 +61,23 @@ contract TaskPortal {
         _;
     }
 
-    function getTask(bytes32 _path) public view nodeExists(_path) returns (address, bytes memory, bool, address, uint256) {
+    function getTask(bytes32 _path) public view nodeExists(_path) returns (address, bytes memory, bool, bytes32[] memory, address, uint256) {
         Node storage node = nodes[_path];
         Bounty storage bounty = bounties[_path];
-        return (node.owner, node.data, node.isOpen, bounty.tokenAddress, bounty.amount);
+        return (node.owner, node.data, node.isOpen, node.nodes, bounty.tokenAddress, bounty.amount);
     }
 
-    function getNode(bytes32 _path) public view nodeExists(_path) returns (bytes32, address, NodeType, bytes memory, bytes32[] memory, bool)  {
+    function getNode(bytes32 _path) public view nodeExists(_path) returns (bytes32, address, NodeType, bytes memory, bytes32[] memory, bool, bytes32)  {
         Node storage node = nodes[_path];
-        return (node.parent, node.owner, node.nodeType, node.data, node.nodes, node.isOpen);
+        return (node.parent, node.owner, node.nodeType, node.data, node.nodes, node.isOpen, node.taskPath);
+    }
+
+    function getNextNodeId() private view returns (bytes32) {
+        return keccak256(abi.encode(bytes32(nodesCount + 1), msg.sender));
+    }
+
+    function getAllTasks() public view returns (bytes32[] memory) {
+        return nodes[rootTaskPath].nodes;
     }
 
     function _addNode(bytes32 _parent, bytes memory _data, address _owner, NodeType _nodeType, bytes32 _taskPath) private returns (bytes32) {
@@ -92,14 +104,6 @@ contract TaskPortal {
         return path;
     }
 
-    function getNextNodeId() private view returns (bytes32) {
-        return keccak256(abi.encode(bytes32(nodesCount + 1), msg.sender));
-    }
-
-    function getAllTasks() public view returns (bytes32[] memory) {
-        return nodes[rootTaskPath].nodes;
-    }
-
     function addTask(bytes memory _data, address _tokenAddress, uint256 _amount) public payable returns (bytes32){
         uint256 amount;
         if (_tokenAddress == address(0)) {// no ERC token, but native chain currency is used
@@ -121,10 +125,6 @@ contract TaskPortal {
         addShare(taskPath, "TaskCreatorShare");
 
         return taskPath;
-    }
-
-    receive() external payable {
-        console.log("RECEIVED ETH");
     }
 
     function addShare(bytes32 _parent, bytes memory _data) public nodeExists(_parent) returns (bytes32) {

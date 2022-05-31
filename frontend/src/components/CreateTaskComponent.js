@@ -3,7 +3,11 @@ import { InformationCircleIcon } from '@heroicons/react/solid'
 
 import { ethers } from 'ethers'
 import { useForm } from 'react-hook-form'
-import { renderWalletConnectComponent } from '../walletUtils'
+import {
+  getDefaultTransactionGasOptions,
+  getTaskPortalContractInstanceViaActiveWallet,
+  renderWalletConnectComponent
+} from '../walletUtils'
 import { AppContext } from '../context'
 import { renderFormField, renderWalletAddressInputField } from '../formUtils'
 import { isEmpty, map } from 'lodash'
@@ -12,8 +16,7 @@ import {
   erc20ContractAbi,
   getDeployedContractForChainId,
   isEthBounty,
-  nameToTokenAddress,
-  taskPortalContractAbi
+  nameToTokenAddress
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
@@ -95,6 +98,7 @@ export default function CreateTaskComponent ({
       title,
       description
     })
+
     // uploadUserDataToSupabase({
     //   email,
     //   account
@@ -104,9 +108,8 @@ export default function CreateTaskComponent ({
     // const dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
     try {
       console.log('create contract instance')
-      const signer = library.getSigner()
       const { contractAddress } = getDeployedContractForChainId(network.chainId)
-      const taskPortalContract = new ethers.Contract(contractAddress, taskPortalContractAbi, signer)
+      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(library, network.chainId)
 
       console.log('create options payload for on-chain transaction')
       let options = {}
@@ -127,15 +130,10 @@ export default function CreateTaskComponent ({
           console.log(approvalResponse)
         }
       }
-      const gasPrice = ethers.utils.parseUnits('5', 'gwei')
-      const gasLimit = 3000000
       options = {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
         ...options, // eslint-disable-next-line node/no-unsupported-features/es-syntax
-        ...{
-          gasPrice,
-          gasLimit
-        }
+        ...getDefaultTransactionGasOptions()
       }
       console.log('creating on-chain transaction with options', options)
       const addTaskTransaction = await taskPortalContract.addTask(ethers.utils.toUtf8Bytes(dataPath), tokenAddress, tokenAmount, options)

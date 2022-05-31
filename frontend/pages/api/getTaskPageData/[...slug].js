@@ -6,22 +6,8 @@ import {
   taskPortalContractAbi
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
-import { isUndefined } from 'lodash'
+import { isUndefined, map } from 'lodash'
 
-// eslint-disable-next-line no-unused-vars
-const exampleTaskObject = {
-  title: 'Looking for a MONOSPACE design agency 👀', // description: '**bold plain markdown** <html> <h1>big title test</h1>  <h3>what is this about</h3><p>a paragraph goes here</p><h3>another heading</h3>more text</html>',
-  description: `A nice description of the task with *emphasis* and **strong importance**.
-
-Text with ~strikethrough~ and a URL: https://please-solve-my-task.org.
-
-Not showing this description 100% how I want to, but slowly getting there. 
-`,
-  bountyAmount: '1000',
-  bountyContractAddress: '',
-  owner: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B',
-  createdAt: '2022-05-18'
-}
 const useLocalNode = process.env.USE_LOCAL_NODE === 'true'
 
 export default async function handler (req, res) {
@@ -33,8 +19,8 @@ export default async function handler (req, res) {
   } = req
 
   console.log('slug is', slug)
-  let [shareId, chainId] = slug
-  if (isUndefined(shareId) || shareId === 'undefined') {
+  let [taskId, chainId] = slug
+  if (isUndefined(taskId) || taskId === 'undefined') {
     res.status(200).json({})
     return
   }
@@ -54,21 +40,31 @@ export default async function handler (req, res) {
 
   try {
     const { contractAddress } = getDeployedContractForChainId(chainId)
+    // console.log('chainId', chainId, 'contractAddress', contractAddress)
     const taskPortalContract = new ethers.Contract(contractAddress, taskPortalContractAbi, provider)
-    const nodesResult = await getNodeFromContractAsObject(taskPortalContract, shareId)
-    const { taskPath } = nodesResult
-    const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskPath)
-    const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
 
-    console.log('ipfsPath', ipfsPath)
+    const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskId)
+    const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
     const [cid, fname] = ipfsPath.split('/')
     const taskObject = await getObjectInIPFS(cid, fname)
+    const nestedNodesObject = await getRecursiveNodes(taskPortalContract, taskId)
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
-    const returnPayload = { ...taskObject, ...taskNodeData, ...{ path: shareId } }
+    const returnPayload = { ...taskObject, ...taskNodeData, ...nestedNodesObject }
     console.log(returnPayload)
     res.status(200).json(returnPayload)
   } catch (err) {
-    console.log('err when getting share data for id', shareId, err)
+    console.log('err when getting share data for id', taskId, err)
     res.status(500).json({ error: 'failed to load data' })
   }
+}
+
+const getRecursiveNodes = async (contract, nodePath) => {
+  const nodeObject = await getNodeFromContractAsObject(contract, nodePath)
+  if (nodeObject.nodes.length > 0) {
+    nodeObject.nodes = await Promise.all(map(nodeObject.nodes, async (path) =>
+      await getRecursiveNodes(contract, path))
+    )
+  }
+  nodeObject.path = nodePath
+  return nodeObject
 }
