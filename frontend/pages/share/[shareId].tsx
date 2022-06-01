@@ -11,9 +11,6 @@ import {
 // @ts-ignore
 import { getBountyStringFromTaskObject } from '../../src/utils'
 import { AppContext } from '../../src/context'
-import ReactMarkdown from 'react-markdown'
-import rehypeFormat from 'rehype-format'
-import remarkGfm from 'remark-gfm'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType, SharePageState, shareStates, solveStates } from '../../src/const'
@@ -23,6 +20,7 @@ import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import BlockiesComponent from '../../src/components/BlockiesComponent'
 import { ethers } from 'ethers'
 import PresentActionLinksComponent from '../../src/components/PresentActionLinksComponent'
+import { MarkdownComponent } from '../../src/markdownUtils'
 
 interface ShareSubmissionStateType {
   name: SharePageState;
@@ -374,11 +372,7 @@ export default function SharePage ({ shareObject }) {
                 {renderActionButtonCard()}
               </div>
               <div className="mt-5 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                <ReactMarkdown
-                  children={shareObject.description}
-                  remarkPlugins={[remarkGfm]}
-                  rehypePlugins={[rehypeFormat]}
-                />
+                <MarkdownComponent content={shareObject.description} />
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
 import remarkHtml from 'remark-html'
 import remarkGfm from 'remark-gfm'
+import { classNames } from './utils'
 
 export const CustomLink = ({
   as,
@@ -15,10 +16,21 @@ export const CustomLink = ({
   </Link>
 )
 
+export const CustomList = ({
+  children,
+  // eslint-disable-next-line node/no-unsupported-features/es-syntax
+  ...props
+}) => {
+  return <li className={classNames(props.ordered ? 'list-decimal' : 'list-disc', 'ml-4')}>{children}</li>
+}
+
 export const MarkdownComponent = ({ content }) => (
   <ReactMarkdown
     children={content}
     remarkPlugins={[remarkGfm, remarkHtml]}
-    components={{ a: CustomLink }}
+    components={{
+      a: CustomLink,
+      li: CustomList
+    }}
   />
 )

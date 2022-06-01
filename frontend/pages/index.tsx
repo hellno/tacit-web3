@@ -24,10 +24,6 @@ interface TaskSubmissionStateType {
 export default function Home () {
   const [, dispatch] = useContext(AppContext)
   const [taskSubmissionState, setTaskSubmissionState] = useState<TaskSubmissionStateType>({ name: CreateTaskState.Default })
-  // const [taskSubmissionState, setTaskSubmissionState] = useState({
-  //   name: CreateTaskState.DoneCreatingTask,
-  //   data: exampleSuccessStateData
-  // })
 
   useEffect(() => {
     if (window.ethereum) {
