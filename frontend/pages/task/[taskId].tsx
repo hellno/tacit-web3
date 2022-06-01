@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react'
 import { CashIcon, CheckCircleIcon } from '@heroicons/react/solid'
-import { filter, get, isEmpty } from 'lodash'
+import { concat, filter, get, isEmpty } from 'lodash'
 import { loadWeb3Modal } from '../../src/walletUtils'
 import { AppContext } from '../../src/context'
 import Web3NavBar from '../../src/components/Web3NavBar'
@@ -18,6 +18,45 @@ import { flattenNodesRecursively, getBountyStringFromTaskObject } from '../../sr
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../../src/const'
 import { ethers } from 'ethers'
+
+const mockNodesForDemoVideo = [
+  {
+    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+    owner: '0xc8064f04e8C38C9451e10Ff8FA5330904ac97ff7',
+    nodeType: 1,
+    data: ethers.utils.toUtf8Bytes('Discord: tongm1n#1492'),
+    nodes: [],
+    isOpen: true,
+    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+  },
+  {
+    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+    owner: '0xa5030A585B2b1EEd0543F14794443Df552509E11',
+    nodeType: 1,
+    data: ethers.utils.toUtf8Bytes('Discord: SieFrank#9832'),
+    nodes: [],
+    isOpen: true,
+    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+  },
+  {
+    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+    owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+    nodeType: 1,
+    data: ethers.utils.toUtf8Bytes('by_taltinot#4028'),
+    nodes: [],
+    isOpen: true,
+    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+  },
+  {
+    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+    owner: '0x8a155697BEc333861785aC1fC43999BA850160F9',
+    nodeType: 1,
+    data: ethers.utils.toUtf8Bytes('Telegram: @wfelix82'),
+    nodes: [],
+    isOpen: true,
+    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+  }
+]
 
 export default function TaskPage ({ taskObject }) {
   const [state, dispatch] = useContext(AppContext)
@@ -61,7 +100,11 @@ export default function TaskPage ({ taskObject }) {
   }) => {
   }
 
-  const allNodes = flattenNodesRecursively(taskObject.nodes)
+  let allNodes = flattenNodesRecursively(taskObject.nodes)
+  // video mock
+  if (taskObject.owner === '0x63b2E4a23240727C2d62b1c91EE76D79E185e2ba') {
+    allNodes = concat(allNodes, mockNodesForDemoVideo)
+  }
 
   const cards = [
     {

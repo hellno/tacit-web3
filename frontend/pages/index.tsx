@@ -234,7 +234,7 @@ export default function Home () {
                   </a>
                   <h1
                     className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
-                    <span className="md:block">On-cain referrals</span>{' '}
+                    <span className="md:block">On-chain referrals</span>{' '}
                     <span className="text-yellow-400 md:block">
                       for Web3 communities
                     </span>
