@@ -81,8 +81,21 @@ export const handleChainInteractionError = (error) => {
   }
 }
 
-export const renderWalletConnectComponent = (account, web3Modal, dispatch) => {
+export const renderWalletConnectComponent = ({
+  account,
+  web3Modal,
+  dispatch,
+  onSubmitFunc
+}) => {
   const isWalletConnected = !isEmpty(account)
+
+  const onButtonSubmit = () => {
+    if (onSubmitFunc) {
+      onSubmitFunc()
+    }
+
+    connectWallet(web3Modal, dispatch)
+  }
 
   return <div className="">
     {isWalletConnected
@@ -91,7 +104,7 @@ export const renderWalletConnectComponent = (account, web3Modal, dispatch) => {
                     Wallet {truncate(account, { length: 14 })}
                   </span>
       : <button
-        onClick={() => connectWallet(web3Modal, dispatch)}
+        onClick={onButtonSubmit}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
       >
         Connect Wallet

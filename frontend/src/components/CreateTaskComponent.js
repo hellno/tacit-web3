@@ -365,7 +365,11 @@ export default function CreateTaskComponent ({
             Your Wallet Address
           </label>)}
           {!isWalletConnected && (<div className="mt-1 mb-6">
-            {renderWalletConnectComponent(account, web3Modal, dispatch)}
+            {renderWalletConnectComponent({
+              account,
+              web3Modal,
+              dispatch
+            })}
           </div>)}
         </div>
         <form onSubmit={onFormSubmit} className="space-y-6">

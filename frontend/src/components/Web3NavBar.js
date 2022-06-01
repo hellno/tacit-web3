@@ -57,7 +57,11 @@ const Web3NavBar = () => {
         </div>
       </div>
       <div className="hidden md:flex">
-        {renderWalletConnectComponent(account, web3Modal, dispatch)}
+        {renderWalletConnectComponent({
+          account,
+          web3Modal,
+          dispatch
+        })}
         <div className="ml-2">
           {isWalletConnected && <Web3ChainSwitcher />}
         </div>
@@ -80,7 +84,11 @@ const Web3NavBar = () => {
         <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5">
           <div className="px-5 py-2 flex items-center justify-between">
             <div className="block w-full">
-              {renderWalletConnectComponent(account, web3Modal, dispatch)}
+              {renderWalletConnectComponent({
+                account,
+                web3Modal,
+                dispatch
+              })}
             </div>
             <div className="-mr-2">
               <Popover.Button

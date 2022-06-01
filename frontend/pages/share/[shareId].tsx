@@ -28,7 +28,6 @@ interface ShareSubmissionStateType {
 }
 
 export default function SharePage ({ shareObject }) {
-  console.log({ shareObject })
   const [state, dispatch] = useContext(AppContext)
   const isLoading = isEmpty(shareObject)
   // const [isLoading, setIsLoading] = useState(false)
@@ -62,10 +61,14 @@ export default function SharePage ({ shareObject }) {
 
   const isWalletConnected = !isEmpty(account)
 
-  const onModalClose = () => {
+  const resetToDefaultState = () => {
     setSharePageData({
       name: SharePageState.Default
     })
+  }
+
+  const onModalClose = () => {
+    resetToDefaultState()
   }
 
   const handleSolveFormSubmit = async (formData) => {
@@ -150,6 +153,10 @@ export default function SharePage ({ shareObject }) {
       </div>)
   }
 
+  const onWalletConnectButtonSubmit = () => {
+
+  }
+
   const renderShareModalContent = () => {
     switch (sharePageData.name) {
       case SharePageState.ShareIntent:
@@ -166,10 +173,17 @@ export default function SharePage ({ shareObject }) {
               Wallet Address
             </label>
             <div className="mt-1">
-              {!isWalletConnected && renderWalletConnectComponent(account, web3Modal, dispatch)}
+              {!isWalletConnected && renderWalletConnectComponent({
+                account,
+                web3Modal,
+                dispatch,
+                resetToDefaultState
+              })}
             </div>
-            <form onSubmit={handleSubmit(handleShareFormSubmit)} className="space-y-6">
-              {isWalletConnected && renderWalletAddressInputField(account)}
+            <form onSubmit={handleSubmit(handleShareFormSubmit)} className="space-y-4">
+              <div>
+                {isWalletConnected && renderWalletAddressInputField(account)}
+              </div>
               <div>
                 {renderFormField({
                   register,
@@ -225,10 +239,17 @@ export default function SharePage ({ shareObject }) {
               Wallet Address
             </label>
             <div className="mt-1">
-              {!isWalletConnected && renderWalletConnectComponent(account, web3Modal, dispatch)}
+              {!isWalletConnected && renderWalletConnectComponent({
+                account,
+                web3Modal,
+                dispatch,
+                resetToDefaultState
+              })}
             </div>
-            <form onSubmit={handleSubmit(handleSolveFormSubmit)} className="space-y-6">
-              {isWalletConnected && renderWalletAddressInputField(account)}
+            <form onSubmit={handleSubmit(handleSolveFormSubmit)} className="space-y-4">
+              <div>
+                {isWalletConnected && renderWalletAddressInputField(account)}
+              </div>
               <div>
                 {renderFormField({
                   register,
