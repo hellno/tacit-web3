@@ -190,7 +190,7 @@ export default function SharePage ({ shareObject }) {
                 account,
                 web3Modal,
                 dispatch,
-                resetToDefaultState
+                onSubmitFunc: resetToDefaultState
               })}
             </div>
             <form onSubmit={handleSubmit(handleShareFormSubmit)} className="space-y-4">
@@ -256,7 +256,7 @@ export default function SharePage ({ shareObject }) {
                 account,
                 web3Modal,
                 dispatch,
-                resetToDefaultState
+                onSubmitFunc: resetToDefaultState
               })}
             </div>
             <form onSubmit={handleSubmit(handleSolveFormSubmit)} className="space-y-4">
