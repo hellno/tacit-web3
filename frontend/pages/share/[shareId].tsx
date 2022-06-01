@@ -21,6 +21,7 @@ import BlockiesComponent from '../../src/components/BlockiesComponent'
 import { ethers } from 'ethers'
 import PresentActionLinksComponent from '../../src/components/PresentActionLinksComponent'
 import { MarkdownComponent } from '../../src/markdownUtils'
+import { addUserToDatabase } from '../../src/supabase'
 
 interface ShareSubmissionStateType {
   name: SharePageState;
@@ -86,6 +87,14 @@ export default function SharePage ({ shareObject }) {
       transactionHash: addSolutionTransaction.hash
     }
 
+    const { email } = formData
+    if (email) {
+      await addUserToDatabase({
+        walletAddress: account,
+        email
+      })
+    }
+
     setSharePageData({
       name: SharePageState.SuccessSubmitSolve,
       data
@@ -108,6 +117,14 @@ export default function SharePage ({ shareObject }) {
     const data = {
       transactionHash: addShareTransaction.hash,
       sharePath: shareEvent.args.path
+    }
+
+    const { email } = formData
+    if (email) {
+      await addUserToDatabase({
+        walletAddress: account,
+        email
+      })
     }
 
     setSharePageData({
@@ -151,10 +168,6 @@ export default function SharePage ({ shareObject }) {
           </div>
         </div>
       </div>)
-  }
-
-  const onWalletConnectButtonSubmit = () => {
-
   }
 
   const renderShareModalContent = () => {

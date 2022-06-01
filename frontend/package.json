@@ -10,6 +10,7 @@
     "@coinbase/wallet-sdk": "^3.0.12",
     "@headlessui/react": "^1.6.1",
     "@heroicons/react": "^1.0.6",
+    "@supabase/supabase-js": "^1.35.3",
     "@tailwindcss/forms": "^0.5.1",
     "@typescript-eslint/eslint-plugin": "^5.23.0",
     "@typescript-eslint/parser": "^5.23.0",

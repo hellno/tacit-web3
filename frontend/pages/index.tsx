@@ -53,7 +53,6 @@ export default function Home () {
 
   function getTaskComponentDependingOnState () {
     const stateName = get(taskSubmissionState, 'name')
-    // todo: handle user rejection state etc
     switch (stateName) {
       case CreateTaskState.Default:
       case CreateTaskState.PendingUserInputBounty:
@@ -89,7 +88,7 @@ export default function Home () {
       default:
         return <div className="px-4 py-8 sm:px-10">
           <div className="mt-0">
-            Error - you shouldn't see this :)
+            Error - you should not see this 😅👋🏼
             <div className="mt-5 sm:mt-2 sm:flex-shrink-0 sm:flex sm:items-center">
               <button
                 onClick={() => setTaskSubmissionState({ name: CreateTaskState.Default })}
@@ -99,7 +98,9 @@ export default function Home () {
                 Start over
               </button>
             </div>
-            {/* {get(taskSubmissionState, 'error')} */}
+            {process.env.NODE_ENV === 'development' && (<div className="bg-red-100 p-2 px-4 mt-4 rounded-sm">
+              error, shows only in dev-mode:<br />{get(taskSubmissionState, 'error')}
+            </div>)}
           </div>
         </div>
     }

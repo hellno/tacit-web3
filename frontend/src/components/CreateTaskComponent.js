@@ -23,6 +23,7 @@ import { NodeType } from '../const'
 import { sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
+import { addUserToDatabase } from '../supabase'
 
 const unit = require('ethjs-unit')
 
@@ -80,8 +81,10 @@ export default function CreateTaskComponent ({
       })
   }
 
-  // eslint-disable-next-line no-unused-vars
-  const uploadUserDataToSupabase = async (data) => {
+  const uploadUserDataToSupabase = async ({
+    walletAddress,
+    email
+  }) => {
 
   }
 
@@ -103,14 +106,22 @@ export default function CreateTaskComponent ({
       title,
       description
     })
+    // const dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
 
-    // uploadUserDataToSupabase({
-    //   email,
-    //   account
-    // })
+    const userUploadStatus = await addUserToDatabase({
+      walletAddress: account,
+      email
+    })
+
+    if (!userUploadStatus.success && userUploadStatus.error) {
+      setState({
+        name: CreateTaskState.ErrorCreatingTask,
+        error: userUploadStatus.error
+      })
+      return
+    }
 
     setState({ name: CreateTaskState.PendingUserApproval })
-    // const dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
     try {
       console.log('create contract instance')
       const { contractAddress } = getDeployedContractForChainId(network.chainId)
