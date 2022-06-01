@@ -3,7 +3,6 @@ import { CheckCircleIcon } from '@heroicons/react/solid'
 import { loadWeb3Modal } from '../src/walletUtils'
 import Web3NavBar from '../src/components/Web3NavBar'
 import { AppContext } from '../src/context'
-import Image from 'next/image'
 import CreateTaskComponent from '../src/components/CreateTaskComponent'
 import { get } from 'lodash'
 // eslint-disable-next-line node/no-missing-import
@@ -240,40 +239,31 @@ export default function Home () {
                     with their friends… ∞ Receive results and reward the contributors. Everyone who contributes to
                     finding what you are looking for gets a share of the reward.
                   </p>
-                  <p className="mt-8 text-sm text-white uppercase tracking-wide font-semibold sm:mt-10">
-                    Used by
-                  </p>
-                  <div className="mt-5 w-full sm:mx-auto sm:max-w-lg lg:ml-0">
-                    <div className="flex flex-wrap items-start justify-between">
-                      <div className="flex justify-center px-1">
-                        <Image
-                          className="h-9 sm:h-10 invert"
-                          src="/arweave.png"
-                          alt="Arweave"
-                          height="28"
-                          width="130"
-                        />
-                      </div>
-                      <div className="flex justify-center px-1">
-                        <Image
-                          className="h-9 sm:h-10"
-                          src="/check24.png"
-                          alt="Check24"
-                          height="28"
-                          width="130"
-                        />
-                      </div>
-                      <div className="flex justify-center px-1">
-                        {/* <Image */}
-                        {/*   className="h-9 sm:h-10" */}
-                        {/*   src="https://tailwindui.com/img/logos/statickit-logo-gray-400.svg" */}
-                        {/*   alt="StaticKit" */}
-                        {/*   height="28" */}
-                        {/*   width="28" */}
-                        {/* /> */}
-                      </div>
-                    </div>
-                  </div>
+                  {/* <p className="mt-8 text-sm text-white uppercase tracking-wide font-semibold sm:mt-10"> */}
+                  {/*   Used by */}
+                  {/* </p> */}
+                  {/* <div className="mt-5 w-full sm:mx-auto sm:max-w-lg lg:ml-0"> */}
+                  {/*   <div className="flex flex-wrap items-start justify-between"> */}
+                  {/*     <div className="flex justify-center px-1"> */}
+                  {/*       <Image */}
+                  {/*         className="h-9 sm:h-10 invert" */}
+                  {/*         src="/arweave.png" */}
+                  {/*         alt="Arweave" */}
+                  {/*         height="28" */}
+                  {/*         width="130" */}
+                  {/*       /> */}
+                  {/*     </div> */}
+                  {/*     <div className="flex justify-center px-1"> */}
+                  {/*       <Image */}
+                  {/*         className="h-9 sm:h-10" */}
+                  {/*         src="/check24.png" */}
+                  {/*         alt="Check24" */}
+                  {/*         height="28" */}
+                  {/*         width="130" */}
+                  {/*       /> */}
+                  {/*     </div> */}
+                  {/*   </div> */}
+                  {/* </div> */}
                 </div>
               </div>
               {renderTaskComponent()}
