@@ -129,7 +129,7 @@ export default function SharePage ({ shareObject }) {
               </button>
             </div>
             <span className="block mt-2 pr-4 text-base font-normal text-gray-100">
-              You get part of the reward if someone downstream from your unique link enters a winning result
+              You get part of the reward if someone downstream of your unique link enters a winning result.
             </span>
           </div>
           <div>
@@ -145,7 +145,7 @@ export default function SharePage ({ shareObject }) {
               Enter requested
               results to
               become eligible
-              for a reward
+              for a reward.
             </span>
           </div>
         </div>
