@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { CheckCircleIcon, ChevronRightIcon } from '@heroicons/react/solid'
+import { CheckCircleIcon } from '@heroicons/react/solid'
 import { loadWeb3Modal } from '../src/walletUtils'
 import Web3NavBar from '../src/components/Web3NavBar'
 import { AppContext } from '../src/context'
@@ -207,7 +207,8 @@ export default function Home () {
 
   // @ts-ignore
   return (
-    <div className="relative bg-gradient-to-tr from-red-500 via-gray-700 to-gray-800 overflow-hidden min-h-screen">
+    <div className="relative bg-gray-800 overflow-hidden min-h-screen">
+      {/* <div className="relative bg-gradient-to-tr from-red-500 via-gray-700 to-gray-800 overflow-hidden min-h-screen"> */}
       <div className="relative pt-6 pb-16 sm:pb-24">
         <Web3NavBar />
         <main className="mt-16 sm:mt-24">
@@ -216,22 +217,17 @@ export default function Home () {
               <div
                 className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex">
                 <div>
-                  <a
-                    href="#"
-                    className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base hover:text-gray-200"
+                  <div
+                    className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base"
                   >
                     <span
                       className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
                       WAGMI
                     </span>
-                    <span className="ml-4 text-sm">
+                    <span className="mx-2 text-sm">
                       Find what you are looking for
                     </span>
-                    <ChevronRightIcon
-                      className="ml-2 w-5 h-5 text-gray-500"
-                      aria-hidden="true"
-                    />
-                  </a>
+                  </div>
                   <h1
                     className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                     <span className="md:block">On-chain referrals</span>{' '}
@@ -241,7 +237,7 @@ export default function Home () {
                   </h1>
                   <p className="mt-3 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                     Create a search task, attach a token reward, and share it with your friends, who can share it again
-                    with their friends … ∞ Receive results and reward the contributors. Everyone who contributes to
+                    with their friends… ∞ Receive results and reward the contributors. Everyone who contributes to
                     finding what you are looking for gets a share of the reward.
                   </p>
                   <p className="mt-8 text-sm text-white uppercase tracking-wide font-semibold sm:mt-10">
@@ -251,18 +247,18 @@ export default function Home () {
                     <div className="flex flex-wrap items-start justify-between">
                       <div className="flex justify-center px-1">
                         <Image
-                          className="h-9 sm:h-10"
-                          src="/check24.png"
-                          alt="Check24"
+                          className="h-9 sm:h-10 invert"
+                          src="/arweave.png"
+                          alt="Arweave"
                           height="28"
                           width="130"
                         />
                       </div>
                       <div className="flex justify-center px-1">
                         <Image
-                          className="h-9 sm:h-10 invert"
-                          src="/arweave.png"
-                          alt="Arweave"
+                          className="h-9 sm:h-10"
+                          src="/check24.png"
+                          alt="Check24"
                           height="28"
                           width="130"
                         />

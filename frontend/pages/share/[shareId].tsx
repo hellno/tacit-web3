@@ -125,11 +125,11 @@ export default function SharePage ({ shareObject }) {
                 onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
                 className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-200 hover:bg-yellow-100"
               >
-                Get unique link to share and earn
+                Get referral link
               </button>
             </div>
             <span className="block mt-2 pr-4 text-base font-normal text-gray-100">
-              You get part of the reward if someone downstream of your unique link enters a winning result.
+              You get part of the reward if someone downstream of your link enters a winning result.
             </span>
           </div>
           <div>

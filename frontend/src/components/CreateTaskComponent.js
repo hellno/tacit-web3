@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react'
-import { InformationCircleIcon } from '@heroicons/react/solid'
+import { ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
 
 import { ethers } from 'ethers'
 import { useForm } from 'react-hook-form'
@@ -22,9 +22,7 @@ import {
 import { NodeType } from '../const'
 import { sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
-import ReactMarkdown from 'react-markdown'
-import rehypeFormat from 'rehype-format'
-import remarkGfm from 'remark-gfm'
+import { MarkdownComponent } from '../markdownUtils'
 
 const unit = require('ethjs-unit')
 
@@ -52,8 +50,8 @@ export default function CreateTaskComponent ({
   } = useForm({
     defaultValues: {
       email: 'test@test.com',
-      // title: 'this is a sweet test title',
-      // description: 'amazing test description',
+      title: 'this is a sweet test title',
+      description: 'amazing test description',
       tokenAmount: '2',
       tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
     }
@@ -304,11 +302,7 @@ export default function CreateTaskComponent ({
           <dt className="text-md font-medium text-gray-500">Task Preview
           </dt>
           <dd className="mt-1 text-md text-gray-900">
-            <ReactMarkdown
-              children={formTaskDescription}
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeFormat]}
-            />
+            <MarkdownComponent content={formTaskDescription} />
           </dd>
         </div>
         <div className="sm:col-span-2">
@@ -349,6 +343,16 @@ export default function CreateTaskComponent ({
       </button>)
   }
 
+  const renderBackButton = () => {
+    return (<button
+      onClick={() => setState({ name: CreateTaskState.Default })}
+      className="relative inline-flex items-center px-2 py-2 rounded-sm border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+    >
+      <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+      <span className="mr-2">Previous</span>
+    </button>)
+  }
+
   return (<>
     <div className="px-4 py-8 sm:px-10">
       {localState.message && renderUseInfoMessage()}
@@ -368,6 +372,7 @@ export default function CreateTaskComponent ({
           {localState.name === CreateTaskState.Default && renderTaskDescriptionFormPart()}
           {localState.name === CreateTaskState.PendingUserInputBounty && renderTaskBountyFormPart()}
           {renderFormSubmitButton()}
+          {localState.name === CreateTaskState.PendingUserInputBounty && renderBackButton()}
         </form>
       </div>
     </div>
