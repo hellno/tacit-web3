@@ -9,11 +9,14 @@ export const CustomLink = ({
   as,
   href,
   // eslint-disable-next-line node/no-unsupported-features/es-syntax
-  ...otherProps
+  ...props
 }) => (
-  <Link as={as} href={href}>
-    <a className="underline" {...otherProps} />
-  </Link>
+  <>
+    <Link as={as} href={href}>
+      <a className="underline" {...props} />
+    </Link>
+    <br />
+  </>
 )
 
 export const CustomList = ({
@@ -24,13 +27,18 @@ export const CustomList = ({
   return <li className={classNames(props.ordered ? 'list-decimal' : 'list-disc', 'ml-4')}>{children}</li>
 }
 
+export const CustomLineBreak = () => {
+  return <><br /><br /></>
+}
+
 export const MarkdownComponent = ({ content }) => (
   <ReactMarkdown
     children={content}
     remarkPlugins={[remarkGfm, remarkHtml]}
     components={{
       a: CustomLink,
-      li: CustomList
+      li: CustomList,
+      br: CustomLineBreak
     }}
   />
 )
