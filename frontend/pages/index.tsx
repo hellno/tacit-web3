@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react'
-import { CheckCircleIcon } from '@heroicons/react/solid'
+import { ArrowSmDownIcon, CheckCircleIcon } from '@heroicons/react/solid'
 import { loadWeb3Modal } from '../src/walletUtils'
 import Web3NavBar from '../src/components/Web3NavBar'
 import { AppContext } from '../src/context'
@@ -209,37 +209,43 @@ export default function Home () {
   return (
     <div className="relative bg-gray-800 overflow-hidden min-h-screen">
       {/* <div className="relative bg-gradient-to-tr from-red-500 via-gray-700 to-gray-800 overflow-hidden min-h-screen"> */}
-      <div className="relative pt-6 pb-16 sm:pb-24">
+      <div className="relative pt-6 pb-16">
         <Web3NavBar />
-        <main className="mt-16 sm:mt-24">
+        <main className="mt-16 sm:mt-20">
           <div className="mx-auto max-w-7xl">
             <div className="lg:grid lg:grid-cols-12 lg:gap-8">
               <div
                 className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex">
-                <div>
-                  <div
-                    className="inline-flex items-center text-gray-800 bg-gray-200 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base"
-                  >
+                <div className="grid">
+                  <div className="">
+                    <div
+                      className="inline-flex items-center text-gray-800 bg-gray-200 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base">
                     <span
                       className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
                       WAGMI
                     </span>
-                    <span className="mx-2 text-sm">
+                      <span className="mx-2 text-sm">
                       Find what you are looking for
                     </span>
-                  </div>
-                  <h1
-                    className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
-                    <span className="md:block">On-chain referrals</span>{' '}
-                    <span className="text-yellow-400 md:block">
+                    </div>
+                    <h1
+                      className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
+                      <span className="md:block">On-chain referrals</span>{' '}
+                      <span className="text-yellow-400 md:block">
                       for Web3 communities
                     </span>
-                  </h1>
-                  <p className="mt-3 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                    Create a search task, attach a token reward, and share it with your friends, who can share it again
-                    with their friends… ∞ Receive results and reward the contributors. Everyone who contributes to
-                    finding what you are looking for gets a share of the reward.
-                  </p>
+                    </h1>
+                    <p className="mt-3 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                      Create a search task, attach a token reward, and share it with your friends, who can share it
+                      again
+                      with their friends… ∞ Receive results and reward the contributors. Everyone who contributes to
+                      finding what you are looking for gets a share of the reward.
+                    </p>
+                  </div>
+                  <div className="hidden lg:self-end lg:row-span-1 lg:flex">
+                    <ArrowSmDownIcon
+                      className="rounded-full w-6 h-6 text-gray-100 animate-bounce" />
+                  </div>
                   {/* <p className="mt-8 text-sm text-white uppercase tracking-wide font-semibold sm:mt-10"> */}
                   {/*   Used by */}
                   {/* </p> */}
