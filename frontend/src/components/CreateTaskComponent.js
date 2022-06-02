@@ -332,19 +332,19 @@ export default function CreateTaskComponent ({
   const renderFormSubmitButton = () => {
     return localState.name === CreateTaskState.PendingUserInputBounty
       ? (<button
-      type="submit"
-      disabled={!isWalletConnected}
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-    >
-      Submit Task & Bounty
-    </button>)
+        type="submit"
+        disabled={!isWalletConnected}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+      >
+        Submit Task & Bounty
+      </button>)
       : (<button
-      onClick={(event) => onNextStepSubmit(event)}
-      disabled={!isWalletConnected}
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-    >
-      Preview Task
-    </button>)
+        onClick={(event) => onNextStepSubmit(event)}
+        disabled={!isWalletConnected}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+      >
+        Preview Task
+      </button>)
   }
 
   const renderBackButton = () => {
