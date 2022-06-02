@@ -8,7 +8,10 @@ import { get } from 'lodash'
 // eslint-disable-next-line node/no-missing-import
 import { CreateTaskState } from '../src/const'
 import PresentActionLinksComponent from '../src/components/PresentActionLinksComponent'
-import HowToExplainerComponent from '../src/components/HowToExplainerComponent'
+import dynamic from 'next/dynamic'
+
+// eslint-disable-next-line node/no-unsupported-features/es-syntax
+const HowToExplainerComponent = dynamic(() => import('../src/components/HowToExplainerComponent'))
 
 const exampleSuccessStateData = {
   transactionHash: '0xd852a40d8bd87f34315f7fc0280a31df974bf0089fed2c8f49df38759a43f755',
