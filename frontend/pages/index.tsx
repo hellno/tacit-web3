@@ -216,8 +216,8 @@ export default function Home () {
             <div className="lg:grid lg:grid-cols-12 lg:gap-8">
               <div
                 className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex">
-                <div className="grid">
-                  <div className="">
+                <div className="grid grid-rows-4">
+                  <div className="row-span-3">
                     <div
                       className="inline-flex items-center text-gray-800 bg-gray-200 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base">
                     <span
@@ -242,10 +242,13 @@ export default function Home () {
                       finding what you are looking for gets a share of the reward.
                     </p>
                   </div>
-                  <div className="hidden lg:self-end lg:row-span-1 lg:flex">
+                  <a
+                    href="#how-to"
+                    className="hidden lg:mt-4 lg:row-span-1 lg:flex 2xl:hidden">
                     <ArrowSmDownIcon
-                      className="rounded-full w-6 h-6 text-gray-100 animate-bounce" />
-                  </div>
+                      className="rounded-full w-6 h-6 text-gray-200 animate-bounce" />
+                    <span className="ml-4 text-gray-200 shadow">Learn more</span>
+                  </a>
                   {/* <p className="mt-8 text-sm text-white uppercase tracking-wide font-semibold sm:mt-10"> */}
                   {/*   Used by */}
                   {/* </p> */}
@@ -276,7 +279,7 @@ export default function Home () {
               {renderTaskComponent()}
             </div>
           </div>
-          <div className="">
+          <div id="how-to">
             <div className="py-16 relative bg-white mx-auto px-4 sm:mt-24 sm:px-6">
               <div className="text-center flex justify-center">
                 <div>
