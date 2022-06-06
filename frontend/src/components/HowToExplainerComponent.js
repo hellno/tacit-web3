@@ -91,7 +91,7 @@ export default function HowToExplainerComponent () {
                   Get ETH and tokens to create a bounty
                 </h2>
                 <p className="mt-4 text-lg text-gray-500">
-                  Use the following two links to receive ETH and ERC20 tokens in your wallet on Goerli testnet:
+                  Use any of the following links to receive ETH and ERC20 tokens in your wallet on Goerli testnet:
                   <ul>
                     <li className="list-disc ml-4">
                       <a className="underline font-medium"
@@ -103,6 +103,12 @@ export default function HowToExplainerComponent () {
                       <a className="underline font-medium"
                          target="_blank" rel="noopener noreferrer"
                          href="https://erc20faucet.com">ERC20 Faucet
+                      </a>
+                    </li>
+                    <li className="list-disc ml-4">
+                      <a className="underline font-medium"
+                         target="_blank" rel="noopener noreferrer"
+                         href="https://faucet.paradigm.xyz/">Paradigm Faucet
                       </a>
                     </li>
                   </ul>

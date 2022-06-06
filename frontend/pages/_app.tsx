@@ -19,12 +19,12 @@ function MyApp ({
         }} />
         <script async dangerouslySetInnerHTML={{
           __html: `(function(s,q,e,a,u,k,y){
-          s._sqSettings={site_id:'de74bb86-d7ef-4461-afaa-d5eb9264b53c'};
-          u=q.getElementsByTagName('head')[0];
-          k=q.createElement('script');
-          k.src=e+s._sqSettings.site_id;
-          u.appendChild(k);
-        })(window,document,'https://cdn.squeaky.ai/g/0.4.0/script.js?');
+                    s._sqSettings={site_id:'f9bd9a89-e360-434d-b507-dcc99ecd0c0f'};
+                    u=q.getElementsByTagName('head')[0];
+                    k=q.createElement('script');
+                    k.src=e+s._sqSettings.site_id;
+                    u.appendChild(k);
+                  })(window,document,'https://cdn.squeaky.ai/g/0.4.0/script.js?');
         `
         }} />
       </>

@@ -50,9 +50,9 @@ export default function CreateTaskComponent ({
     watch
   } = useForm({
     defaultValues: {
-      email: 'test@test.com',
-      title: 'this is a sweet test title',
-      description: 'amazing test description',
+      // email: 'test@test.com',
+      // title: 'this is a sweet test title',
+      // description: 'amazing test description',
       tokenAmount: '2',
       tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
     }
