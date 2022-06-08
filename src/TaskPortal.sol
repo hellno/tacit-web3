@@ -4,9 +4,10 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "forge-std/console.sol";
-//import "lib/forge-std/src/console2.sol";
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
+import "openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
 
     enum NodeType {Task, Solution, Share}
 
@@ -31,6 +32,9 @@ import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 
 contract TaskPortal {
+    using SafeERC20 for IERC20;
+    using SafeMath for uint256;
+
     mapping(bytes32 => Bounty) bounties;
     mapping(bytes32 => Node) nodes;
     uint256 public nodesCount = 0;
@@ -117,7 +121,7 @@ contract TaskPortal {
             require(token.balanceOf(msg.sender) >= amount);
 
             amount = _amount;
-            token.transferFrom(msg.sender, address(this), amount);
+            token.safeTransferFrom(msg.sender, address(this), amount);
         }
 
         bytes32 taskPath = _addNode(rootTaskPath, _data, msg.sender, NodeType.Task, "");
@@ -128,29 +132,57 @@ contract TaskPortal {
     }
 
     function addShare(bytes32 _parent, bytes memory _data) public nodeExists(_parent) returns (bytes32) {
+
         bytes32 taskPath;
         if (uint(nodes[_parent].nodeType) == uint(NodeType.Task)) {
             taskPath = _parent;
         } else {
             taskPath = nodes[_parent].taskPath;
         }
+        require(!hasSenderContributedToAnySubnode(taskPath), "One share per task for each wallet");
 
         return _addNode(_parent, _data, msg.sender, NodeType.Share, taskPath);
     }
 
     function addSolution(bytes32 _parent, bytes memory _data) public nodeExists(_parent) returns (bytes32) {
         require(uint(nodes[_parent].nodeType) == uint(NodeType.Share));
+
         bytes32 taskPath = nodes[_parent].taskPath;
         return _addNode(_parent, _data, msg.sender, NodeType.Solution, taskPath);
     }
 
+    function hasSenderContributedToAnySubnode(bytes32 _path) public nodeExists(_path) view returns (bool) {
+        bytes32[] memory _nodes = nodes[_path].nodes;
+        for (uint i = 0; i < _nodes.length; i++) {
+            if (nodes[_nodes[i]].owner == msg.sender) {
+                return true;
+            }
+            if (nodes[_nodes[i]].nodes.length > 0) {
+                bool hasContributedToAnySubnode = hasSenderContributedToAnySubnode(_nodes[i]);
+                if (hasContributedToAnySubnode) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     function updateNodesIsOpen(bytes32[] memory _paths, bool[] memory _isOpens) public returns (uint) {
-        require(_paths.length == _isOpens.length, "Node paths and isOpens must have same length");
+        require(_paths.length == _isOpens.length, "Number of node paths and isOpens must be equal");
 
         uint nodeUpdateCounter = 0;
 
         for (uint i = 0; i < _paths.length; i++) {
-            bool canEditNodeThatShouldBeUpdated = nodes[_paths[i]].owner == msg.sender && nodes[_paths[i]].isOpen != _isOpens[i];
+            address taskOwner;
+            if (uint(nodes[_paths[i]].nodeType) == uint(NodeType.Task)) {
+                taskOwner = nodes[_paths[i]].owner;
+            } else {
+                taskOwner = nodes[nodes[_paths[i]].taskPath].owner;
+            }
+
+            bool canEditNodeThatShouldBeUpdated = taskOwner == msg.sender && nodes[_paths[i]].isOpen != _isOpens[i];
+
             if (canEditNodeThatShouldBeUpdated) {
                 nodes[_paths[i]].isOpen = _isOpens[i];
                 nodeUpdateCounter++;
@@ -160,35 +192,32 @@ contract TaskPortal {
         return nodeUpdateCounter;
     }
 
-    // client must decide which nodes / paths to reward
-    // payout is inefficient because we create a new transaction for each user
-    function payoutTask(bytes32 taskPath, bytes32[] memory paths) public canEditNode(taskPath) {
-        require(paths.length > 0, "");
+    function payoutTask(bytes32 taskPath, bytes32[] memory paths, uint256[] memory amounts) public canEditNode(taskPath) {
+        require(paths.length > 0, "No node paths provided");
+        require(paths.length == amounts.length);
 
         Bounty memory bounty = bounties[taskPath];
         require(bounty.amount > 0);
 
-        // any checks we need to do before going into the loop?
-        // bad if we get half-way through the loop and then revert
-        uint bountyShare = bounty.amount / paths.length;
+        uint256 currentSum = 0;
+        IERC20 token = IERC20(bounty.tokenAddress);
 
-        if (bounty.tokenAddress == address(0)) {
-            // no ERC token, but native chain currency is used) {
-            require(address(this).balance >= bounty.amount, "Contract must have enough balance");
+        for (uint i; i < paths.length; i++) {
+            require(amounts[i] > 0);
+            require(nodes[paths[i]].isOpen);
+            currentSum = currentSum.add(amounts[i]);
+            require(currentSum <= bounty.amount);
 
-            for (uint i; i < paths.length; i++) {
-                (bool success,) = payable(nodes[paths[i]].owner).call{value : bountyShare}("");
-                require(success, "Failed to withdraw money from contract.");
-            }
-        } else {
-            IERC20 token = IERC20(bounty.tokenAddress);
-            require(token.balanceOf(address(this)) >= bounty.amount, "Contract must have enough balance of token");
-
-            for (uint i; i < paths.length; i++) {
-                token.transferFrom(address(this), nodes[paths[i]].owner, bountyShare);
+            // native chain currency = no ERC token used
+            if (bounty.tokenAddress == address(0)) {
+                require(address(this).balance >= amounts[i], "Contract must have enough balance");
+                payable(nodes[paths[i]].owner).transfer(amounts[i]);
+            } else {
+                require(token.balanceOf(address(this)) >= amounts[i], "Contract must have enough tokens");
+                token.safeTransferFrom(address(this), nodes[paths[i]].owner, amounts[i]);
             }
         }
 
-        bounties[taskPath].amount = 0;
+        bounties[taskPath].amount = bounties[taskPath].amount - currentSum;
     }
 }
