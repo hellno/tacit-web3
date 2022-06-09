@@ -111,7 +111,6 @@ export default function SharePage ({ shareObject }) {
     const res = await addShareTransaction.wait()
 
     console.log('Transaction successfully executed:', addShareTransaction, res)
-    console.log('events', res.events)
 
     const shareEvent = res.events.find(event => event.event === 'NewNodeCreated' && event.args.nodeType === NodeType.Share)
     const data = {

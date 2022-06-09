@@ -152,7 +152,6 @@ export default function CreateTaskComponent ({
       console.log('Waiting to add the task on-chain...', addTaskTransaction.hash)
       const res = await addTaskTransaction.wait()
       console.log('Transaction successfully executed:', addTaskTransaction, res)
-      console.log('events', res.events)
       const shareEvent = res.events.find(event => event.event === 'NewNodeCreated' && event.args.nodeType === NodeType.Share)
       const data = {
         transactionHash: addTaskTransaction.hash,

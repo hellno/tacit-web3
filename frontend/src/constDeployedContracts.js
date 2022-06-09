@@ -9,7 +9,7 @@ export const erc20ContractAbi = erc20Abi.abi
 const _contracts = [{
   chainId: 5,
   name: 'Görli Testnet',
-  contractAddress: '0x89c26aacbb1ad26acdd5be7246b29f3ee8679fa9'
+  contractAddress: '0x9e6da52d8400329cea94d4be0840f713ace712c2'
 }]
 
 export const getDeployedContracts = () => {

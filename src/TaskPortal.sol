@@ -8,6 +8,9 @@ import "openzeppelin-contracts/contracts/utils/Strings.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 import "openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
+import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/metatx/ERC2771Context.sol";
+import "../lib/openzeppelin-contracts/contracts/metatx/ERC2771Context.sol";
 
     enum NodeType {Task, Solution, Share}
 
@@ -31,7 +34,7 @@ import "openzeppelin-contracts/contracts/utils/math/SafeMath.sol";
 
 
 
-contract TaskPortal {
+contract TaskPortal is ERC2771Context, Ownable {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
@@ -40,14 +43,14 @@ contract TaskPortal {
     uint256 public nodesCount = 0;
     bytes32 public rootTaskPath;
 
+    //    address private _trustedForwarder;
+
     event NewNodeCreated(address indexed owner, bytes32 indexed parent, bytes32 path, NodeType nodeType);
 
-    constructor() {
+    constructor(address trustedForwarder) ERC2771Context(trustedForwarder) Ownable() {
         rootTaskPath = _addNode("", "RootTask", msg.sender, NodeType.Task, "");
         console.log("Created TaskPortal root task with path");
         console.logBytes32(rootTaskPath);
-
-        console.log(address(0));
     }
 
     receive() external payable {
@@ -61,9 +64,21 @@ contract TaskPortal {
 
     modifier canEditNode(bytes32 _path) {
         require(nodes[_path].parent.length > 0, "Node does not exist");
-        require(nodes[_path].owner == msg.sender, "Only node owner can edit node");
+        require(nodes[_path].owner == _msgSender(), "Only node owner can edit node");
         _;
     }
+
+    function _msgSender() internal view virtual override(ERC2771Context, Context) returns (address) {
+        return ERC2771Context._msgSender();
+    }
+
+    function _msgData() internal view virtual override(ERC2771Context, Context) returns (bytes calldata) {
+        return ERC2771Context._msgData();
+    }
+
+    //    function setTrustedForwarder(address trustedForwarder) public onlyOwner {
+    //        _trustedForwarder = trustedForwarder;
+    //    }
 
     function getTask(bytes32 _path) public view nodeExists(_path) returns (address, bytes memory, bool, bytes32[] memory, address, uint256) {
         Node storage node = nodes[_path];
@@ -77,7 +92,7 @@ contract TaskPortal {
     }
 
     function getNextNodeId() private view returns (bytes32) {
-        return keccak256(abi.encode(bytes32(nodesCount + 1), msg.sender));
+        return keccak256(abi.encode(bytes32(nodesCount + 1), _msgSender()));
     }
 
     function getAllTasks() public view returns (bytes32[] memory) {
@@ -118,13 +133,13 @@ contract TaskPortal {
             require(_tokenAddress.code.length > 0, "_tokenAddress must be a contract address");
             require(_amount > 0, "ERC20 token must have _amount to create task with bounty");
             IERC20 token = IERC20(_tokenAddress);
-            require(token.balanceOf(msg.sender) >= amount);
+            require(token.balanceOf(_msgSender()) >= amount);
 
             amount = _amount;
-            token.safeTransferFrom(msg.sender, address(this), amount);
+            token.safeTransferFrom(_msgSender(), address(this), amount);
         }
 
-        bytes32 taskPath = _addNode(rootTaskPath, _data, msg.sender, NodeType.Task, "");
+        bytes32 taskPath = _addNode(rootTaskPath, _data, _msgSender(), NodeType.Task, "");
         bounties[taskPath] = Bounty({tokenAddress : _tokenAddress, amount : amount});
         addShare(taskPath, "TaskCreatorShare");
 
@@ -141,20 +156,20 @@ contract TaskPortal {
         }
         require(!hasSenderContributedToAnySubnode(taskPath), "One share per task for each wallet");
 
-        return _addNode(_parent, _data, msg.sender, NodeType.Share, taskPath);
+        return _addNode(_parent, _data, _msgSender(), NodeType.Share, taskPath);
     }
 
     function addSolution(bytes32 _parent, bytes memory _data) public nodeExists(_parent) returns (bytes32) {
         require(uint(nodes[_parent].nodeType) == uint(NodeType.Share));
 
         bytes32 taskPath = nodes[_parent].taskPath;
-        return _addNode(_parent, _data, msg.sender, NodeType.Solution, taskPath);
+        return _addNode(_parent, _data, _msgSender(), NodeType.Solution, taskPath);
     }
 
     function hasSenderContributedToAnySubnode(bytes32 _path) public nodeExists(_path) view returns (bool) {
         bytes32[] memory _nodes = nodes[_path].nodes;
         for (uint i = 0; i < _nodes.length; i++) {
-            if (nodes[_nodes[i]].owner == msg.sender) {
+            if (nodes[_nodes[i]].owner == _msgSender()) {
                 return true;
             }
             if (nodes[_nodes[i]].nodes.length > 0) {
@@ -181,7 +196,7 @@ contract TaskPortal {
                 taskOwner = nodes[nodes[_paths[i]].taskPath].owner;
             }
 
-            bool canEditNodeThatShouldBeUpdated = taskOwner == msg.sender && nodes[_paths[i]].isOpen != _isOpens[i];
+            bool canEditNodeThatShouldBeUpdated = taskOwner == _msgSender() && nodes[_paths[i]].isOpen != _isOpens[i];
 
             if (canEditNodeThatShouldBeUpdated) {
                 nodes[_paths[i]].isOpen = _isOpens[i];

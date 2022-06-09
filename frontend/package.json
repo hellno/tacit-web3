@@ -7,6 +7,7 @@
     "prepare": "cd .. && husky install frontend/"
   },
   "dependencies": {
+    "@biconomy/mexa": "^2.0.32",
     "@coinbase/wallet-sdk": "^3.0.12",
     "@headlessui/react": "^1.6.1",
     "@heroicons/react": "^1.0.6",

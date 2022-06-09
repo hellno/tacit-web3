@@ -13,13 +13,13 @@ import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 contract TaskPortalTest is Test {
     TaskPortal taskPortal;
     //    address daiTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-    address daiTokenAddress = 0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671;
+    //    address daiTokenAddress = 0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671;
     bytes defaultTaskData = "bafybeigyhfbk2s3pbt34qdyrxpst2wbqengha3n7eziqkv4krbavvjo5mm/1c21055d221e684d8739678a1e51a474";
     bytes32[] nodePaths;
     bool[] isOpens;
 
     function setUp() public {
-        taskPortal = new TaskPortal();
+        taskPortal = new TaskPortal(address(0));
         nodePaths = new bytes32[](0);
         isOpens = new bool[](0);
 
