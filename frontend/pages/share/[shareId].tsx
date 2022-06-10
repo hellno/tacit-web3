@@ -1,9 +1,8 @@
 import { useContext, useEffect, useState } from 'react'
-import { CheckCircleIcon } from '@heroicons/react/solid'
+import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/solid'
 import { includes, isEmpty } from 'lodash'
 import { useForm } from 'react-hook-form'
 import {
-  getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
   loadWeb3Modal,
   renderWalletConnectComponent
@@ -13,7 +12,7 @@ import { getBountyStringFromTaskObject } from '../../src/utils'
 import { AppContext } from '../../src/context'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
-import { NodeType, SharePageState, shareStates, solveStates } from '../../src/const'
+import { BiconomyLoadingState, SharePageState, shareStates, solveStates } from '../../src/const'
 import { renderFormField, renderWalletAddressInputField } from '../../src/formUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
@@ -22,15 +21,26 @@ import { ethers } from 'ethers'
 import PresentActionLinksComponent from '../../src/components/PresentActionLinksComponent'
 import { MarkdownComponent } from '../../src/markdownUtils'
 import { addUserToDatabase } from '../../src/supabase'
+import { Biconomy } from '@biconomy/mexa'
+import { getDeployedContractForChainId } from '../../src/constDeployedContracts'
 
 interface ShareSubmissionStateType {
   name: SharePageState;
   data?: object;
 }
 
+interface BiconomyLoadingStateType {
+  name: BiconomyLoadingState,
+  biconomy?: Biconomy
+}
+
 export default function SharePage ({ shareObject }) {
   const [state, dispatch] = useContext(AppContext)
   const isLoading = isEmpty(shareObject)
+  const [biconomyState, setBiconomyState] = useState<BiconomyLoadingStateType>({
+    name: BiconomyLoadingState.Default,
+    biconomy: null
+  })
   // const [isLoading, setIsLoading] = useState(false)
   // const [isError, setIsError] = useState()
   // const [taskObject, setTaskObject] = useState(false)
@@ -51,6 +61,54 @@ export default function SharePage ({ shareObject }) {
   useEffect(() => {
     loadWeb3Modal(dispatch)
   }, [])
+
+  useEffect(() => {
+    setupBiconomy()
+  }, [library])
+
+  const setupBiconomy = async () => {
+    if (!library) {
+      return
+    }
+
+    if (biconomyState.name === BiconomyLoadingState.Success) {
+      return
+    }
+    setBiconomyState({ name: BiconomyLoadingState.Init })
+
+    const biconomyOptions = {
+      apiKey: process.env.BICONOMY_API_KEY,
+      walletProvider: library.provider,
+      debug: true
+    }
+    const jsonRpcProvider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC_ENDPOINT)
+    const biconomy = new Biconomy(jsonRpcProvider, biconomyOptions)
+
+    setBiconomyState({
+      name: BiconomyLoadingState.Loading,
+      biconomy
+    })
+  }
+
+  useEffect(() => {
+    if (biconomyState.name === BiconomyLoadingState.Loading) {
+      biconomyState.biconomy.onEvent(biconomyState.biconomy.READY, () => {
+        if (biconomyState.name !== BiconomyLoadingState.Success) {
+          console.log('biconomy is ready')
+          setBiconomyState({
+            name: BiconomyLoadingState.Success,
+            biconomy: biconomyState.biconomy
+          })
+        }
+      }).onEvent(biconomyState.biconomy.ERROR, (error, message) => {
+        console.log('biconomy has an error', error, message)
+        setBiconomyState({
+          name: BiconomyLoadingState.Error,
+          biconomy: error
+        })
+      })
+    }
+  }, [biconomyState.name])
 
   const renderLoadingScreen = () => (
     <LoadingScreenComponent subtitle={'Fetching on-chain data and task details from IPFS'} />
@@ -75,16 +133,38 @@ export default function SharePage ({ shareObject }) {
   const handleSolveFormSubmit = async (formData) => {
     setSharePageData({ name: SharePageState.PendingSolve })
 
-    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(library, network.chainId)
-    const options = getDefaultTransactionGasOptions()
     const solutionData = ethers.utils.toUtf8Bytes(JSON.stringify(formData.solution))
-    const addSolutionTransaction = await taskPortalContract.addSolution(shareObject.path, solutionData, options)
-    const res = await addSolutionTransaction.wait()
+    const signer = biconomyState.biconomy.getSignerByAddress(account)
+    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+    const { contractAddress } = getDeployedContractForChainId(network.chainId)
+    const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addSolution(shareObject.path, solutionData)
 
-    console.log('Transaction successfully executed:', addSolutionTransaction, res)
+    const txParams = {
+      data: populateTransactionData,
+      to: contractAddress,
+      from: account,
+      gasLimit: 8000000,
+      signatureType: 'EIP712_SIGN'
+    }
+
+    const biconomyProvider = new ethers.providers.Web3Provider(biconomyState.biconomy)
+    let res
+    try {
+      res = await biconomyProvider.send('eth_sendTransaction', [txParams])
+    } catch (e) {
+      console.log('caught error ', e)
+      const errorMessage = JSON.parse(e.error.body).error.message
+      console.log('got error message when interacting with contract', errorMessage)
+      setSharePageData({
+        name: SharePageState.FailSubmitSolve,
+        data: errorMessage
+      })
+      return
+    }
+    console.log('Transaction successfully executed:', res)
 
     const data = {
-      transactionHash: addSolutionTransaction.hash
+      transactionHash: res
     }
 
     const { email } = formData
@@ -101,21 +181,54 @@ export default function SharePage ({ shareObject }) {
     })
   }
 
+  // eslint-disable-next-line no-unused-vars
+  const submitTransactionWithUserPaysForGas = () => {
+    // const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(library.getSigner(), network.chainId)
+    // const options = getDefaultTransactionGasOptions()
+    // const addShareTransaction = await taskPortalContract.addShare(shareObject.path, transactionData, options)
+    // const res = await addShareTransaction.wait()
+  }
+
   const handleShareFormSubmit = async (formData) => {
     setSharePageData({ name: SharePageState.PendingShare })
 
-    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(library, network.chainId)
-    const options = getDefaultTransactionGasOptions()
+    const transactionData = ethers.utils.toUtf8Bytes(' ')
 
-    const addShareTransaction = await taskPortalContract.addShare(shareObject.path, ethers.utils.toUtf8Bytes(' '), options)
-    const res = await addShareTransaction.wait()
+    const signer = biconomyState.biconomy.getSignerByAddress(account)
+    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+    const { contractAddress } = getDeployedContractForChainId(network.chainId)
+    const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addShare(shareObject.path, transactionData)
 
-    console.log('Transaction successfully executed:', addShareTransaction, res)
+    const txParams = {
+      data: populateTransactionData,
+      to: contractAddress,
+      from: account,
+      gasLimit: 8000000,
+      signatureType: 'EIP712_SIGN'
+    }
 
-    const shareEvent = res.events.find(event => event.event === 'NewNodeCreated' && event.args.nodeType === NodeType.Share)
+    const biconomyProvider = new ethers.providers.Web3Provider(biconomyState.biconomy)
+    let res
+    try {
+      res = await biconomyProvider.send('eth_sendTransaction', [txParams])
+    } catch (e) {
+      console.log('caught error ', e)
+      const errorMessage = JSON.parse(e.error.body).error.message
+      console.log('got error message when interacting with contract', errorMessage)
+      setSharePageData({
+        name: SharePageState.FailSubmitShare,
+        data: errorMessage
+      })
+      return
+    }
+
+    console.log('Transaction successfully executed:', res)
+
+    // const shareEvent = res.events.find(event => event.event === 'NewNodeCreated' && event.args.nodeType === NodeType.Share)
     const data = {
-      transactionHash: addShareTransaction.hash,
-      sharePath: shareEvent.args.path
+      transactionHash: res
+      // transactionHash: addShareTransaction.hash,
+      // sharePath: shareEvent.args.path
     }
 
     const { email } = formData
@@ -130,6 +243,53 @@ export default function SharePage ({ shareObject }) {
       name: SharePageState.SuccessSubmitShare,
       data
     })
+  }
+
+  const renderGaslessTransactionSetupProgress = () => {
+    switch (biconomyState.name) {
+      case BiconomyLoadingState.Success:
+        return <div className="rounded-md bg-green-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-medium text-green-800">Free / Gas-less Transactions are ready for you</p>
+            </div>
+          </div>
+        </div>
+      case BiconomyLoadingState.Error:
+        return <div className="rounded-md bg-red-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">Something went wrong when loading gasless transactions
+                for you</h3>
+              <div className="mt-2 text-sm text-red-700">
+                {biconomyState.biconomy}
+              </div>
+            </div>
+          </div>
+        </div>
+      case BiconomyLoadingState.Loading:
+        return <div className="rounded-md bg-blue-50 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <InformationCircleIcon className="h-5 w-5 text-blue-400" aria-hidden="true" />
+            </div>
+            <div className="ml-3 flex-1 md:flex md:justify-between">
+              <p className="text-sm text-blue-700">Setting up free / gas-less transaction for you</p>
+              {/* <p className="mt-3 text-sm md:mt-0 md:ml-6"> */}
+              {/*   <a href="#" className="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600"> */}
+              {/*     Details <span aria-hidden="true">&rarr;</span> */}
+              {/*   </a> */}
+              {/* </p> */}
+            </div>
+          </div>
+        </div>
+    }
   }
 
   const renderActionButtonCard = () => {
@@ -173,10 +333,11 @@ export default function SharePage ({ shareObject }) {
     switch (sharePageData.name) {
       case SharePageState.ShareIntent:
         // @ts-ignore
-        return <div><p className="text-sm text-gray-500">
-          I want to share this task with someone.
-          Let me login with my wallet and generate a link.
-        </p>
+        return <div>
+          <p className="text-sm text-gray-500">
+            I want to share this task with someone.
+            Let me login with my wallet and generate a link.
+          </p>
           <div className="mt-6 mr-8">
             <label
               htmlFor="walletAddress"
@@ -217,6 +378,7 @@ export default function SharePage ({ shareObject }) {
                   Create my share link
                 </button>
               </div>
+              {renderGaslessTransactionSetupProgress()}
             </form>
           </div>
         </div>
@@ -230,6 +392,13 @@ export default function SharePage ({ shareObject }) {
             You did it 🥳
           </p>
           <PresentActionLinksComponent data={sharePageData.data} />
+        </div>
+      case SharePageState.FailSubmitShare:
+        return <div>
+          <p className="text-sm text-gray-500">
+            Sorry, something went wrong here
+          </p>
+          <p className="mt-4 p-2 text-sm text-gray-600 bg-red-100 rounded-sm">{sharePageData.data}</p>
         </div>
       default:
         break
@@ -305,6 +474,7 @@ export default function SharePage ({ shareObject }) {
                   Submit Solution
                 </button>
               </div>
+              {renderGaslessTransactionSetupProgress()}
             </form>
           </div>
         </div>
@@ -319,6 +489,8 @@ export default function SharePage ({ shareObject }) {
           </p>
           <PresentActionLinksComponent data={sharePageData.data} />
         </div>
+      case SharePageState.FailSubmitSolve:
+        return <div>something went wrong here :(</div>
     }
   }
 
@@ -463,7 +635,7 @@ export async function getStaticProps ({ params }) {
 }
 
 export async function getStaticPaths () {
-  // can add some paths by reading from shares on smart-contract by default later
+  // can later add some share paths from on-chain data via smart-contract
   const paths = []
 
   // fallback: true means that the missing pages

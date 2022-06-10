@@ -139,7 +139,7 @@ export default function TaskPage ({ taskObject }) {
   }
 
   function renderRow (nodeObject) {
-    const nodeOwnerStr = nodeObject.owner === taskObject.owner ? 'You' : nodeObject.owner
+    const nodeOwnerStr = nodeObject.owner === taskObject.owner ? 'Creating Task' : nodeObject.owner
     const rowData = ethers.utils.toUtf8String(nodeObject.data)
 
     return <tr key={`${nodeObject.owner}-${nodeObject.data}`} className="bg-white">

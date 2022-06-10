@@ -58,13 +58,13 @@ const PresentActionLinksComponent = ({
           <dt className="text-md font-medium text-gray-500">Task hash</dt>
           <dd className="mt-1 text-md text-gray-900 truncate">{data.taskPath}</dd>
         </div>)}
-        <div className="sm:col-span-2">
+        {data.sharePath && (<div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">What can you do now?!</dt>
           <dd className="mt-1 text-md text-gray-900">
             Share your search task link with your community and friends on Twitter, Disord, Whatsapp, mail… wherever you
             want. Lean back and check your dashboard for results. ☕️
           </dd>
-        </div>
+        </div>)}
       </dl>
     </div>
   </>)

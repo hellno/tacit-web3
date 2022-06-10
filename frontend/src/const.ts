@@ -37,3 +37,11 @@ export enum CreateTaskState {
 
 // MUST BE SYNCED FROM ENUM DEFINED IN SMART CONTRACT AS SOURCE OF TRUTH
 export enum NodeType {Task, Solution, Share}
+
+export enum BiconomyLoadingState {
+  Default,
+  Init,
+  Loading,
+  Success,
+  Error,
+}

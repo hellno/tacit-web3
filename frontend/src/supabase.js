@@ -11,6 +11,10 @@ export const addUserToDatabase = async ({
   walletAddress,
   email
 }) => {
+  if (process.env.NODE_ENV === 'development') {
+    return { success: true }
+  }
+
   const supabase = getSupabaseClient()
   const data = {
     wallet_address: walletAddress,

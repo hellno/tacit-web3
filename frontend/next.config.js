@@ -7,7 +7,9 @@ module.exports = {
     USE_LOCAL_NODE: process.env.USE_LOCAL_NODE,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    HEAP_ANALYTICS_ID: process.env.HEAP_ANALYTICS_ID
+    HEAP_ANALYTICS_ID: process.env.HEAP_ANALYTICS_ID,
+    BICONOMY_API_KEY: process.env.BICONOMY_API_KEY,
+    INFURA_RPC_ENDPOINT: process.env.INFURA_RPC_ENDPOINT
   },
   images: {
     domains: ['images.unsplash.com']

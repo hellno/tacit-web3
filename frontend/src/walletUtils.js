@@ -132,15 +132,26 @@ export const loadWeb3Modal = (dispatch) => {
 
 export const getDefaultTransactionGasOptions = () => {
   const gasPrice = ethers.utils.parseUnits('5', 'gwei')
-  const gasLimit = 1500000
+  const gasLimit = 8000000
   return {
     gasPrice,
     gasLimit
   }
 }
 
-export const getTaskPortalContractInstanceViaActiveWallet = (library, chainId) => {
-  const signer = library.getSigner()
+export const getBiconomyTransactionGasOptions = async (biconomy, account, contractAddress, data) => {
+  const provider = biconomy.getEthersProvider()
+
+  const gasLimit = await provider.estimateGas({
+    to: contractAddress,
+    from: account,
+    data
+  })
+  console.log('Gas limit : ', gasLimit)
+  return { gasLimit }
+}
+
+export const getTaskPortalContractInstanceViaActiveWallet = (signer, chainId) => {
   const { contractAddress } = getDeployedContractForChainId(chainId)
   return new ethers.Contract(contractAddress, taskPortalContractAbi, signer)
 }

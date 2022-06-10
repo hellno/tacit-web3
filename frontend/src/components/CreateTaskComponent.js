@@ -50,9 +50,9 @@ export default function CreateTaskComponent ({
     watch
   } = useForm({
     defaultValues: {
-      // email: 'test@test.com',
-      // title: 'this is a sweet test title',
-      // description: 'amazing test description',
+      email: 'test@test.com',
+      title: 'this is a sweet test title',
+      description: 'amazing test description',
       tokenAmount: '2',
       tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
     }
@@ -118,7 +118,8 @@ export default function CreateTaskComponent ({
     try {
       console.log('create contract instance')
       const { contractAddress } = getDeployedContractForChainId(network.chainId)
-      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(library, network.chainId)
+      const signer = library.getSigner()
+      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
 
       console.log('create options payload for on-chain transaction')
       let options = {}
@@ -126,19 +127,20 @@ export default function CreateTaskComponent ({
         tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
         options = { value: tokenAmount }
       } else {
-        const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, library.getSigner())
+        const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, signer)
         // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
         tokenAmount = ethers.utils.parseUnits(tokenAmount, 18)
         const allowance = await (erc20TokenContract.allowance(account, contractAddress))
 
+        let approvalResponse
         if (allowance.isZero()) {
-          const approvalResponse = await erc20TokenContract.approve(contractAddress, tokenAmount)
-          console.log(approvalResponse)
+          approvalResponse = await erc20TokenContract.approve(contractAddress, tokenAmount)
         } else {
-          const approvalResponse = await erc20TokenContract.approve(contractAddress, allowance.add(tokenAmount))
-          console.log(approvalResponse)
+          approvalResponse = await erc20TokenContract.approve(contractAddress, allowance.add(tokenAmount))
         }
+        console.log(approvalResponse)
       }
+
       options = {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
         ...options, // eslint-disable-next-line node/no-unsupported-features/es-syntax
