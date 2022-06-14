@@ -230,6 +230,7 @@ export default function TaskPage ({ taskObject }) {
 
   const renderPayoutModalContent = () => {
     const payoutSum = sum(map(formFieldPayoutFields, (field) => parseFloat(field.amount))) || 0
+
     if (bountyPayoutState.name === BountyPayoutState.Success) {
       return (<div>
         <p className="text-sm text-gray-700">
@@ -237,6 +238,7 @@ export default function TaskPage ({ taskObject }) {
         </p>
       </div>)
     }
+
     return (
       <form onSubmit={handleSubmit(handleTriggerPayoutButton)}>
         <ul role="list" className="divide-y divide-gray-200">

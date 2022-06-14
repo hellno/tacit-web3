@@ -287,7 +287,8 @@ contract TaskPortal is ERC2771Context, Ownable {
                         IERC20 token = IERC20(tokenAddress);
                         require(token.balanceOf(address(this)) >= amounts[i], "Contract must have enough tokens");
 
-                        token.safeTransferFrom(address(this), addresses[i], amounts[i]);
+                        token.safeIncreaseAllowance(address(this), amounts[i]);
+                        token.safeTransfer(addresses[i], amounts[i]);
                     }
 
                 }
