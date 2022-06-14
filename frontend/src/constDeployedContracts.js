@@ -21,7 +21,7 @@ export const getDeployedContracts = () => {
       name: 'Local Hardhat Testnet', // must update this based on local re-deployments
       contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
     }, {
-      chainId: 1338,
+      chainId: 1339,
       name: 'Local Foundry Testnet', // must update this based on local re-deployments
       contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
     }])

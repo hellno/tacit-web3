@@ -45,3 +45,11 @@ export enum BiconomyLoadingState {
   Success,
   Error,
 }
+
+export enum BountyPayoutState {
+  Default,
+  Init,
+  Loading,
+  Success,
+  Error
+}

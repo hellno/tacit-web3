@@ -14,6 +14,7 @@ import { isEmpty, map } from 'lodash'
 import { generateHashForObject, storeObjectInIPFS } from '../storageUtils'
 import {
   erc20ContractAbi,
+  ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT,
   getDeployedContractForChainId,
   isEthBounty,
   nameToTokenAddress
@@ -53,8 +54,8 @@ export default function CreateTaskComponent ({
       email: 'test@test.com',
       title: 'this is a sweet test title',
       description: 'amazing test description',
-      tokenAmount: '2',
-      tokenAddress: '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
+      tokenAmount: '1',
+      tokenAddress: ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
   })
 
@@ -67,7 +68,7 @@ export default function CreateTaskComponent ({
 
   // eslint-disable-next-line no-unused-vars
   const uploadTaskDataToIpfs = async (data) => {
-    console.log('starting to upload form data to ipfs')
+    console.log('starting to upload form data to ipfs', data)
     const fname = generateHashForObject(data)
     return storeObjectInIPFS(data, fname)
       .then(cid => {
@@ -95,11 +96,16 @@ export default function CreateTaskComponent ({
     }
 
     setState({ name: CreateTaskState.PendingUploadToIpfs })
+    // let dataPath
+    // if (process.env.NODE_ENV === 'development') {
+    //   dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
+    // } else {
+    console.log('starting to upload data to ipfs')
     const dataPath = await uploadTaskDataToIpfs({
       title,
       description
     })
-    // const dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
+    // }
 
     const userUploadStatus = await addUserToDatabase({
       walletAddress: account,
@@ -120,7 +126,7 @@ export default function CreateTaskComponent ({
       const { contractAddress } = getDeployedContractForChainId(network.chainId)
       const signer = library.getSigner()
       const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
-
+      console.log('contractAddress', contractAddress, 'taskPortalContract', taskPortalContract)
       console.log('create options payload for on-chain transaction')
       let options = {}
       if (isEthBounty(tokenAddress)) {
@@ -163,7 +169,6 @@ export default function CreateTaskComponent ({
 
       await sleep(1000) // just a random wait, so that the transaction actually shows up in etherscan and share link will work
       // todo: maybe we can trigger a render of the share page in the background, so it's cached already??!?
-      console.log('setting data in state', data)
       setState({
         name: CreateTaskState.DoneCreatingTask,
         data
@@ -180,7 +185,7 @@ export default function CreateTaskComponent ({
         default:
           setState({
             name: CreateTaskState.ErrorCreatingTask,
-            error
+            error: toString(error)
           })
       }
     }

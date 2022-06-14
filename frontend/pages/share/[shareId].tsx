@@ -8,11 +8,11 @@ import {
   renderWalletConnectComponent
 } from '../../src/walletUtils'
 // @ts-ignore
-import { getBountyStringFromTaskObject } from '../../src/utils'
+import { classNames, getBountyAmountWithCurrencyStringFromTaskObject } from '../../src/utils'
 import { AppContext } from '../../src/context'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
-import { BiconomyLoadingState, SharePageState, shareStates, solveStates } from '../../src/const'
+import { BiconomyLoadingState, NodeType, SharePageState, shareStates, solveStates } from '../../src/const'
 import { renderFormField, renderWalletAddressInputField } from '../../src/formUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
@@ -41,9 +41,6 @@ export default function SharePage ({ shareObject }) {
     name: BiconomyLoadingState.Default,
     biconomy: null
   })
-  // const [isLoading, setIsLoading] = useState(false)
-  // const [isError, setIsError] = useState()
-  // const [taskObject, setTaskObject] = useState(false)
 
   const {
     web3Modal,
@@ -74,8 +71,8 @@ export default function SharePage ({ shareObject }) {
     if (biconomyState.name === BiconomyLoadingState.Success) {
       return
     }
-    setBiconomyState({ name: BiconomyLoadingState.Init })
 
+    setBiconomyState({ name: BiconomyLoadingState.Init })
     const biconomyOptions = {
       apiKey: process.env.BICONOMY_API_KEY,
       walletProvider: library.provider,
@@ -119,6 +116,8 @@ export default function SharePage ({ shareObject }) {
   }
 
   const isWalletConnected = !isEmpty(account)
+  const isGaslessTransactionsReady = biconomyState.name === BiconomyLoadingState.Success
+  const canSubmitActions = isWalletConnected && isGaslessTransactionsReady
 
   const resetToDefaultState = () => {
     setSharePageData({
@@ -196,6 +195,31 @@ export default function SharePage ({ shareObject }) {
 
     const signer = biconomyState.biconomy.getSignerByAddress(account)
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+
+    // const shareNodeCreatedEventFilter = {
+    //   address: tokenAddress,
+    //   topics: [
+    //     utils.id('NewNodeCreated(address,bytes32,bytes32,enum NodeType)'),
+    //     hexZeroPad(myAddress, 32),
+    //     parent,
+    //     null,
+    //     nodeType
+    //   ]
+    // }
+
+    taskPortalContract.on('NewNodeCreated', (owner, parent, path, nodeType) => {
+      if (owner === account && nodeType === NodeType.Share) {
+        console.log('RECEIVED NEW NODE CREATED EVENT YOYOYO', owner, parent, path, nodeType)
+
+        setSharePageData({
+          name: SharePageState.SuccessSubmitShare,
+          data: {
+            sharePath: path
+          }
+        })
+      }
+    })
+
     const { contractAddress } = getDeployedContractForChainId(network.chainId)
     const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addShare(shareObject.path, transactionData)
 
@@ -223,13 +247,12 @@ export default function SharePage ({ shareObject }) {
     }
 
     console.log('Transaction successfully executed:', res)
-
-    // const shareEvent = res.events.find(event => event.event === 'NewNodeCreated' && event.args.nodeType === NodeType.Share)
-    const data = {
-      transactionHash: res
-      // transactionHash: addShareTransaction.hash,
-      // sharePath: shareEvent.args.path
-    }
+    setSharePageData({
+      name: SharePageState.PendingShare,
+      data: {
+        transactionHash: res
+      }
+    })
 
     const { email } = formData
     if (email) {
@@ -238,11 +261,6 @@ export default function SharePage ({ shareObject }) {
         email
       })
     }
-
-    setSharePageData({
-      name: SharePageState.SuccessSubmitShare,
-      data
-    })
   }
 
   const renderGaslessTransactionSetupProgress = () => {
@@ -295,17 +313,17 @@ export default function SharePage ({ shareObject }) {
   const renderActionButtonCard = () => {
     return (
       <div className="mx-auto py-12">
-        <div className="mt-4 flex grid grid-cols-2 gap-x-4">
+        <div className="mt-4 flex grid grid-cols-2 gap-x-2">
           <div>
             <div className="inline-flex rounded-sm shadow">
               <button
                 onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-200 hover:bg-yellow-100"
+                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-200 hover:bg-yellow-100"
               >
                 Get referral link
               </button>
             </div>
-            <span className="block mt-2 pr-4 text-base font-normal text-gray-100">
+            <span className="md:w-60 md:text-center block mt-2 pr-4 text-base font-normal text-gray-100">
               You get part of the reward if someone downstream of your link enters a winning result.
             </span>
           </div>
@@ -313,16 +331,13 @@ export default function SharePage ({ shareObject }) {
             <div className="inline-flex">
               <button
                 onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
-                className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-100 hover:bg-yellow-200"
+                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-100 hover:bg-yellow-200"
               >
                 Enter results
               </button>
             </div>
-            <span className="block mt-2 pr-4 text-base font-normal text-gray-100">
-              Enter requested
-              results to
-              become eligible
-              for a reward.
+            <span className="md:w-60 md:text-center block mt-2 pr-4 text-base font-normal text-gray-100">
+              Enter requested results to become eligible for a reward.
             </span>
           </div>
         </div>
@@ -372,8 +387,10 @@ export default function SharePage ({ shareObject }) {
               <div>
                 <button
                   type="submit"
-                  disabled={!isWalletConnected}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+                  disabled={!canSubmitActions}
+                  className={classNames(
+                    canSubmitActions && 'hover:bg-yellow-500 ',
+                    'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 focus:outline-none')}
                 >
                   Create my share link
                 </button>
@@ -383,8 +400,8 @@ export default function SharePage ({ shareObject }) {
           </div>
         </div>
       case SharePageState.PendingShare:
-        return <div><p className="text-sm text-gray-500">
-          Pending submission
+        return <div><p className="text-sm text-gray-500 animate-pulse">
+          Pending submission ...
         </p></div>
       case SharePageState.SuccessSubmitShare:
         return <div>
@@ -468,8 +485,8 @@ export default function SharePage ({ shareObject }) {
               <div>
                 <button
                   type="submit"
-                  disabled={!isWalletConnected}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+                  disabled={!canSubmitActions}
+                  className={classNames(canSubmitActions && 'hover:bg-yellow-500 ', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 focus:outline-none')}
                 >
                   Submit Solution
                 </button>
@@ -528,7 +545,7 @@ export default function SharePage ({ shareObject }) {
               <h1
                 className="mt-2 text-2xl tracking-tight font-bold text-white sm:leading-none lg:mt-2 lg:text-2xl xl:text-4xl">
                 {/* <span className="md:block">asdasd</span>{' '} */}
-                Bounty: {getBountyStringFromTaskObject(shareObject)}
+                Bounty: {getBountyAmountWithCurrencyStringFromTaskObject(shareObject)}
               </h1>
               <div className="lg:max-w-6xl lg:mx-auto">
                 <div className="py-6 md:flex md:items-center md:justify-between">

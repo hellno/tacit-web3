@@ -1,24 +1,37 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { CashIcon, CheckCircleIcon } from '@heroicons/react/solid'
-import { concat, filter, get, isEmpty } from 'lodash'
-import { loadWeb3Modal } from '../../src/walletUtils'
+import {
+  BadgeCheckIcon,
+  ClipboardCheckIcon,
+  ClipboardIcon,
+  ExternalLinkIcon,
+  HomeIcon,
+  ShareIcon,
+  XCircleIcon
+} from '@heroicons/react/outline'
+import { filter, get, isEmpty, map, sum, truncate } from 'lodash'
+import {
+  getDefaultTransactionGasOptions,
+  getTaskPortalContractInstanceViaActiveWallet,
+  loadWeb3Modal
+} from '../../src/walletUtils'
 import { AppContext } from '../../src/context'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import BlockiesComponent from '../../src/components/BlockiesComponent'
 import {
-  BadgeCheckIcon,
-  ClipboardCheckIcon,
-  ClipboardIcon,
-  HomeIcon,
-  ShareIcon,
-  XCircleIcon
-} from '@heroicons/react/outline'
-import { flattenNodesRecursively, getBountyStringFromTaskObject } from '../../src/utils'
+  classNames,
+  flattenNodesRecursively,
+  getBountyAmountWithCurrencyStringFromTaskObject,
+  getBountyCurrency
+} from '../../src/utils'
 // eslint-disable-next-line node/no-missing-import
-import { NodeType } from '../../src/const'
+import { BountyPayoutState, NodeType } from '../../src/const'
 import { ethers } from 'ethers'
+import ModalComponent from '../../src/components/ModalComponent'
+import { useFieldArray, useForm } from 'react-hook-form'
 
+// eslint-disable-next-line no-unused-vars
 const mockNodesForDemoVideo = [
   {
     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
@@ -58,14 +71,65 @@ const mockNodesForDemoVideo = [
   }
 ]
 
+interface BountyPayoutStateType {
+  name: BountyPayoutState,
+  data?: object | string
+}
+
 export default function TaskPage ({ taskObject }) {
-  const [state, dispatch] = useContext(AppContext)
+  const [globalState, dispatch] = useContext(AppContext)
+  const {
+    account,
+    library,
+    network
+  } = globalState
+
+  // eslint-disable-next-line no-unused-vars
+  const [bountyPayoutState, setBountyPayoutState] = useState<BountyPayoutStateType>({
+    name: BountyPayoutState.Default
+  })
+
   const isLoading = isEmpty(taskObject)
   const isError = !isEmpty(get(taskObject, 'error'))
 
+  const [renderPayoutModal, setRenderPayoutModal] = useState(true)
+
+  const onModalClose = () => {
+    setRenderPayoutModal(false)
+  }
+  const allNodes = isLoading ? [] : flattenNodesRecursively(taskObject.nodes)
+  const defaultPayoutFields = isEmpty(allNodes)
+    ? []
+    : map(allNodes, (node) => ({
+      address: node.owner,
+      amount: '1'
+    })
+    )
+
   const {
-    account
-  } = state
+    register,
+    control,
+    handleSubmit,
+    watch
+  } = useForm({
+    defaultValues: { payoutFields: defaultPayoutFields }
+  })
+
+  const {
+    fields,
+    replace
+  } = useFieldArray({
+    control,
+    name: 'payoutFields'
+  })
+
+  const formFieldPayoutFields = watch('payoutFields')
+
+  useEffect(() => {
+    if (!isEmpty(defaultPayoutFields)) {
+      replace(defaultPayoutFields)
+    }
+  }, [isLoading])
 
   useEffect(() => {
     loadWeb3Modal(dispatch)
@@ -89,29 +153,19 @@ export default function TaskPage ({ taskObject }) {
 
   // eslint-disable-next-line no-unused-vars
   const isWalletConnected = !isEmpty(account)
+  const bountyCurrency = getBountyCurrency(taskObject)
 
-  // eslint-disable-next-line no-unused-vars
-  const handleFormSubmit = (formData: {
-    taskTitle: string
-    description: string
-    email: string
-    bountyAmount: bigint
-    bountyCurrency: string
-  }) => {
-  }
-
-  let allNodes = flattenNodesRecursively(taskObject.nodes)
   // video mock
-  if (taskObject.owner === '0x63b2E4a23240727C2d62b1c91EE76D79E185e2ba') {
-    allNodes = concat(allNodes, mockNodesForDemoVideo)
-  }
+  // if (taskObject.owner === '0x63b2E4a23240727C2d62b1c91EE76D79E185e2ba') {
+  //   allNodes = concat(allNodes, mockNodesForDemoVideo)
+  // }
 
   const cards = [
     {
       name: 'Bounty',
       href: '#',
       icon: CashIcon,
-      value: `${getBountyStringFromTaskObject(taskObject)} for ${allNodes.length - 1} actions`
+      value: `${getBountyAmountWithCurrencyStringFromTaskObject(taskObject)} for ${allNodes.length - 1} actions`
     },
     {
       name: 'Shares',
@@ -138,6 +192,95 @@ export default function TaskPage ({ taskObject }) {
     }
   }
 
+  const handleTriggerPayoutButton = async (formData) => {
+    setBountyPayoutState({ name: BountyPayoutState.Init })
+
+    const signer = library.getSigner()
+    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+    const addresses = map(formData.payoutFields, (field) => field.address)
+    // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
+    const amounts = map(formData.payoutFields, (field) => {
+      // return parseFloat(field.amount) * 10 ** 18
+      return ethers.utils.parseUnits(field.amount, 18)
+    })
+    setBountyPayoutState({ name: BountyPayoutState.Loading })
+
+    try {
+      const payoutTaskTransaction = await taskPortalContract.payoutTask(taskObject.path,
+        addresses,
+        amounts,
+        getDefaultTransactionGasOptions()
+      )
+
+      const res = await payoutTaskTransaction.wait()
+      console.log('Transaction successfully executed:', payoutTaskTransaction, res)
+      setBountyPayoutState({ name: BountyPayoutState.Success })
+    } catch (e) {
+      console.log('caught error ', e)
+
+      setBountyPayoutState({
+        name: BountyPayoutState.Error,
+        data: e.toString()
+      })
+    }
+  }
+
+  const renderPayoutModalContent = () => {
+    const payoutSum = sum(map(formFieldPayoutFields, (field) => parseFloat(field.amount))) || 0
+    return (
+      <form onSubmit={handleSubmit(handleTriggerPayoutButton)}>
+        <ul role="list" className="divide-y divide-gray-200">
+          {fields.map((node, index) => (
+            <li key={`li-${node.id}`} className="py-2">
+              <div className="relative py-2">
+                <label htmlFor="name" className="block text-xs font-medium text-gray-900">
+                  Address
+                </label>
+                <div className="flex rounded-sm shadow-sm">
+                  <span
+                    className="truncate inline-flex items-center px-3 rounded-l-md border border-r-0 bg-gray-50 text-gray-500 sm:text-sm">
+                    {truncate(node.address, { length: 28 })}
+                  </span>
+                  <input
+                    {...register(`payoutFields.${index}.amount`, { required: true })}
+                    type="text"
+                    key={node.id}
+                    className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border-gray-300"
+                  />
+                  <div className="absolute inset-y-0 right-0 pt-3.5 pr-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 sm:text-sm" id="bountyCurrency">
+                    {bountyCurrency}
+                  </span>
+                  </div>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="my-4 sm:flex-1 sm:flex sm:items-center sm:justify-between">
+          <div>
+            {/* <p className="text-sm text-gray-700"> */}
+            {/*   awds */}
+            {/* </p> */}
+          </div>
+          <div>
+            <p className="text-sm text-gray-700">
+              Total payout: {payoutSum} {bountyCurrency}
+            </p>
+          </div>
+        </div>
+        <button
+          type="submit"
+          disabled={!isWalletConnected}
+          className={classNames(
+            isWalletConnected ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-gray-300',
+            'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
+        >
+          Payout bounties
+        </button>
+      </form>)
+  }
+
   function renderRow (nodeObject) {
     const nodeOwnerStr = nodeObject.owner === taskObject.owner ? 'Creating Task' : nodeObject.owner
     const rowData = ethers.utils.toUtf8String(nodeObject.data)
@@ -145,12 +288,12 @@ export default function TaskPage ({ taskObject }) {
     return <tr key={`${nodeObject.owner}-${nodeObject.data}`} className="bg-white">
       <td className="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
         <div className="flex">
-          <p className="group inline-flex space-x-2 truncate text-sm">
+          <div className="group inline-flex space-x-2 truncate text-sm">
             {renderIconBasedOnNodeType(nodeObject.nodeType, 'flex-shrink-0 h-5 w-5 text-gray-500')}
             <p className="text-gray-500 truncate ">
               {NodeType[nodeObject.nodeType]} by {nodeOwnerStr}
             </p>
-          </p>
+          </div>
         </div>
       </td>
       <td className="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
@@ -170,14 +313,14 @@ export default function TaskPage ({ taskObject }) {
         <span className="relative z-0 inline-flex shadow-sm rounded-sm">
           <button
             type="button"
-            className="relative inline-flex items-center px-4 py-2 rounded-l-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            className="relative inline-flex items-center px-4 py-2 rounded-l-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
           >
             <span className="sr-only">Approve</span>
             <CheckCircleIcon className="h-5 w-5" aria-hidden="true" />
           </button>
         <button
           type="button"
-          className="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          className="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
         >
           <span className="sr-only">Reject</span>
           <XCircleIcon className="h-5 w-5" aria-hidden="true" />
@@ -186,9 +329,9 @@ export default function TaskPage ({ taskObject }) {
           href={`https://web3.tacit.so/share/${nodeObject.path}`}
           target="_blank" rel="noopener noreferrer"
           type="button"
-          className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
         >
-          View
+          View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
         </a>
         </span>
       </td>
@@ -257,13 +400,19 @@ export default function TaskPage ({ taskObject }) {
                 <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
                   <button
                     type="button"
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white"
                   >
                     Increase bounty
+                    {/* hover:bg-gray-50 */}
+                    <span
+                      className="ml-2 inline-flex items-center pb-1 pt-0.5 px-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    coming soon
+                  </span>
                   </button>
                   <button
+                    onClick={() => setRenderPayoutModal(true)}
                     type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500"
+                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
                   >
                     Payout bounty 💸
                   </button>
@@ -444,6 +593,12 @@ export default function TaskPage ({ taskObject }) {
     <div className="relative bg-gray-800 overflow-hidden min-h-screen">
       <div className="relative pt-6 pb-16 sm:pb-24">
         <Web3NavBar />
+        {renderPayoutModal &&
+          <ModalComponent
+            renderContent={renderPayoutModalContent}
+            titleText="Payout your bounty"
+            onClose={onModalClose}
+          />}
         {renderTaskPageHeader()}
         {renderPageContent()}
       </div>

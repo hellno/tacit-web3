@@ -29,18 +29,19 @@ const PresentActionLinksComponent = ({
             </a>
           </dd>
         </div>)}
-        <div className="sm:col-span-2">
-          <dt className="text-md font-medium text-gray-500">Your transaction
-            <span
-              className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+        {data.transactionHash && (<div className="sm:col-span-2">
+            <dt className="text-md font-medium text-gray-500">Your transaction
+              <span
+                className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 takes few mins to update
               </span></dt>
-          <dd className="mt-1 text-md text-gray-900 truncate underline">
-            <a href={transactionLink} target="_blank" rel="noopener noreferrer">
-              {transactionLink}
-            </a>
-          </dd>
-        </div>
+            <dd className="mt-1 text-md text-gray-900 truncate underline">
+              <a href={transactionLink} target="_blank" rel="noopener noreferrer">
+                {transactionLink}
+              </a>
+            </dd>
+          </div>
+        )}
         {data.taskPath && (<div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">
             Dashboard for task and bounty

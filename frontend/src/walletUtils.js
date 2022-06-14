@@ -18,6 +18,8 @@ export const getUserFriendlyNameForChainId = (chainId) => {
       return 'Localhost 1337'
     case 1338:
       return 'Localhost 1338'
+    case 1339:
+      return 'Localhost 1339'
     default:
       return ''
   }

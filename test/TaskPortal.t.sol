@@ -15,15 +15,15 @@ contract TaskPortalTest is Test {
     //    address daiTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     //    address daiTokenAddress = 0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671;
     bytes defaultTaskData = "bafybeigyhfbk2s3pbt34qdyrxpst2wbqengha3n7eziqkv4krbavvjo5mm/1c21055d221e684d8739678a1e51a474";
+    address[] addresses;
     bytes32[] nodePaths;
     bool[] isOpens;
 
     function setUp() public {
         taskPortal = new TaskPortal(address(0));
+        addresses = new address[](0);
         nodePaths = new bytes32[](0);
         isOpens = new bool[](0);
-
-        emit log_named_address("address(0)", address(0));
     }
 
     function getRandomWalletAddress() public returns (address) {
@@ -191,6 +191,7 @@ contract TaskPortalTest is Test {
 
     function testTaskPayout() public {
         bytes memory taskData = defaultTaskData;
+        address bountyTokenAddress = address(0);
 
         bytes32 taskPath = addTaskWithEthBounty(taskData);
         address shareAddress1 = address(1337);
@@ -198,27 +199,63 @@ contract TaskPortalTest is Test {
         bytes32 sharePath1 = taskPortal.addShare(taskPath, "some share data");
         address shareAddress2 = address(1338);
         vm.prank(shareAddress2);
-        bytes32 sharePath2 = taskPortal.addShare(taskPath, "some share data2");
+        taskPortal.addShare(taskPath, "some share data2");
         address solutionAddress = address(1339);
         vm.prank(solutionAddress);
-        bytes32 solutionPath = taskPortal.addSolution(sharePath1, "some solution data");
+        taskPortal.addSolution(sharePath1, "some solution data");
 
-        nodePaths = [sharePath1, sharePath2, solutionPath];
-        uint256[] memory amounts = new uint256[](nodePaths.length);
+        addresses = [shareAddress1, shareAddress2, solutionAddress];
+        uint256[] memory amounts = new uint256[](addresses.length);
         uint256 payoutPerNodeAmount = 10 ** 18;
         amounts[0] = payoutPerNodeAmount;
         amounts[1] = payoutPerNodeAmount;
         amounts[2] = payoutPerNodeAmount;
+        address[] memory tokenAddresses = new address[](addresses.length);
+        tokenAddresses[0] = bountyTokenAddress;
+        tokenAddresses[1] = bountyTokenAddress;
+        tokenAddresses[2] = bountyTokenAddress;
+
         vm.prank(msg.sender);
-        taskPortal.payoutTask(taskPath, nodePaths, amounts);
+        taskPortal.payoutTask(taskPath, addresses, tokenAddresses, amounts);
 
         assertEq(shareAddress1.balance, payoutPerNodeAmount);
         assertEq(shareAddress2.balance, payoutPerNodeAmount);
         assertEq(solutionAddress.balance, payoutPerNodeAmount);
 
-        uint256 remainingBountyAmount;
-        (,,,,, remainingBountyAmount) = taskPortal.getTask(taskPath);
+        uint256 remainingBountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
         assertEq(0, remainingBountyAmount);
+    }
+
+    function testTaskPayoutTopUpAndPayout() public {
+        address bountyTokenAddress = address(0);
+        bytes32 taskPath = addTaskWithEthBounty(" ");
+
+        address shareAddress1 = address(1337);
+        vm.prank(shareAddress1);
+        taskPortal.addShare(taskPath, "some share data");
+
+        uint256 bountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
+        assertEq(bountyAmount, 3 ether);
+
+        vm.prank(msg.sender);
+        address[] memory receiverAddresses = new address[](1);
+        receiverAddresses[0] = shareAddress1;
+        address[] memory tokenAddresses = new address[](1);
+        tokenAddresses[0] = address(0);
+        uint256[] memory amounts = new uint256[](1);
+        amounts[0] = 2 ether;
+
+        taskPortal.payoutTask(taskPath, receiverAddresses, tokenAddresses, amounts);
+        bountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
+        assertEq(bountyAmount, 1 ether);
+
+        address notTaskCreatorAddress = address(1338);
+        vm.deal(notTaskCreatorAddress, 1 ether);
+        vm.prank(notTaskCreatorAddress);
+        taskPortal.increaseBounty{value : 1 ether}(taskPath, address(0), 1);
+
+        bountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
+        assertEq(bountyAmount, 2 ether);
     }
 }
 

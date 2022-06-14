@@ -14,15 +14,23 @@ export function flattenNodesRecursively (obj) {
   return obj.flatMap(item => item.nodes ? [item, ...flattenNodesRecursively(item.nodes)] : item)
 }
 
-export const getBountyStringFromTaskObject = (taskObject) => {
-  let userTokenAmount, tokenCurrency
+export const getBountyCurrency = (taskObject) => isEthBounty(taskObject.bountyTokenAddress) ? 'ETH' : get(invert(nameToTokenAddress), taskObject.bountyTokenAddress)
+
+export const getBountyAmount = (taskObject) => {
+  let userTokenAmount
+
   if (isEthBounty(taskObject.bountyTokenAddress)) {
     userTokenAmount = Math.round((parseFloat(taskObject.bountyAmount) + Number.EPSILON) * 100) / 100
-    tokenCurrency = 'ETH'
   } else {
     const tokenAmountStr = ethers.utils.formatUnits(taskObject.bountyAmount)
     userTokenAmount = Math.round((parseFloat(tokenAmountStr) + Number.EPSILON) * 100) / 100
-    tokenCurrency = get(invert(nameToTokenAddress), taskObject.bountyTokenAddress)
   }
+  return userTokenAmount
+}
+
+export const getBountyAmountWithCurrencyStringFromTaskObject = (taskObject) => {
+  const tokenCurrency = getBountyCurrency(taskObject)
+  const userTokenAmount = getBountyAmount(taskObject)
+
   return `${userTokenAmount} ${tokenCurrency}`
 }

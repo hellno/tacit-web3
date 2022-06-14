@@ -26,13 +26,14 @@ export default async function handler (req, res) {
   }
 
   if (isUndefined(chainId) || chainId === 'undefined') {
-    chainId = useLocalNode ? 1337 : 5
+    chainId = useLocalNode ? 1339 : 5
   }
 
+  console.log('useLocalNode', useLocalNode, chainId)
   let provider
 
   if (process.env.NODE_ENV === 'development' && useLocalNode) {
-    const url = 'http://127.0.0.1:8545/'
+    const url = 'http://127.0.0.1:8546/'
     provider = new ethers.providers.JsonRpcProvider(url)
   } else {
     provider = new ethers.providers.AlchemyProvider('goerli', process.env.ALCHEMY_API_KEY)
@@ -46,6 +47,8 @@ export default async function handler (req, res) {
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskId)
     const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
     const [cid, fname] = ipfsPath.split('/')
+    console.log('cid', cid, 'fname', fname)
+
     const taskObject = await getObjectInIPFS(cid, fname)
     const nestedNodesObject = await getRecursiveNodes(taskPortalContract, taskId)
     // eslint-disable-next-line node/no-unsupported-features/es-syntax

@@ -27,19 +27,15 @@ import "../lib/openzeppelin-contracts/contracts/metatx/ERC2771Context.sol";
         bool isOpen;
     }
 
-    struct Bounty {
-        address tokenAddress;
-        uint256 amount;
-    }
-
 
 
 contract TaskPortal is ERC2771Context, Ownable {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
 
-    mapping(bytes32 => Bounty) bounties;
-    mapping(bytes32 => Node) nodes;
+    mapping(bytes32 => Node) internal nodes;
+
+    mapping(bytes32 => mapping(address => uint256)) public bounties;
     uint256 public nodesCount = 0;
     bytes32 public rootTaskPath;
 
@@ -80,13 +76,23 @@ contract TaskPortal is ERC2771Context, Ownable {
     //        _trustedForwarder = trustedForwarder;
     //    }
 
-    function getTask(bytes32 _path) public view nodeExists(_path) returns (address, bytes memory, bool, bytes32[] memory, address, uint256) {
+    function getTask(bytes32 _path) public view nodeExists(_path) returns (address, bytes memory, bool, bytes32[] memory) {
         Node storage node = nodes[_path];
-        Bounty storage bounty = bounties[_path];
-        return (node.owner, node.data, node.isOpen, node.nodes, bounty.tokenAddress, bounty.amount);
+        return (node.owner, node.data, node.isOpen, node.nodes);
     }
 
-    function getNode(bytes32 _path) public view nodeExists(_path) returns (bytes32, address, NodeType, bytes memory, bytes32[] memory, bool, bytes32)  {
+    function getNode(
+        bytes32 _path
+    ) public view nodeExists(_path)
+    returns (
+        bytes32,
+        address,
+        NodeType,
+        bytes memory,
+        bytes32[] memory,
+        bool,
+        bytes32
+    )  {
         Node storage node = nodes[_path];
         return (node.parent, node.owner, node.nodeType, node.data, node.nodes, node.isOpen, node.taskPath);
     }
@@ -99,7 +105,13 @@ contract TaskPortal is ERC2771Context, Ownable {
         return nodes[rootTaskPath].nodes;
     }
 
-    function _addNode(bytes32 _parent, bytes memory _data, address _owner, NodeType _nodeType, bytes32 _taskPath) private returns (bytes32) {
+    function _addNode(
+        bytes32 _parent,
+        bytes memory _data,
+        address _owner,
+        NodeType _nodeType,
+        bytes32 _taskPath
+    ) private returns (bytes32) {
         require(_data.length > 0);
 
         bytes32 _id = getNextNodeId();
@@ -123,38 +135,36 @@ contract TaskPortal is ERC2771Context, Ownable {
         return path;
     }
 
-    function addTask(bytes memory _data, address _tokenAddress, uint256 _amount) public payable returns (bytes32){
+    function addTask(
+        bytes memory _data,
+        address _tokenAddress,
+        uint256 _amount
+    ) public payable returns (bytes32){
         uint256 amount;
         if (_tokenAddress == address(0)) {// no ERC token, but native chain currency is used
             require(msg.value > 0 wei, "Transaction must have value to create task with bounty");
 
             amount = msg.value;
         } else {
-            require(_tokenAddress.code.length > 0, "_tokenAddress must be a contract address");
-            require(_amount > 0, "ERC20 token must have _amount to create task with bounty");
-            IERC20 token = IERC20(_tokenAddress);
-            require(token.balanceOf(_msgSender()) >= amount);
-
+            _transferErc20TokenToContract(_tokenAddress, _amount);
             amount = _amount;
-            token.safeTransferFrom(_msgSender(), address(this), amount);
         }
 
         bytes32 taskPath = _addNode(rootTaskPath, _data, _msgSender(), NodeType.Task, "");
-        bounties[taskPath] = Bounty({tokenAddress : _tokenAddress, amount : amount});
+        bounties[taskPath][_tokenAddress] = amount;
         addShare(taskPath, "TaskCreatorShare");
 
         return taskPath;
     }
 
     function addShare(bytes32 _parent, bytes memory _data) public nodeExists(_parent) returns (bytes32) {
-
         bytes32 taskPath;
         if (uint(nodes[_parent].nodeType) == uint(NodeType.Task)) {
             taskPath = _parent;
         } else {
             taskPath = nodes[_parent].taskPath;
         }
-        require(!hasSenderContributedToAnySubnode(taskPath), "One share per task for each wallet");
+        //        require(!hasSenderContributedToAnySubnode(taskPath), "One share per task for each wallet");
 
         return _addNode(_parent, _data, _msgSender(), NodeType.Share, taskPath);
     }
@@ -164,6 +174,34 @@ contract TaskPortal is ERC2771Context, Ownable {
 
         bytes32 taskPath = nodes[_parent].taskPath;
         return _addNode(_parent, _data, _msgSender(), NodeType.Solution, taskPath);
+    }
+
+    function increaseBounty(
+        bytes32 _taskPath,
+        address _tokenAddress,
+        uint256 _amount
+    ) public payable nodeExists(_taskPath) returns (uint256) {
+        uint256 amount;
+        if (_tokenAddress == address(0)) {// no ERC token, but native chain currency is used
+            require(msg.value > 0 wei, "Transaction must have value to create task with bounty");
+            amount = msg.value;
+        } else {
+            _transferErc20TokenToContract(_tokenAddress, _amount);
+            amount = _amount;
+        }
+
+        bounties[_taskPath][_tokenAddress] += amount;
+        return bounties[_taskPath][_tokenAddress];
+    }
+
+    function _transferErc20TokenToContract(address _tokenAddress, uint256 _amount) internal {
+        require(_tokenAddress.code.length > 0, "_tokenAddress must be a contract address");
+        require(_amount > 0, "ERC20 token must have _amount to create task with bounty");
+
+        IERC20 token = IERC20(_tokenAddress);
+        require(token.balanceOf(_msgSender()) >= _amount);
+
+        token.safeTransferFrom(_msgSender(), address(this), _amount);
     }
 
     function hasSenderContributedToAnySubnode(bytes32 _path) public nodeExists(_path) view returns (bool) {
@@ -207,32 +245,35 @@ contract TaskPortal is ERC2771Context, Ownable {
         return nodeUpdateCounter;
     }
 
-    function payoutTask(bytes32 taskPath, bytes32[] memory paths, uint256[] memory amounts) public canEditNode(taskPath) {
-        require(paths.length > 0, "No node paths provided");
-        require(paths.length == amounts.length);
+    function payoutTask(
+        bytes32 taskPath,
+        address[] memory addresses,
+        address[] memory tokenAddresses,
+        uint256[] memory amounts
+    ) public canEditNode(taskPath) {
+        require(addresses.length > 0, "No addresses provided");
+        require(addresses.length == amounts.length, "Must be same number of addresses and amounts");
 
-        Bounty memory bounty = bounties[taskPath];
-        require(bounty.amount > 0);
+        address tokenAddress;
 
-        uint256 currentSum = 0;
-        IERC20 token = IERC20(bounty.tokenAddress);
-
-        for (uint i; i < paths.length; i++) {
+        for (uint i; i < addresses.length; i++) {
             require(amounts[i] > 0);
-            require(nodes[paths[i]].isOpen);
-            currentSum = currentSum.add(amounts[i]);
-            require(currentSum <= bounty.amount);
 
-            // native chain currency = no ERC token used
-            if (bounty.tokenAddress == address(0)) {
+            tokenAddress = tokenAddresses[i];
+            require(bounties[taskPath][tokenAddress] >= amounts[i]);
+
+            if (tokenAddress == address(0)) {// native chain currency = no ERC token used
                 require(address(this).balance >= amounts[i], "Contract must have enough balance");
-                payable(nodes[paths[i]].owner).transfer(amounts[i]);
+                payable(addresses[i]).transfer(amounts[i]);
             } else {
+                IERC20 token = IERC20(tokenAddress);
                 require(token.balanceOf(address(this)) >= amounts[i], "Contract must have enough tokens");
-                token.safeTransferFrom(address(this), nodes[paths[i]].owner, amounts[i]);
+
+                token.safeTransferFrom(address(this), addresses[i], amounts[i]);
             }
+
+            bounties[taskPath][tokenAddress] -= amounts[i];
         }
 
-        bounties[taskPath].amount = bounties[taskPath].amount - currentSum;
     }
 }

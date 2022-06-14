@@ -90,7 +90,7 @@ export default function HowToExplainerComponent () {
                 <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">
                   Get ETH and tokens to create a bounty
                 </h2>
-                <p className="mt-4 text-lg text-gray-500">
+                <div className="mt-4 text-lg text-gray-500">
                   Use any of the following links to receive ETH and ERC20 tokens in your wallet on Goerli testnet:
                   <ul>
                     <li className="list-disc ml-4">
@@ -112,7 +112,7 @@ export default function HowToExplainerComponent () {
                       </a>
                     </li>
                   </ul>
-                </p>
+                </div>
                 <div className="mt-6">
                   <button
                     onClick={() => goToTop()}
