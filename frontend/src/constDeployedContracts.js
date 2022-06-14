@@ -9,7 +9,7 @@ export const erc20ContractAbi = erc20Abi.abi
 const _contracts = [{
   chainId: 5,
   name: 'Görli Testnet',
-  contractAddress: '0x020fb7f1d6735340e09e707f8da1bcb1e6d6769a'
+  contractAddress: '0x88c9e26be5535f46eebee64672c2d0640d55c6a9'
   // contractAddress: '0x9e6da52d8400329cea94d4be0840f713ace712c2'
 }]
 
@@ -69,16 +69,21 @@ export const getNodeFromContractAsObject = async (contract, nodePath) => {
 }
 
 export const getTaskFromContractAsObject = async (contract, taskPath) => {
-  let [ownerAddress, taskData, taskIsOpen, nodes, bountyTokenAddress, bountyAmount] = await contract.getTask(taskPath)
-  if (isEthBounty(bountyTokenAddress)) {
-    bountyAmount = ethers.utils.formatUnits(bountyAmount)
-  }
+  const [ownerAddress, taskData, taskIsOpen, nodes] = await contract.getTask(taskPath)
+  let bounties = await contract.getBountiesForTask(taskPath)
+  bounties = map(bounties, (bounty) => ({
+    tokenAddress: bounty[0],
+    amount: ethers.utils.formatUnits(bounty[1])
+  }))
+
+  // if (isEthBounty(bountyTokenAddress)) {
+  //   bountyAmount = ethers.utils.formatUnits(bountyAmount)
+  // }
   return {
     ownerAddress,
     taskData,
     taskIsOpen,
     nodes,
-    bountyTokenAddress,
-    bountyAmount
+    bounties
   }
 }

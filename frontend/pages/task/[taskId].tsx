@@ -9,7 +9,7 @@ import {
   ShareIcon,
   XCircleIcon
 } from '@heroicons/react/outline'
-import { filter, get, isEmpty, map, sum, truncate } from 'lodash'
+import { constant, filter, get, isEmpty, map, sum, times, truncate } from 'lodash'
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
@@ -32,44 +32,44 @@ import ModalComponent from '../../src/components/ModalComponent'
 import { useFieldArray, useForm } from 'react-hook-form'
 
 // eslint-disable-next-line no-unused-vars
-const mockNodesForDemoVideo = [
-  {
-    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-    owner: '0xc8064f04e8C38C9451e10Ff8FA5330904ac97ff7',
-    nodeType: 1,
-    data: ethers.utils.toUtf8Bytes('Discord: tongm1n#1492'),
-    nodes: [],
-    isOpen: true,
-    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-  },
-  {
-    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-    owner: '0xa5030A585B2b1EEd0543F14794443Df552509E11',
-    nodeType: 1,
-    data: ethers.utils.toUtf8Bytes('Discord: SieFrank#9832'),
-    nodes: [],
-    isOpen: true,
-    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-  },
-  {
-    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-    owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-    nodeType: 1,
-    data: ethers.utils.toUtf8Bytes('by_taltinot#4028'),
-    nodes: [],
-    isOpen: true,
-    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-  },
-  {
-    parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-    owner: '0x8a155697BEc333861785aC1fC43999BA850160F9',
-    nodeType: 1,
-    data: ethers.utils.toUtf8Bytes('Telegram: @wfelix82'),
-    nodes: [],
-    isOpen: true,
-    taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-  }
-]
+// const mockNodesForDemoVideo = [
+//   {
+//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+//     owner: '0xc8064f04e8C38C9451e10Ff8FA5330904ac97ff7',
+//     nodeType: 1,
+//     data: ethers.utils.toUtf8Bytes('Discord: tongm1n#1492'),
+//     nodes: [],
+//     isOpen: true,
+//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+//   },
+//   {
+//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+//     owner: '0xa5030A585B2b1EEd0543F14794443Df552509E11',
+//     nodeType: 1,
+//     data: ethers.utils.toUtf8Bytes('Discord: SieFrank#9832'),
+//     nodes: [],
+//     isOpen: true,
+//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+//   },
+//   {
+//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+//     owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+//     nodeType: 1,
+//     data: ethers.utils.toUtf8Bytes('by_taltinot#4028'),
+//     nodes: [],
+//     isOpen: true,
+//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+//   },
+//   {
+//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
+//     owner: '0x8a155697BEc333861785aC1fC43999BA850160F9',
+//     nodeType: 1,
+//     data: ethers.utils.toUtf8Bytes('Telegram: @wfelix82'),
+//     nodes: [],
+//     isOpen: true,
+//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
+//   }
+// ]
 
 interface BountyPayoutStateType {
   name: BountyPayoutState,
@@ -92,7 +92,7 @@ export default function TaskPage ({ taskObject }) {
   const isLoading = isEmpty(taskObject)
   const isError = !isEmpty(get(taskObject, 'error'))
 
-  const [renderPayoutModal, setRenderPayoutModal] = useState(true)
+  const [renderPayoutModal, setRenderPayoutModal] = useState(false)
 
   const onModalClose = () => {
     setRenderPayoutModal(false)
@@ -165,7 +165,7 @@ export default function TaskPage ({ taskObject }) {
       name: 'Bounty',
       href: '#',
       icon: CashIcon,
-      value: `${getBountyAmountWithCurrencyStringFromTaskObject(taskObject)} for ${allNodes.length - 1} actions`
+      value: `${getBountyAmountWithCurrencyStringFromTaskObject(taskObject)} for ${allNodes.length} actions`
     },
     {
       name: 'Shares',
@@ -198,6 +198,8 @@ export default function TaskPage ({ taskObject }) {
     const signer = library.getSigner()
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
     const addresses = map(formData.payoutFields, (field) => field.address)
+    // assumes all payouts are in same token that first bounty is given in
+    const tokenAddresses = times(formData.payoutFields.length, constant(taskObject.bounties[0].tokenAddress))
     // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
     const amounts = map(formData.payoutFields, (field) => {
       // return parseFloat(field.amount) * 10 ** 18
@@ -208,6 +210,7 @@ export default function TaskPage ({ taskObject }) {
     try {
       const payoutTaskTransaction = await taskPortalContract.payoutTask(taskObject.path,
         addresses,
+        tokenAddresses,
         amounts,
         getDefaultTransactionGasOptions()
       )
@@ -638,10 +641,8 @@ export async function getStaticProps ({ params }) {
   const { taskId } = params
   const apiEndpoint = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
   const apiUrl = `${apiEndpoint}/api/getTaskPageData/${taskId}/`
-  console.log('getStaticProps with internal API URL', apiUrl)
   const res = await fetch(apiUrl)
   const taskObject = await res.json()
-
   // const taskObject = exampleTaskPageObject
 
   return {

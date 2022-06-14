@@ -1,5 +1,4 @@
 import { isEthBounty, nameToTokenAddress } from './constDeployedContracts'
-import { ethers } from 'ethers'
 import { get, invert } from 'lodash'
 
 export const classNames = (...classes) => {
@@ -14,17 +13,18 @@ export function flattenNodesRecursively (obj) {
   return obj.flatMap(item => item.nodes ? [item, ...flattenNodesRecursively(item.nodes)] : item)
 }
 
-export const getBountyCurrency = (taskObject) => isEthBounty(taskObject.bountyTokenAddress) ? 'ETH' : get(invert(nameToTokenAddress), taskObject.bountyTokenAddress)
+export const getBountyCurrency = (taskObject) => isEthBounty(taskObject.bounties[0].tokenAddress) ? 'ETH' : get(invert(nameToTokenAddress), taskObject.bounties[0].tokenAddress)
 
 export const getBountyAmount = (taskObject) => {
-  let userTokenAmount
+  const rawBountyAmount = taskObject.bounties[0].amount
+  const userTokenAmount = rawBountyAmount
 
-  if (isEthBounty(taskObject.bountyTokenAddress)) {
-    userTokenAmount = Math.round((parseFloat(taskObject.bountyAmount) + Number.EPSILON) * 100) / 100
-  } else {
-    const tokenAmountStr = ethers.utils.formatUnits(taskObject.bountyAmount)
-    userTokenAmount = Math.round((parseFloat(tokenAmountStr) + Number.EPSILON) * 100) / 100
-  }
+  // if (isEthBounty(taskObject.bountyTokenAddress)) {
+  //   userTokenAmount = Math.round((parseFloat(rawBountyAmount) + Number.EPSILON) * 100) / 100
+  // } else {
+  //   const tokenAmountStr = ethers.utils.formatUnits(rawBountyAmount)
+  //   userTokenAmount = Math.round((parseFloat(tokenAmountStr) + Number.EPSILON) * 100) / 100
+  // }
   return userTokenAmount
 }
 

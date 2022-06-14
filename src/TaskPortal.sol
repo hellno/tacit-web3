@@ -21,12 +21,16 @@ import "../lib/openzeppelin-contracts/contracts/metatx/ERC2771Context.sol";
         bytes32 parent;   // parent node’s path
         bytes32 taskPath; // path of task that this node belongs to
         address owner;    // address that created this node and has full write rights
-        NodeType nodeType;
         bytes data;
         bytes32[] nodes;  // list of linked nodes’ paths
+        NodeType nodeType;
         bool isOpen;
     }
 
+    struct Bounty {
+        address tokenAddress;
+        uint256 amount;
+    }
 
 
 contract TaskPortal is ERC2771Context, Ownable {
@@ -34,8 +38,8 @@ contract TaskPortal is ERC2771Context, Ownable {
     using SafeMath for uint256;
 
     mapping(bytes32 => Node) internal nodes;
+    mapping(bytes32 => Bounty[]) internal bounties;
 
-    mapping(bytes32 => mapping(address => uint256)) public bounties;
     uint256 public nodesCount = 0;
     bytes32 public rootTaskPath;
 
@@ -79,6 +83,10 @@ contract TaskPortal is ERC2771Context, Ownable {
     function getTask(bytes32 _path) public view nodeExists(_path) returns (address, bytes memory, bool, bytes32[] memory) {
         Node storage node = nodes[_path];
         return (node.owner, node.data, node.isOpen, node.nodes);
+    }
+
+    function getBountiesForTask(bytes32 _path) public view nodeExists(_path) returns (Bounty[] memory) {
+        return bounties[_path];
     }
 
     function getNode(
@@ -151,7 +159,7 @@ contract TaskPortal is ERC2771Context, Ownable {
         }
 
         bytes32 taskPath = _addNode(rootTaskPath, _data, _msgSender(), NodeType.Task, "");
-        bounties[taskPath][_tokenAddress] = amount;
+        bounties[taskPath].push(Bounty({tokenAddress : _tokenAddress, amount : amount}));
         addShare(taskPath, "TaskCreatorShare");
 
         return taskPath;
@@ -190,8 +198,14 @@ contract TaskPortal is ERC2771Context, Ownable {
             amount = _amount;
         }
 
-        bounties[_taskPath][_tokenAddress] += amount;
-        return bounties[_taskPath][_tokenAddress];
+        for (uint i; i < bounties[_taskPath].length; i++) {
+            if (bounties[_taskPath][i].tokenAddress == _tokenAddress) {
+                bounties[_taskPath][i].amount += amount;
+
+                return bounties[_taskPath][i].amount;
+            }
+        }
+        revert("No existing bounty with token address found");
     }
 
     function _transferErc20TokenToContract(address _tokenAddress, uint256 _amount) internal {
@@ -260,19 +274,24 @@ contract TaskPortal is ERC2771Context, Ownable {
             require(amounts[i] > 0);
 
             tokenAddress = tokenAddresses[i];
-            require(bounties[taskPath][tokenAddress] >= amounts[i]);
+            for (uint j; j < bounties[taskPath].length; j++) {
+                if (bounties[taskPath][j].tokenAddress == tokenAddress) {
+                    require(bounties[taskPath][j].amount >= amounts[i]);
 
-            if (tokenAddress == address(0)) {// native chain currency = no ERC token used
-                require(address(this).balance >= amounts[i], "Contract must have enough balance");
-                payable(addresses[i]).transfer(amounts[i]);
-            } else {
-                IERC20 token = IERC20(tokenAddress);
-                require(token.balanceOf(address(this)) >= amounts[i], "Contract must have enough tokens");
+                    bounties[taskPath][j].amount -= amounts[i];
 
-                token.safeTransferFrom(address(this), addresses[i], amounts[i]);
+                    if (tokenAddress == address(0)) {// native chain currency = no ERC token used
+                        require(address(this).balance >= amounts[i], "Contract must have enough balance");
+                        payable(addresses[i]).transfer(amounts[i]);
+                    } else {
+                        IERC20 token = IERC20(tokenAddress);
+                        require(token.balanceOf(address(this)) >= amounts[i], "Contract must have enough tokens");
+
+                        token.safeTransferFrom(address(this), addresses[i], amounts[i]);
+                    }
+
+                }
             }
-
-            bounties[taskPath][tokenAddress] -= amounts[i];
         }
 
     }

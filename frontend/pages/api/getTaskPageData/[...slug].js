@@ -41,7 +41,6 @@ export default async function handler (req, res) {
 
   try {
     const { contractAddress } = getDeployedContractForChainId(chainId)
-    // console.log('chainId', chainId, 'contractAddress', contractAddress)
     const taskPortalContract = new ethers.Contract(contractAddress, taskPortalContractAbi, provider)
 
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskId)
@@ -53,10 +52,9 @@ export default async function handler (req, res) {
     const nestedNodesObject = await getRecursiveNodes(taskPortalContract, taskId)
     // eslint-disable-next-line node/no-unsupported-features/es-syntax
     const returnPayload = { ...taskObject, ...taskNodeData, ...nestedNodesObject }
-    console.log(returnPayload)
     res.status(200).json(returnPayload)
   } catch (err) {
-    console.log('err when getting share data for id', taskId, err)
+    console.log('err when getting task page data for id', taskId, err)
     res.status(500).json({ error: 'failed to load data' })
   }
 }

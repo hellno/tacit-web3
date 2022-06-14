@@ -222,8 +222,8 @@ contract TaskPortalTest is Test {
         assertEq(shareAddress2.balance, payoutPerNodeAmount);
         assertEq(solutionAddress.balance, payoutPerNodeAmount);
 
-        uint256 remainingBountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
-        assertEq(0, remainingBountyAmount);
+        Bounty[] memory bounties = taskPortal.getBountiesForTask(taskPath);
+        assertEq(bounties[0].amount, 0);
     }
 
     function testTaskPayoutTopUpAndPayout() public {
@@ -234,9 +234,10 @@ contract TaskPortalTest is Test {
         vm.prank(shareAddress1);
         taskPortal.addShare(taskPath, "some share data");
 
-        uint256 bountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
-        assertEq(bountyAmount, 3 ether);
-
+        Bounty[] memory bounties = taskPortal.getBountiesForTask(taskPath);
+        assertEq(bounties[0].amount, 3 ether);
+        assertEq(bounties[0].tokenAddress, bountyTokenAddress);
+        
         vm.prank(msg.sender);
         address[] memory receiverAddresses = new address[](1);
         receiverAddresses[0] = shareAddress1;
@@ -246,16 +247,16 @@ contract TaskPortalTest is Test {
         amounts[0] = 2 ether;
 
         taskPortal.payoutTask(taskPath, receiverAddresses, tokenAddresses, amounts);
-        bountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
-        assertEq(bountyAmount, 1 ether);
+        bounties = taskPortal.getBountiesForTask(taskPath);
+        assertEq(bounties[0].amount, 1 ether);
 
         address notTaskCreatorAddress = address(1338);
         vm.deal(notTaskCreatorAddress, 1 ether);
         vm.prank(notTaskCreatorAddress);
         taskPortal.increaseBounty{value : 1 ether}(taskPath, address(0), 1);
 
-        bountyAmount = taskPortal.bounties(taskPath, bountyTokenAddress);
-        assertEq(bountyAmount, 2 ether);
+        bounties = taskPortal.getBountiesForTask(taskPath);
+        assertEq(bounties[0].amount, 2 ether);
     }
 }
 
