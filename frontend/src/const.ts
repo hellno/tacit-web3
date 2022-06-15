@@ -53,3 +53,11 @@ export enum BountyPayoutState {
   Success,
   Error
 }
+
+export enum IncreaseBountyState {
+  Default,
+  Init,
+  Loading,
+  Success,
+  Error
+}

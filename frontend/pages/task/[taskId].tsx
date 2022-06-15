@@ -26,10 +26,20 @@ import {
   getBountyCurrency
 } from '../../src/utils'
 // eslint-disable-next-line node/no-missing-import
-import { BountyPayoutState, NodeType } from '../../src/const'
+import { BountyPayoutState, IncreaseBountyState, NodeType } from '../../src/const'
 import { ethers } from 'ethers'
 import ModalComponent from '../../src/components/ModalComponent'
 import { useFieldArray, useForm } from 'react-hook-form'
+// @ts-ignore
+import { renderAmountAndCurrencyFormFields } from '../../src/formUtils'
+import {
+  erc20ContractAbi,
+  getDeployedContractForChainId,
+  getNameToTokenAddressForChainId,
+  isNativeChainCurrency
+} from '../../src/constDeployedContracts'
+
+const unit = require('ethjs-unit')
 
 // eslint-disable-next-line no-unused-vars
 // const mockNodesForDemoVideo = [
@@ -76,6 +86,11 @@ interface BountyPayoutStateType {
   data?: object | string
 }
 
+interface IncreaseBountyStateType {
+  name: IncreaseBountyState,
+  data?: object | string
+}
+
 export default function TaskPage ({ taskObject }) {
   const [globalState, dispatch] = useContext(AppContext)
   const {
@@ -84,19 +99,28 @@ export default function TaskPage ({ taskObject }) {
     network
   } = globalState
 
-  // eslint-disable-next-line no-unused-vars
   const [bountyPayoutState, setBountyPayoutState] = useState<BountyPayoutStateType>({
     name: BountyPayoutState.Default
+  })
+
+  const [increaseBountyState, setIncreaseBountyState] = useState<IncreaseBountyStateType>({
+    name: IncreaseBountyState.Default
   })
 
   const isLoading = isEmpty(taskObject)
   const isError = !isEmpty(get(taskObject, 'error'))
 
   const [renderPayoutModal, setRenderPayoutModal] = useState(false)
+  const [renderIncreaseBountyModal, setRenderIncreaseBountyModal] = useState(false)
 
-  const onModalClose = () => {
+  const onClosePayoutModal = () => {
     setRenderPayoutModal(false)
   }
+
+  const onCloseIncreaseBountyModal = () => {
+    setRenderIncreaseBountyModal(false)
+  }
+
   const allNodes = isLoading ? [] : flattenNodesRecursively(taskObject.nodes)
   const defaultPayoutFields = isEmpty(allNodes)
     ? []
@@ -192,6 +216,57 @@ export default function TaskPage ({ taskObject }) {
     }
   }
 
+  const handleTriggerIncreaseBountyButton = async (formData) => {
+    let {
+      tokenAddress,
+      tokenAmount
+    } = formData
+    setIncreaseBountyState({ name: IncreaseBountyState.Init })
+    try {
+      const { contractAddress } = getDeployedContractForChainId(network.chainId)
+      const signer = library.getSigner()
+      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+      console.log('create options payload for on-chain transaction')
+      let options = {}
+
+      if (isNativeChainCurrency(tokenAddress)) {
+        tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
+        options = { value: tokenAmount }
+      } else {
+        const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, signer)
+        // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
+        tokenAmount = ethers.utils.parseUnits(tokenAmount, 18)
+        const allowance = await (erc20TokenContract.allowance(account, contractAddress))
+
+        let approvalResponse
+        if (allowance.isZero()) {
+          approvalResponse = await erc20TokenContract.approve(contractAddress, tokenAmount)
+        } else {
+          approvalResponse = await erc20TokenContract.approve(contractAddress, allowance.add(tokenAmount))
+        }
+        console.log(approvalResponse)
+      }
+
+      options = {
+        // eslint-disable-next-line node/no-unsupported-features/es-syntax
+        ...options, // eslint-disable-next-line node/no-unsupported-features/es-syntax
+        ...getDefaultTransactionGasOptions()
+      }
+      console.log('creating on-chain transaction')
+      const increaseBountyTransaction = await taskPortalContract.increaseBounty(taskObject.path, tokenAddress, tokenAmount, options)
+      setIncreaseBountyState({
+        name: IncreaseBountyState.Loading
+      })
+      console.log('Waiting to increase the bounty on-chain...', increaseBountyTransaction.hash)
+      const res = await increaseBountyTransaction.wait()
+      console.log('Transaction successfully executed:', increaseBountyTransaction, res)
+    } catch (error) {
+      setIncreaseBountyState({
+        name: IncreaseBountyState.Error
+      })
+    }
+  }
+
   const handleTriggerPayoutButton = async (formData) => {
     setBountyPayoutState({ name: BountyPayoutState.Init })
 
@@ -225,6 +300,35 @@ export default function TaskPage ({ taskObject }) {
         name: BountyPayoutState.Error,
         data: e.toString()
       })
+    }
+  }
+
+  const renderIncreaseBountyModalContent = () => {
+    switch (increaseBountyState.name) {
+      case IncreaseBountyState.Default:
+      case IncreaseBountyState.Init:
+      case IncreaseBountyState.Loading:
+        return (<div>
+          <form onSubmit={handleSubmit(handleTriggerIncreaseBountyButton)}>
+            {renderAmountAndCurrencyFormFields({
+              register,
+              nameToTokenAddress: getNameToTokenAddressForChainId(network.chainId)
+            })}
+            <button
+              type="submit"
+              disabled={!isWalletConnected}
+              className={classNames(
+                isWalletConnected ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-gray-300',
+                'mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
+            >
+              Increase bounty
+            </button>
+          </form>
+        </div>)
+      case IncreaseBountyState.Error:
+        return <div></div>
+      default:
+        return <div></div>
     }
   }
 
@@ -412,14 +516,10 @@ export default function TaskPage ({ taskObject }) {
                 <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
                   <button
                     type="button"
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white"
+                    onClick={() => setRenderIncreaseBountyModal(true)}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
                   >
                     Increase bounty
-                    {/* hover:bg-gray-50 */}
-                    <span
-                      className="ml-2 inline-flex items-center pb-1 pt-0.5 px-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                    coming soon
-                  </span>
                   </button>
                   <button
                     onClick={() => setRenderPayoutModal(true)}
@@ -609,7 +709,13 @@ export default function TaskPage ({ taskObject }) {
           <ModalComponent
             renderContent={renderPayoutModalContent}
             titleText="Payout your bounty"
-            onClose={onModalClose}
+            onClose={onClosePayoutModal}
+          />}
+        {renderIncreaseBountyModal &&
+          <ModalComponent
+            renderContent={renderIncreaseBountyModalContent}
+            titleText="Increase the bounty for this task"
+            onClose={onCloseIncreaseBountyModal}
           />}
         {renderTaskPageHeader()}
         {renderPageContent()}

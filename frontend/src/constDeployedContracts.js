@@ -38,21 +38,36 @@ export function getDeployedContractForChainId (chainId) {
   return contracts && contracts[0]
 }
 
-export const ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT = '0x0000000000000000000000000000000000000000'
+export const NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT = '0x0000000000000000000000000000000000000000'
 
-export const nameToTokenAddress = {
-  ETH: ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT,
-  DAI: '0x73967c6a0904aA032C103b4104747E88c566B1A2',
-  'Faucet Token': '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
+// export const tokenAddressToDecimals = {
+//   ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT: 18,
+//   '0x73967c6a0904aA032C103b4104747E88c566B1A2': 18,
+//   '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc': 18
+// }
+
+export const isNativeChainCurrency = (tokenAddress) =>
+  tokenAddress === NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
+
+export const getNameToTokenAddressForChainId = (chainId) => {
+  switch (chainId) {
+    case 5:
+    case 1337:
+    case 1338:
+      return {
+        ETH: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
+        DAI: '0x73967c6a0904aA032C103b4104747E88c566B1A2',
+        'Faucet Token': '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc'
+      }
+    case 100:
+      return {
+        xDai: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
+        GNO: '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb',
+        USDC: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+        DAI: '0x44fA8E6f47987339850636F88629646662444217'
+      }
+  }
 }
-
-export const tokenAddressToDecimals = {
-  ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT: 18,
-  '0x73967c6a0904aA032C103b4104747E88c566B1A2': 18,
-  '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc': 18
-}
-
-export const isEthBounty = (tokenAddress) => tokenAddress === ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT
 
 export const getNodeFromContractAsObject = async (contract, nodePath) => {
   const [parent, owner, nodeType, data, nodes, isOpen, taskPath] = await contract.getNode(nodePath)

@@ -9,15 +9,15 @@ import {
   renderWalletConnectComponent
 } from '../walletUtils'
 import { AppContext } from '../context'
-import { renderFormField, renderWalletAddressInputField } from '../formUtils'
-import { isEmpty, map } from 'lodash'
+import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
+import { isEmpty } from 'lodash'
 import { generateHashForObject, storeObjectInIPFS } from '../storageUtils'
 import {
   erc20ContractAbi,
-  ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT,
   getDeployedContractForChainId,
-  isEthBounty,
-  nameToTokenAddress
+  getNameToTokenAddressForChainId,
+  isNativeChainCurrency,
+  NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
@@ -55,7 +55,7 @@ export default function CreateTaskComponent ({
       title: 'this is a sweet test title',
       description: 'amazing test description',
       tokenAmount: '1',
-      tokenAddress: ETH_AS_TOKEN_ADDRESS_FOR_CONTRACT
+      tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
   })
 
@@ -122,14 +122,13 @@ export default function CreateTaskComponent ({
 
     setState({ name: CreateTaskState.PendingUserApproval })
     try {
-      console.log('create contract instance')
       const { contractAddress } = getDeployedContractForChainId(network.chainId)
       const signer = library.getSigner()
       const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
-      console.log('contractAddress', contractAddress, 'taskPortalContract', taskPortalContract)
       console.log('create options payload for on-chain transaction')
       let options = {}
-      if (isEthBounty(tokenAddress)) {
+
+      if (isNativeChainCurrency(tokenAddress)) {
         tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
         options = { value: tokenAmount }
       } else {
@@ -152,7 +151,7 @@ export default function CreateTaskComponent ({
         ...options, // eslint-disable-next-line node/no-unsupported-features/es-syntax
         ...getDefaultTransactionGasOptions()
       }
-      console.log('creating on-chain transaction with options', options)
+      console.log('creating on-chain transaction')
       const addTaskTransaction = await taskPortalContract.addTask(ethers.utils.toUtf8Bytes(dataPath), tokenAddress, tokenAmount, options)
       setState({
         name: CreateTaskState.PendingContractTransaction
@@ -189,50 +188,6 @@ export default function CreateTaskComponent ({
           })
       }
     }
-  }
-
-  const renderCurrencyDropdown = () => {
-    return (<>
-      <label htmlFor="bounty-token" className="sr-only">
-        Bounty Token
-      </label>
-      <select
-        {...register('tokenAddress')}
-        id="tokenAddress"
-        name="tokenAddress"
-        required
-        className="focus:ring-yellow-500 focus:border-yellow-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-sm"
-      >
-        {map(nameToTokenAddress, (value, key) => {
-          return <option key={value} value={value}>{key}</option>
-        })}
-      </select>
-    </>)
-  }
-
-  const renderAmountAndCurrencyFormFields = () => {
-    return (<div>
-      <label
-        htmlFor="price"
-        className="block text-sm font-medium text-gray-700"
-      >
-        Bounty Amount
-      </label>
-      <div className="mt-1 relative rounded-md shadow-sm">
-        <input
-          {...register('tokenAmount')}
-          required
-          type="text"
-          name="tokenAmount"
-          id="tokenAmount"
-          className="focus:ring-yellow-500 focus:border-yellow-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-sm"
-          placeholder="0.00001"
-        />
-        <div className="absolute inset-y-0 right-0 flex items-center">
-          {renderCurrencyDropdown()}
-        </div>
-      </div>
-    </div>)
   }
 
   const onFormSubmit = handleSubmit(handleFormSubmit)
@@ -306,7 +261,10 @@ export default function CreateTaskComponent ({
 
   const renderTaskBountyFormPart = () => {
     return <>
-      {renderAmountAndCurrencyFormFields()}
+      {renderAmountAndCurrencyFormFields({
+        register,
+        nameToTokenAddress: getNameToTokenAddressForChainId(network.chainId)
+      })}
       <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">Task Preview
@@ -338,19 +296,19 @@ export default function CreateTaskComponent ({
   const renderFormSubmitButton = () => {
     return localState.name === CreateTaskState.PendingUserInputBounty
       ? (<button
-        type="submit"
-        disabled={!isWalletConnected}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-      >
-        Submit Task & Bounty
-      </button>)
+      type="submit"
+      disabled={!isWalletConnected}
+      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+    >
+      Submit Task & Bounty
+    </button>)
       : (<button
-        onClick={(event) => onNextStepSubmit(event)}
-        disabled={!isWalletConnected}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-      >
-        Preview Task
-      </button>)
+      onClick={(event) => onNextStepSubmit(event)}
+      disabled={!isWalletConnected}
+      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+    >
+      Preview Task
+    </button>)
   }
 
   const renderBackButton = () => {

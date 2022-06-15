@@ -1,4 +1,4 @@
-import { isEthBounty, nameToTokenAddress } from './constDeployedContracts'
+import { isNativeChainCurrency, nameToTokenAddress } from './constDeployedContracts'
 import { get, invert } from 'lodash'
 
 export const classNames = (...classes) => {
@@ -13,7 +13,7 @@ export function flattenNodesRecursively (obj) {
   return obj.flatMap(item => item.nodes ? [item, ...flattenNodesRecursively(item.nodes)] : item)
 }
 
-export const getBountyCurrency = (taskObject) => isEthBounty(taskObject.bounties[0].tokenAddress) ? 'ETH' : get(invert(nameToTokenAddress), taskObject.bounties[0].tokenAddress)
+export const getBountyCurrency = (taskObject) => isNativeChainCurrency(taskObject.bounties[0].tokenAddress) ? 'ETH' : get(invert(nameToTokenAddress), taskObject.bounties[0].tokenAddress)
 
 export const getBountyAmount = (taskObject) => {
   const rawBountyAmount = taskObject.bounties[0].amount
