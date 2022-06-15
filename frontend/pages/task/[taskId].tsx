@@ -175,9 +175,8 @@ export default function TaskPage ({ taskObject }) {
     return renderErrorScreen()
   }
 
-  // eslint-disable-next-line no-unused-vars
   const isWalletConnected = !isEmpty(account)
-  const bountyCurrency = getBountyCurrency(taskObject)
+  const bountyCurrency = getBountyCurrency(taskObject.bounties[0], taskObject.chainId)
 
   // video mock
   // if (taskObject.owner === '0x63b2E4a23240727C2d62b1c91EE76D79E185e2ba') {
@@ -186,10 +185,10 @@ export default function TaskPage ({ taskObject }) {
 
   const cards = [
     {
-      name: 'Bounty',
+      name: taskObject.bounties.length > 1 ? 'Bounties' : 'Bounty',
       href: '#',
       icon: CashIcon,
-      value: `${getBountyAmountWithCurrencyStringFromTaskObject(taskObject)} for ${allNodes.length} actions`
+      value: `${map(taskObject.bounties, (bounty) => getBountyAmountWithCurrencyStringFromTaskObject(bounty, taskObject.chainId))}`
     },
     {
       name: 'Shares',
@@ -260,6 +259,7 @@ export default function TaskPage ({ taskObject }) {
       console.log('Waiting to increase the bounty on-chain...', increaseBountyTransaction.hash)
       const res = await increaseBountyTransaction.wait()
       console.log('Transaction successfully executed:', increaseBountyTransaction, res)
+      setIncreaseBountyState({ name: IncreaseBountyState.Success })
     } catch (error) {
       setIncreaseBountyState({
         name: IncreaseBountyState.Error
@@ -312,7 +312,7 @@ export default function TaskPage ({ taskObject }) {
           <form onSubmit={handleSubmit(handleTriggerIncreaseBountyButton)}>
             {renderAmountAndCurrencyFormFields({
               register,
-              nameToTokenAddress: getNameToTokenAddressForChainId(network.chainId)
+              nameToTokenAddress: getNameToTokenAddressForChainId(taskObject.chainId)
             })}
             <button
               type="submit"
@@ -326,7 +326,13 @@ export default function TaskPage ({ taskObject }) {
           </form>
         </div>)
       case IncreaseBountyState.Error:
-        return <div></div>
+        return <div>Error, this shouldn't happen =/</div>
+      case IncreaseBountyState.Success:
+        return <div>
+          <p className="text-sm text-gray-700">
+            🎉 Success 🥳<br />You increased the bounty
+          </p>
+        </div>
       default:
         return <div></div>
     }
@@ -402,7 +408,7 @@ export default function TaskPage ({ taskObject }) {
     const rowData = ethers.utils.toUtf8String(nodeObject.data)
 
     return <tr key={`${nodeObject.owner}-${nodeObject.data}`} className="bg-white">
-      <td className="max-w-0 w-full px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
+      <td className="max-w-sm px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
         <div className="flex">
           <div className="group inline-flex space-x-2 truncate text-sm">
             {renderIconBasedOnNodeType(nodeObject.nodeType, 'flex-shrink-0 h-5 w-5 text-gray-500')}
@@ -412,11 +418,10 @@ export default function TaskPage ({ taskObject }) {
           </div>
         </div>
       </td>
-      <td className="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
+      <td className="max-w-sm px-6 py-4 text-right text-sm text-gray-500">
         <span className="text-gray-900 font-medium">
           {rowData}
         </span>
-        {/* {transaction.currency} */}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         <p
@@ -441,14 +446,14 @@ export default function TaskPage ({ taskObject }) {
           <span className="sr-only">Reject</span>
           <XCircleIcon className="h-5 w-5" aria-hidden="true" />
         </button>
-        <a
-          href={`https://web3.tacit.so/share/${nodeObject.path}`}
-          target="_blank" rel="noopener noreferrer"
-          type="button"
-          className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
-        >
-          View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
-        </a>
+          {NodeType[nodeObject.nodeType] === 'Share' && (<a
+            href={`https://web3.tacit.so/share/${nodeObject.path}`}
+            target="_blank" rel="noopener noreferrer"
+            type="button"
+            className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
+          >
+            View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
+          </a>)}
         </span>
       </td>
     </tr>

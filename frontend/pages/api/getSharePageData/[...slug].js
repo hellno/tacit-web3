@@ -63,8 +63,17 @@ export default async function handler (req, res) {
     console.log('ipfsPath', ipfsPath)
     const [cid, fname] = ipfsPath.split('/')
     const taskObject = await getObjectInIPFS(cid, fname)
-    // eslint-disable-next-line node/no-unsupported-features/es-syntax
-    const returnPayload = { ...taskObject, ...taskNodeData, ...{ path: shareId } }
+    const returnPayload = {
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...taskObject,
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...taskNodeData,
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...{
+        path: shareId,
+        chainId
+      }
+    }
     console.log(returnPayload)
     res.status(200).json(returnPayload)
   } catch (err) {

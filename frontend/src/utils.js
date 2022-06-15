@@ -1,4 +1,4 @@
-import { isNativeChainCurrency, nameToTokenAddress } from './constDeployedContracts'
+import { getNameToTokenAddressForChainId } from './constDeployedContracts'
 import { get, invert } from 'lodash'
 
 export const classNames = (...classes) => {
@@ -13,24 +13,17 @@ export function flattenNodesRecursively (obj) {
   return obj.flatMap(item => item.nodes ? [item, ...flattenNodesRecursively(item.nodes)] : item)
 }
 
-export const getBountyCurrency = (taskObject) => isNativeChainCurrency(taskObject.bounties[0].tokenAddress) ? 'ETH' : get(invert(nameToTokenAddress), taskObject.bounties[0].tokenAddress)
-
-export const getBountyAmount = (taskObject) => {
-  const rawBountyAmount = taskObject.bounties[0].amount
-  const userTokenAmount = rawBountyAmount
-
-  // if (isEthBounty(taskObject.bountyTokenAddress)) {
-  //   userTokenAmount = Math.round((parseFloat(rawBountyAmount) + Number.EPSILON) * 100) / 100
-  // } else {
-  //   const tokenAmountStr = ethers.utils.formatUnits(rawBountyAmount)
-  //   userTokenAmount = Math.round((parseFloat(tokenAmountStr) + Number.EPSILON) * 100) / 100
-  // }
-  return userTokenAmount
+export const getBountyCurrency = (bounty, chainId) => {
+  return get(invert(getNameToTokenAddressForChainId(chainId)), bounty.tokenAddress)
 }
 
-export const getBountyAmountWithCurrencyStringFromTaskObject = (taskObject) => {
-  const tokenCurrency = getBountyCurrency(taskObject)
-  const userTokenAmount = getBountyAmount(taskObject)
+export const getBountyAmount = (bounty) => {
+  return Math.round((parseFloat(bounty.amount) + Number.EPSILON) * 100) / 100
+}
+
+export const getBountyAmountWithCurrencyStringFromTaskObject = (bounty, chainId) => {
+  const tokenCurrency = getBountyCurrency(bounty, chainId)
+  const userTokenAmount = getBountyAmount(bounty)
 
   return `${userTokenAmount} ${tokenCurrency}`
 }

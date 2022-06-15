@@ -10,7 +10,7 @@ import {
 } from '../walletUtils'
 import { AppContext } from '../context'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
-import { isEmpty } from 'lodash'
+import { isEmpty, pick } from 'lodash'
 import { generateHashForObject, storeObjectInIPFS } from '../storageUtils'
 import {
   erc20ContractAbi,
@@ -22,7 +22,7 @@ import {
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
 import { sleep } from '../utils'
-import { XIcon } from '@heroicons/react/outline'
+import { MinusSmIcon, PlusSmIcon, XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
 import { addUserToDatabase } from '../supabase'
 
@@ -43,6 +43,7 @@ export default function CreateTaskComponent ({
   } = globalState
 
   const [showUserMessage, setShowUserMessage] = useState(true)
+  const [showAdvancedFields, setShowAdvancedFields] = useState(false)
   const isWalletConnected = !isEmpty(account)
 
   const {
@@ -62,10 +63,6 @@ export default function CreateTaskComponent ({
   const formTaskTitle = watch('title')
   const formTaskDescription = watch('description')
 
-  const handleFormSubmit = (formData) => {
-    addTask(formData)
-  }
-
   // eslint-disable-next-line no-unused-vars
   const uploadTaskDataToIpfs = async (data) => {
     console.log('starting to upload form data to ipfs', data)
@@ -82,13 +79,14 @@ export default function CreateTaskComponent ({
       })
   }
 
-  const addTask = async ({
-    email,
-    title,
-    description,
-    tokenAmount,
-    tokenAddress
-  }) => {
+  const addTask = async (formData) => {
+    console.log(formData)
+    const {
+      email,
+      tokenAmount,
+      tokenAddress
+    } = formData
+
     if (!library || !network) {
       console.log('Wallet provider object doesn\'t exist!')
       setState({ name: CreateTaskState.ErrorWalletConnect })
@@ -101,11 +99,8 @@ export default function CreateTaskComponent ({
     //   dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
     // } else {
     console.log('starting to upload data to ipfs')
-    const dataPath = await uploadTaskDataToIpfs({
-      title,
-      description
-    })
-    // }
+    const ipfsData = pick(formData, ['title', 'description', 'ctaReferral', 'ctaSolution'])
+    const dataPath = await uploadTaskDataToIpfs(ipfsData)
 
     const userUploadStatus = await addUserToDatabase({
       walletAddress: account,
@@ -190,8 +185,6 @@ export default function CreateTaskComponent ({
     }
   }
 
-  const onFormSubmit = handleSubmit(handleFormSubmit)
-
   function renderUseInfoMessage () {
     return showUserMessage && (<div className="rounded-md bg-blue-50 p-3 mb-4">
       <div className="flex">
@@ -241,21 +234,65 @@ export default function CreateTaskComponent ({
           Task Description
         </label>
         <div className="mt-1">
-                            <textarea
-                              {...register('description', { required: true })}
-                              id="description"
-                              name="description"
-                              rows={8}
-                              className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
-                              defaultValue={''}
-                              placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward."
-                            />
+          <textarea
+            {...register('description', { required: true })}
+            id="description"
+            name="description"
+            rows={8}
+            className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
+            defaultValue={''}
+            placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward."
+          />
         </div>
         {/* <p className="mt-2 text-sm text-gray-500"> */}
         {/*   Write a few sentences about the task and how others */}
         {/*   can fulfill it. */}
         {/* </p> */}
       </div>
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <button
+            type="button"
+            onClick={() => setShowAdvancedFields(!showAdvancedFields)}
+            className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-sm text-white bg-gray-400 hover:bg-gray-500 focus:outline-none"
+          >
+            {showAdvancedFields ? 'Hide' : 'Show'} Advanced Options
+            {showAdvancedFields
+              ? <MinusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
+              : <PlusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
+            }
+          </button>
+        </div>
+      </div>
+      {showAdvancedFields && (<div className="mt-4 space-y-4 ">
+        {renderFormField({
+          register,
+          name: 'ctaReferral',
+          type: 'text',
+          label: 'Call To Action on Referral Button (optional)',
+          placeholder: 'Get referral link'
+        })}
+        {renderFormField({
+          register,
+          name: 'ctaSolution',
+          type: 'text',
+          required: false,
+          label: 'Call To Action on Solution Button (optional)',
+          placeholder: 'Enter customer details'
+        })}
+        {renderFormField({
+          register,
+          name: 'subtitle',
+          type: 'text',
+          required: false,
+          label: 'Subtitle (optional)',
+          placeholder: 'Support us by doing X'
+        })}
+      </div>)}
+
     </>
   }
 
@@ -296,19 +333,19 @@ export default function CreateTaskComponent ({
   const renderFormSubmitButton = () => {
     return localState.name === CreateTaskState.PendingUserInputBounty
       ? (<button
-      type="submit"
-      disabled={!isWalletConnected}
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-    >
-      Submit Task & Bounty
-    </button>)
+        type="submit"
+        disabled={!isWalletConnected}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+      >
+        Submit Task & Bounty
+      </button>)
       : (<button
-      onClick={(event) => onNextStepSubmit(event)}
-      disabled={!isWalletConnected}
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-    >
-      Preview Task
-    </button>)
+        onClick={(event) => onNextStepSubmit(event)}
+        disabled={!isWalletConnected}
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+      >
+        Preview Task
+      </button>)
   }
 
   const renderBackButton = () => {
@@ -340,7 +377,7 @@ export default function CreateTaskComponent ({
             })}
           </div>)}
         </div>
-        <form onSubmit={onFormSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(addTask)} className="space-y-6">
           {localState.name === CreateTaskState.Default && renderTaskDescriptionFormPart()}
           {localState.name === CreateTaskState.PendingUserInputBounty && renderTaskBountyFormPart()}
           {renderFormSubmitButton()}

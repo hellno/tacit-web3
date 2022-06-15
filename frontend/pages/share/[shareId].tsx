@@ -320,7 +320,7 @@ export default function SharePage ({ shareObject }) {
                 onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
                 className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-200 hover:bg-yellow-100"
               >
-                Get referral link
+                {shareObject.ctaReferral || 'Get referral link'}
               </button>
             </div>
             <span className="md:w-60 md:text-center block mt-2 pr-4 text-base font-normal text-gray-100">
@@ -333,7 +333,7 @@ export default function SharePage ({ shareObject }) {
                 onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
                 className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-100 hover:bg-yellow-200"
               >
-                Enter results
+                {shareObject.ctaSolution || 'Get referral link'}
               </button>
             </div>
             <span className="md:w-60 md:text-center block mt-2 pr-4 text-base font-normal text-gray-100">
@@ -545,7 +545,7 @@ export default function SharePage ({ shareObject }) {
               <h1
                 className="mt-2 text-2xl tracking-tight font-bold text-white sm:leading-none lg:mt-2 lg:text-2xl xl:text-4xl">
                 {/* <span className="md:block">asdasd</span>{' '} */}
-                Bounty: {getBountyAmountWithCurrencyStringFromTaskObject(shareObject)}
+                Bounty: {getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}
               </h1>
               <div className="lg:max-w-6xl lg:mx-auto">
                 <div className="py-6 md:flex md:items-center md:justify-between">

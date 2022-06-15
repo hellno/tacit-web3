@@ -102,9 +102,12 @@ export default function Home () {
                 Start over
               </button>
             </div>
-            {process.env.NODE_ENV === 'development' && (<div className="bg-red-100 p-2 px-4 mt-4 rounded-sm">
-              error, shows only in dev-mode:<br />{get(taskSubmissionState, 'error')}
-            </div>)}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="bg-red-100 p-2 px-4 mt-4 rounded-sm">
+                error (shows only in dev-mode)<br />
+                {JSON.stringify(get(taskSubmissionState, 'error'))}
+              </div>)
+            }
           </div>
         </div>
     }

@@ -50,8 +50,15 @@ export default async function handler (req, res) {
 
     const taskObject = await getObjectInIPFS(cid, fname)
     const nestedNodesObject = await getRecursiveNodes(taskPortalContract, taskId)
-    // eslint-disable-next-line node/no-unsupported-features/es-syntax
-    const returnPayload = { ...taskObject, ...taskNodeData, ...nestedNodesObject }
+    const returnPayload = {
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...taskObject,
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...taskNodeData,
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...nestedNodesObject,
+      chainId
+    }
     res.status(200).json(returnPayload)
   } catch (err) {
     console.log('err when getting task page data for id', taskId, err)

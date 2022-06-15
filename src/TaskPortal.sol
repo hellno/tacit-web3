@@ -188,8 +188,9 @@ contract TaskPortal is ERC2771Context, Ownable {
         bytes32 _taskPath,
         address _tokenAddress,
         uint256 _amount
-    ) public payable nodeExists(_taskPath) returns (uint256) {
+    ) public payable nodeExists(_taskPath) {
         uint256 amount;
+
         if (_tokenAddress == address(0)) {// no ERC token, but native chain currency is used
             require(msg.value > 0 wei, "Transaction must have value to create task with bounty");
             amount = msg.value;
@@ -201,11 +202,11 @@ contract TaskPortal is ERC2771Context, Ownable {
         for (uint i; i < bounties[_taskPath].length; i++) {
             if (bounties[_taskPath][i].tokenAddress == _tokenAddress) {
                 bounties[_taskPath][i].amount += amount;
-
-                return bounties[_taskPath][i].amount;
+                return;
             }
         }
-        revert("No existing bounty with token address found");
+
+        bounties[_taskPath].push(Bounty({tokenAddress : _tokenAddress, amount : amount}));
     }
 
     function _transferErc20TokenToContract(address _tokenAddress, uint256 _amount) internal {
