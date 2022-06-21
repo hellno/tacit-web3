@@ -1,12 +1,14 @@
 import { ethers } from 'ethers'
 import {
+  getChainIdFromShortName,
   getDeployedContractForChainId,
   getNodeFromContractAsObject,
   getTaskFromContractAsObject,
   taskPortalContractAbi
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
-import { isUndefined } from 'lodash'
+import { split } from 'lodash'
+import { getProviderForChainId } from '../../../src/apiUtils'
 
 // eslint-disable-next-line no-unused-vars
 const exampleTaskObject = {
@@ -22,35 +24,14 @@ Not showing this description 100% how I want to, but slowly getting there.
   owner: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B',
   createdAt: '2022-05-18'
 }
-const useLocalNode = process.env.USE_LOCAL_NODE === 'true'
 
 export default async function handler (req, res) {
-  const {
-    query: {
-      slug
-    }
-    // method
-  } = req
+  const { slug } = req.query
 
   console.log('slug is', slug)
-  let [shareId, chainId] = slug
-  if (isUndefined(shareId) || shareId === 'undefined') {
-    res.status(200).json({})
-    return
-  }
-
-  if (isUndefined(chainId) || chainId === 'undefined') {
-    chainId = useLocalNode ? 1337 : 5
-  }
-
-  let provider
-
-  if (process.env.NODE_ENV === 'development' && useLocalNode) {
-    const url = 'http://127.0.0.1:8545/'
-    provider = new ethers.providers.JsonRpcProvider(url)
-  } else {
-    provider = new ethers.providers.AlchemyProvider('goerli', process.env.ALCHEMY_API_KEY)
-  }
+  const [chainShortName, shareId] = split(slug, ':')
+  const chainId = getChainIdFromShortName(chainShortName)
+  const provider = getProviderForChainId(chainId)
 
   try {
     const { contractAddress } = getDeployedContractForChainId(chainId)
@@ -60,7 +41,6 @@ export default async function handler (req, res) {
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskPath)
     const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
 
-    console.log('ipfsPath', ipfsPath)
     const [cid, fname] = ipfsPath.split('/')
     const taskObject = await getObjectInIPFS(cid, fname)
     const returnPayload = {

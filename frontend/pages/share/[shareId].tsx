@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/solid'
-import { includes, isEmpty } from 'lodash'
+import { get, includes, isEmpty } from 'lodash'
 import { useForm } from 'react-hook-form'
 import {
   getTaskPortalContractInstanceViaActiveWallet,
@@ -74,7 +74,7 @@ export default function SharePage ({ shareObject }) {
 
     setBiconomyState({ name: BiconomyLoadingState.Init })
     const biconomyOptions = {
-      apiKey: process.env.BICONOMY_API_KEY,
+      apiKey: network.chainId === 100 ? process.env.BICONOMY_GNOSIS_API_KEY : process.env.BICONOMY_GOERLI_API_KEY,
       walletProvider: library.provider,
       debug: true
     }
@@ -152,7 +152,7 @@ export default function SharePage ({ shareObject }) {
       res = await biconomyProvider.send('eth_sendTransaction', [txParams])
     } catch (e) {
       console.log('caught error ', e)
-      const errorMessage = JSON.parse(e.error.body).error.message
+      const errorMessage = get(e, 'message') || JSON.parse(e.error.body).error.message
       console.log('got error message when interacting with contract', errorMessage)
       setSharePageData({
         name: SharePageState.FailSubmitSolve,
@@ -207,10 +207,8 @@ export default function SharePage ({ shareObject }) {
     //   ]
     // }
 
-    taskPortalContract.on('NewNodeCreated', (owner, parent, path, nodeType) => {
+    taskPortalContract.on('NodeUpdated', (owner, parent, path, nodeType) => {
       if (owner === account && nodeType === NodeType.Share) {
-        console.log('RECEIVED NEW NODE CREATED EVENT YOYOYO', owner, parent, path, nodeType)
-
         setSharePageData({
           name: SharePageState.SuccessSubmitShare,
           data: {
@@ -237,7 +235,7 @@ export default function SharePage ({ shareObject }) {
       res = await biconomyProvider.send('eth_sendTransaction', [txParams])
     } catch (e) {
       console.log('caught error ', e)
-      const errorMessage = JSON.parse(e.error.body).error.message
+      const errorMessage = get(e, 'message') || JSON.parse(e.error.body).error.message
       console.log('got error message when interacting with contract', errorMessage)
       setSharePageData({
         name: SharePageState.FailSubmitShare,
@@ -544,8 +542,8 @@ export default function SharePage ({ shareObject }) {
               </h1>
               <h1
                 className="mt-2 text-2xl tracking-tight font-bold text-white sm:leading-none lg:mt-2 lg:text-2xl xl:text-4xl">
-                {/* <span className="md:block">asdasd</span>{' '} */}
-                Bounty: {getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}
+                Bounty: {getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}<br />
+                {shareObject.subtitle && <>{' '}<br /><span className="">{shareObject.subtitle}</span></>}
               </h1>
               <div className="lg:max-w-6xl lg:mx-auto">
                 <div className="py-6 md:flex md:items-center md:justify-between">

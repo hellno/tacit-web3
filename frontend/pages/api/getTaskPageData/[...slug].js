@@ -1,43 +1,22 @@
 import { ethers } from 'ethers'
 import {
+  getChainIdFromShortName,
   getDeployedContractForChainId,
   getNodeFromContractAsObject,
   getTaskFromContractAsObject,
   taskPortalContractAbi
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
-import { isUndefined, map } from 'lodash'
-
-const useLocalNode = process.env.USE_LOCAL_NODE === 'true'
+import { map, split } from 'lodash'
+import { getProviderForChainId } from '../../../src/apiUtils'
 
 export default async function handler (req, res) {
-  const {
-    query: {
-      slug
-    }
-    // method
-  } = req
+  const { slug } = req.query
 
   console.log('slug is', slug)
-  let [taskId, chainId] = slug
-  if (isUndefined(taskId) || taskId === 'undefined') {
-    res.status(200).json({})
-    return
-  }
-
-  if (isUndefined(chainId) || chainId === 'undefined') {
-    chainId = useLocalNode ? 1339 : 5
-  }
-
-  console.log('useLocalNode', useLocalNode, chainId)
-  let provider
-
-  if (process.env.NODE_ENV === 'development' && useLocalNode) {
-    const url = 'http://127.0.0.1:8546/'
-    provider = new ethers.providers.JsonRpcProvider(url)
-  } else {
-    provider = new ethers.providers.AlchemyProvider('goerli', process.env.ALCHEMY_API_KEY)
-  }
+  const [chainShortName, taskId] = split(slug, ':')
+  const chainId = getChainIdFromShortName(chainShortName)
+  const provider = getProviderForChainId(chainId)
 
   try {
     const { contractAddress } = getDeployedContractForChainId(chainId)
@@ -52,10 +31,8 @@ export default async function handler (req, res) {
     const nestedNodesObject = await getRecursiveNodes(taskPortalContract, taskId)
     const returnPayload = {
       // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...taskObject,
-      // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...taskNodeData,
-      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...taskObject, // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...taskNodeData, // eslint-disable-next-line node/no-unsupported-features/es-syntax
       ...nestedNodesObject,
       chainId
     }
@@ -69,9 +46,7 @@ export default async function handler (req, res) {
 const getRecursiveNodes = async (contract, nodePath) => {
   const nodeObject = await getNodeFromContractAsObject(contract, nodePath)
   if (nodeObject.nodes.length > 0) {
-    nodeObject.nodes = await Promise.all(map(nodeObject.nodes, async (path) =>
-      await getRecursiveNodes(contract, path))
-    )
+    nodeObject.nodes = await Promise.all(map(nodeObject.nodes, async (path) => await getRecursiveNodes(contract, path)))
   }
   nodeObject.path = nodePath
   return nodeObject

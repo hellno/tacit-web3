@@ -177,6 +177,7 @@ export default function TaskPage ({ taskObject }) {
 
   const isWalletConnected = !isEmpty(account)
   const bountyCurrency = getBountyCurrency(taskObject.bounties[0], taskObject.chainId)
+  const shortNameForChain = network ? getDeployedContractForChainId(network.chainId).shortName : ''
 
   // video mock
   // if (taskObject.owner === '0x63b2E4a23240727C2d62b1c91EE76D79E185e2ba') {
@@ -407,6 +408,21 @@ export default function TaskPage ({ taskObject }) {
     const nodeOwnerStr = nodeObject.owner === taskObject.owner ? 'Creating Task' : nodeObject.owner
     const rowData = ethers.utils.toUtf8String(nodeObject.data)
 
+    const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
+    const viewShareLink = () => {
+      const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
+      const taskShareLink = `${url}/share/${shortNameForChain}:${nodeObject.path}`
+
+      return (<a
+        href={taskShareLink}
+        target="_blank" rel="noopener noreferrer"
+        type="button"
+        className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
+      >
+        View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
+      </a>)
+    }
+
     return <tr key={`${nodeObject.owner}-${nodeObject.data}`} className="bg-white">
       <td className="max-w-sm px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
         <div className="flex">
@@ -446,14 +462,7 @@ export default function TaskPage ({ taskObject }) {
           <span className="sr-only">Reject</span>
           <XCircleIcon className="h-5 w-5" aria-hidden="true" />
         </button>
-          {NodeType[nodeObject.nodeType] === 'Share' && (<a
-            href={`https://web3.tacit.so/share/${nodeObject.path}`}
-            target="_blank" rel="noopener noreferrer"
-            type="button"
-            className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
-          >
-            View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
-          </a>)}
+          {isShareNode && viewShareLink()}
         </span>
       </td>
     </tr>

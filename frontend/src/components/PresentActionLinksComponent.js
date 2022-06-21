@@ -1,3 +1,7 @@
+import { AppContext } from '../context'
+import { useContext } from 'react'
+import { getDeployedContractForChainId } from '../constDeployedContracts'
+
 const PresentActionLinksComponent = ({
   data
 }) => {
@@ -9,12 +13,20 @@ const PresentActionLinksComponent = ({
   //   }
   // }
 
-  const blockExplorerForChain = 'https://goerli.etherscan.io'
+  const [state] = useContext(AppContext)
+  const {
+    network
+  } = state
+
+  console.log('data', data)
+
+  const shortNameForChain = getDeployedContractForChainId(network.chainId).shortName
+  const blockExplorerForChain = getDeployedContractForChainId(network.chainId).blockExplorer
 
   const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
-  const taskShareLink = `${url}/share/${data.sharePath}`
+  const taskShareLink = `${url}/share/${shortNameForChain}:${data.sharePath}`
   const transactionLink = `${blockExplorerForChain}/tx/${data.transactionHash}`
-  const userTasksLink = `${url}/task/${data.taskPath}`
+  const userTasksLink = `${url}/task/${shortNameForChain}:${data.taskPath}`
 
   return (<>
     <div className="mt-6">
@@ -30,18 +42,17 @@ const PresentActionLinksComponent = ({
           </dd>
         </div>)}
         {data.transactionHash && (<div className="sm:col-span-2">
-            <dt className="text-md font-medium text-gray-500">Your transaction
-              <span
-                className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+          <dt className="text-md font-medium text-gray-500">Your transaction
+            <span
+              className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                 takes few mins to update
               </span></dt>
-            <dd className="mt-1 text-md text-gray-900 truncate underline">
-              <a href={transactionLink} target="_blank" rel="noopener noreferrer">
-                {transactionLink}
-              </a>
-            </dd>
-          </div>
-        )}
+          <dd className="mt-1 text-md text-gray-900 truncate underline">
+            <a href={transactionLink} target="_blank" rel="noopener noreferrer">
+              {transactionLink}
+            </a>
+          </dd>
+        </div>)}
         {data.taskPath && (<div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">
             Dashboard for task and bounty

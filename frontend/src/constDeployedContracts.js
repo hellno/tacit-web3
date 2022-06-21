@@ -1,4 +1,4 @@
-import { filter, includes, map, union } from 'lodash'
+import { find, includes, map, startCase, union } from 'lodash'
 import taskPortalAbi from './abi/TaskPortal.json'
 import erc20Abi from './abi/IERC20.json'
 import { ethers } from 'ethers'
@@ -9,7 +9,26 @@ export const erc20ContractAbi = erc20Abi.abi
 const _contracts = [{
   chainId: 5,
   name: 'Görli Testnet',
-  contractAddress: '0x652ef3c2bb7b790226530666b7efd9c4b6df54ea'
+  shortName: 'gor',
+  // if changed, must update biconomy as well
+  contractAddress: '0x3a71F0562cD82a8b8a7245845259B925d95FEBF9',
+  blockExplorer: 'https://goerli.etherscan.io/',
+  nativeCurrency: {
+    name: 'Görli Ether',
+    symbol: 'GOR',
+    decimals: 18
+  }
+}, {
+  chainId: 100,
+  name: 'Gnosis Chain',
+  shortName: 'gno',
+  contractAddress: '0x155b1c795492c8d20fae39364dcd830c6d94839f',
+  blockExplorer: 'https://blockscout.com/xdai/mainnet/',
+  nativeCurrency: {
+    name: 'xDAI',
+    symbol: 'xDAI',
+    decimals: 18
+  }
 }]
 
 export const getDeployedContracts = () => {
@@ -18,25 +37,24 @@ export const getDeployedContracts = () => {
   if (process.env.NODE_ENV === 'development') {
     contracts = union(contracts, [{
       chainId: 1337,
-      name: 'Local Hardhat Testnet', // must update this based on local re-deployments
-      contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+      name: 'Local Hardhat Testnet',
+      contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3', // must update this based on local re-deployments
+      blockExplorer: 'https://my-block-explorer.io/'
     }, {
       chainId: 1339,
-      name: 'Local Foundry Testnet', // must update this based on local re-deployments
-      contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+      name: 'Local Foundry Testnet',
+      contractAddress: '0x5fbdb2315678afecb367f032d93f642f64180aa3', // must update this based on local re-deployments
+      blockExplorer: 'https://my-block-explorer.io/'
     }])
   }
   return contracts
 }
 
-export function isSupportedNetwork (chainId) {
-  return includes(map(getDeployedContracts(), 'chainId'), chainId)
-}
+export const isSupportedNetwork = chainId => includes(map(getDeployedContracts(), 'chainId'), chainId)
 
-export function getDeployedContractForChainId (chainId) {
-  const contracts = filter(getDeployedContracts(), ['chainId', chainId])
-  return contracts && contracts[0]
-}
+export const getDeployedContractForChainId = chainId => find(getDeployedContracts(), (chain) => chain.chainId === chainId)
+
+export const getChainIdFromShortName = (shortName) => find(getDeployedContracts(), (chain) => chain.shortName === shortName).chainId
 
 export const NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT = '0x0000000000000000000000000000000000000000'
 
@@ -46,8 +64,7 @@ export const NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT = '0x0000000000
 //   '0xBA62BCfcAaFc6622853cca2BE6Ac7d845BC0f2Dc': 18
 // }
 
-export const isNativeChainCurrency = (tokenAddress) =>
-  tokenAddress === NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
+export const isNativeChainCurrency = (tokenAddress) => tokenAddress === NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 
 export const getNameToTokenAddressForChainId = (chainId) => {
   switch (chainId) {
@@ -63,8 +80,7 @@ export const getNameToTokenAddressForChainId = (chainId) => {
       return {
         xDai: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
         GNO: '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb',
-        USDC: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
-        DAI: '0x44fA8E6f47987339850636F88629646662444217'
+        USDC: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'
       }
   }
 }
@@ -100,4 +116,9 @@ export const getTaskFromContractAsObject = async (contract, taskPath) => {
     nodes,
     bounties
   }
+}
+
+export const getUserFriendlyNameForNetwork = (network) => {
+  const name = getDeployedContractForChainId(network.chainId).name || network.name
+  return startCase(name)
 }

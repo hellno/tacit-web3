@@ -1,9 +1,8 @@
 import { Fragment, useContext } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/solid'
-import { isEmpty, map, startCase } from 'lodash'
-import { getDeployedContracts, isSupportedNetwork } from '../constDeployedContracts'
-import { getUserFriendlyNameForChainId } from '../walletUtils'
+import { isEmpty, map } from 'lodash'
+import { getDeployedContracts, getUserFriendlyNameForNetwork, isSupportedNetwork } from '../constDeployedContracts'
 import { classNames } from '../utils'
 import { toHex } from 'web3-utils'
 import { AppContext } from '../context'
@@ -70,10 +69,7 @@ const Web3ChainSwitcher = () => {
   const chains = getDeployedContracts().filter(
     (chain) => chain.chainId !== network.chainId
   )
-
-  const currentChainName = startCase(
-    getUserFriendlyNameForChainId(network.chainId) || network.name
-  )
+  const currentChainName = getUserFriendlyNameForNetwork(network)
 
   return (
     <Menu as="div" className="relative inline-block text-left">
@@ -119,8 +115,7 @@ const Web3ChainSwitcher = () => {
                         'w-full text-left block px-4 py-2 text-sm'
                       )}
                     >
-                      {getUserFriendlyNameForChainId(chain.chainId) ||
-                        chain.name}
+                      {chain.name}
                     </button>
                   )}
                 </Menu.Item>

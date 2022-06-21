@@ -12,7 +12,7 @@ import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 contract TaskPortalTest is Test {
     TaskPortal taskPortal;
-    //    address daiTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
+    address daiTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     //    address daiTokenAddress = 0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671;
     bytes defaultTaskData = "bafybeigyhfbk2s3pbt34qdyrxpst2wbqengha3n7eziqkv4krbavvjo5mm/1c21055d221e684d8739678a1e51a474";
     address[] addresses;
@@ -45,10 +45,15 @@ contract TaskPortalTest is Test {
     //            .with_key(who)
     //            .find());
     //
-    //        vm.prank(msg.sender);
-    //        IERC20(token).approve(taskPortal.thisAddress(), amount);
     //        uint256 allowanceAmount = IERC20(token).allowance(msg.sender, taskPortal.thisAddress());
     //        emit log_named_uint("allowance amount from external ERC20", allowanceAmount);
+    //    }
+    //
+    //    function addTaskWithErc20TokenBounty(bytes memory taskData) internal returns (bytes32) {
+    //        writeTokenBalance(msg.sender, daiTokenAddress, 1000);
+    //
+    //        vm.prank(msg.sender);
+    //        return taskPortal.addTask(taskData, daiTokenAddress, 1);
     //    }
 
 
@@ -57,12 +62,6 @@ contract TaskPortalTest is Test {
         return taskPortal.addTask{value : 3 ether}(taskData, address(0), 0);
     }
 
-    //    function addTaskWithErc20TokenBounty(bytes memory taskData) internal returns (bytes32) {
-    //        writeTokenBalance(msg.sender, daiTokenAddress, 1000);
-    //
-    //        vm.prank(msg.sender);
-    //        return taskPortal.addTask(taskData, daiTokenAddress, 1);
-    //    }
 
     function testTaskCreationWithEth(bytes memory taskData) public {
         vm.assume(taskData.length > 0);
@@ -90,7 +89,7 @@ contract TaskPortalTest is Test {
         assert(nodeIsOpen);
     }
 
-    // disabled until I get to fix the allowance call to the ERC20 token so that we can transfer
+    //     disabled until I get to fix the allowance call to the ERC20 token so that we can transfer
     //    function testTaskCreationWithErc20(bytes memory taskData) public {
     //        vm.assume(taskData.length > 0);
     //
@@ -150,8 +149,6 @@ contract TaskPortalTest is Test {
         assertEq(firstShareChildNodes.length, 1);
         assertEq(firstShareChildNodes[0], sharePath2);
         assertEq(firstShareTaskPath, taskPath);
-        vm.prank(secondShareSenderAddress);
-        assert(taskPortal.hasSenderContributedToAnySubnode(taskPath));
 
         bytes32[] memory secondShareChildNodes;
         bytes32 secondShareTaskPath;
@@ -237,7 +234,7 @@ contract TaskPortalTest is Test {
         Bounty[] memory bounties = taskPortal.getBountiesForTask(taskPath);
         assertEq(bounties[0].amount, 3 ether);
         assertEq(bounties[0].tokenAddress, bountyTokenAddress);
-        
+
         vm.prank(msg.sender);
         address[] memory receiverAddresses = new address[](1);
         receiverAddresses[0] = shareAddress1;
@@ -258,48 +255,23 @@ contract TaskPortalTest is Test {
         bounties = taskPortal.getBountiesForTask(taskPath);
         assertEq(bounties[0].amount, 2 ether);
     }
+
+    function testTaskUpdateData() public {
+        bytes memory taskData = "initial task data test";
+        bytes32 taskPath = addTaskWithEthBounty(taskData);
+
+        bytes memory nodeData;
+        (,,, nodeData,,,) = taskPortal.getNode(taskPath);
+
+        assertEq(nodeData, taskData);
+        bytes memory newTaskData = "123 this is new data";
+
+        vm.prank(msg.sender);
+        taskPortal.updateTaskData(taskPath, newTaskData);
+
+        (,,, nodeData,,,) = taskPortal.getNode(taskPath);
+
+        assertEq(nodeData, newTaskData);
+    }
 }
 
-
-//contract ReceiverContract {
-//    address public contractAddress;
-//
-//    constructor() {
-//        contractAddress = address(this);
-//    }
-//
-//    function sendErc20ToContract(address _tokenAddress, uint256 amount) public {
-//        IERC20 token = IERC20(_tokenAddress);
-//        require(token.balanceOf(msg.sender) >= amount);
-//        require(token.allowance(msg.sender, contractAddress) >= amount);
-//
-//        token.transferFrom(msg.sender, contractAddress, amount);
-//    }
-//}
-//
-//contract TestReceiverContract is Test {
-//    ReceiverContract testReceiver;
-//
-//    function setUp() public {
-//        testReceiver = new ReceiverContract();
-//    }
-//
-//    function addErc20TokenBalance(address who, address token, uint256 amount) internal {
-//        deal(address(token), who, amount);
-//
-//        vm.prank(msg.sender);
-//        IERC20(token).approve(testReceiver.contractAddress(), amount);
-//        uint256 allowanceAmount = IERC20(token).allowance(msg.sender, testReceiver.contractAddress());
-//        emit log_named_uint("allowance amount from external ERC20", allowanceAmount);
-//    }
-//
-//    function testTransfer() public {
-//        address daiTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
-//        uint16 amount = 2342;
-//
-//        addErc20TokenBalance(msg.sender, daiTokenAddress, amount);
-//
-//        vm.prank(msg.sender);
-//        testReceiver.sendErc20ToContract(daiTokenAddress, amount);
-//    }
-//}

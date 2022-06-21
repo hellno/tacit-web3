@@ -18,7 +18,7 @@ export const getBountyCurrency = (bounty, chainId) => {
 }
 
 export const getBountyAmount = (bounty) => {
-  return Math.round((parseFloat(bounty.amount) + Number.EPSILON) * 100) / 100
+  return Math.round((parseFloat(bounty.amount) + Number.EPSILON) * 1000000) / 1000000
 }
 
 export const getBountyAmountWithCurrencyStringFromTaskObject = (bounty, chainId) => {

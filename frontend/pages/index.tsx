@@ -80,15 +80,16 @@ export default function Home () {
           </div>
         </div>
       case CreateTaskState.DoneCreatingTask:
-        return <div className="px-4 py-8 sm:px-10">
-          <PresentActionLinksComponent data={taskSubmissionState.data} />
+        return <>
+          <div className="px-4 py-8 sm:px-10">
+            <PresentActionLinksComponent data={taskSubmissionState.data} />
+          </div>
           <div className="px-4 py-6 bg-gray-50 border-t-2 border-gray-200 sm:px-10">
             <p className="text-xs leading-5 text-gray-500">
               Thank you for being early (🤩, 🤩)
-              {/* (🫡, 🫡) */}
             </p>
           </div>
-        </div>
+        </>
       default:
         return <div className="px-4 py-8 sm:px-10">
           <div className="mt-0">

@@ -81,7 +81,7 @@ export default function CreateTaskComponent ({
 
   const addTask = async (formData) => {
     console.log(formData)
-    const {
+    let {
       email,
       tokenAmount,
       tokenAddress
@@ -154,11 +154,14 @@ export default function CreateTaskComponent ({
       console.log('Waiting to add the task on-chain...', addTaskTransaction.hash)
       const res = await addTaskTransaction.wait()
       console.log('Transaction successfully executed:', addTaskTransaction, res)
-      const shareEvent = res.events.find(event => event.event === 'NewNodeCreated' && event.args.nodeType === NodeType.Share)
+
+      const shareEvent = res.events.find(event => event.event === 'NodeUpdated' && event.args.nodeType === NodeType.Share)
+      console.log('share event', shareEvent)
+
       const data = {
         transactionHash: addTaskTransaction.hash,
-        taskPath: shareEvent.args.parent,
-        sharePath: shareEvent.args.path
+        taskPath: `${shareEvent.args.parent}`,
+        sharePath: `${shareEvent.args.path}`
       }
 
       await sleep(1000) // just a random wait, so that the transaction actually shows up in etherscan and share link will work

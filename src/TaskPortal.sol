@@ -17,14 +17,14 @@ import "../lib/openzeppelin-contracts/contracts/metatx/ERC2771Context.sol";
 
 // data structure inspired by https://medium.com/@sergiibomko/tree-in-solidity-90bd8b091263
     struct Node {
-        bytes32 path;     // this node's path
-        bytes32 parent;   // parent node’s path
-        bytes32 taskPath; // path of task that this node belongs to
         address owner;    // address that created this node and has full write rights
         bytes data;
         bytes32[] nodes;  // list of linked nodes’ paths
         NodeType nodeType;
         bool isOpen;
+        bytes32 path;
+        bytes32 parent;
+        bytes32 taskPath;
     }
 
     struct Bounty {
@@ -43,14 +43,13 @@ contract TaskPortal is ERC2771Context, Ownable {
     uint256 public nodesCount = 0;
     bytes32 public rootTaskPath;
 
-    //    address private _trustedForwarder;
+    address private _trustedForwarder;
 
-    event NewNodeCreated(address indexed owner, bytes32 indexed parent, bytes32 path, NodeType nodeType);
+    event NodeUpdated(bytes32 indexed path, address indexed owner, NodeType indexed nodeType, bytes32 parent);
+    event BountyUpdated(bytes32 indexed path, address indexed tokenAddress, uint256 amount);
 
     constructor(address trustedForwarder) ERC2771Context(trustedForwarder) Ownable() {
         rootTaskPath = _addNode("", "RootTask", msg.sender, NodeType.Task, "");
-        console.log("Created TaskPortal root task with path");
-        console.logBytes32(rootTaskPath);
     }
 
     receive() external payable {
@@ -68,6 +67,11 @@ contract TaskPortal is ERC2771Context, Ownable {
         _;
     }
 
+    modifier isTaskNode(bytes32 _path) {
+        require(uint(nodes[_path].nodeType) == uint(NodeType.Task), "Node must be a task");
+        _;
+    }
+
     function _msgSender() internal view virtual override(ERC2771Context, Context) returns (address) {
         return ERC2771Context._msgSender();
     }
@@ -76,16 +80,16 @@ contract TaskPortal is ERC2771Context, Ownable {
         return ERC2771Context._msgData();
     }
 
-    //    function setTrustedForwarder(address trustedForwarder) public onlyOwner {
-    //        _trustedForwarder = trustedForwarder;
-    //    }
+    function setTrustedForwarder(address trustedForwarder) public onlyOwner {
+        _trustedForwarder = trustedForwarder;
+    }
 
-    function getTask(bytes32 _path) public view nodeExists(_path) returns (address, bytes memory, bool, bytes32[] memory) {
+    function getTask(bytes32 _path) public view nodeExists(_path) isTaskNode(_path) returns (address, bytes memory, bool, bytes32[] memory) {
         Node storage node = nodes[_path];
         return (node.owner, node.data, node.isOpen, node.nodes);
     }
 
-    function getBountiesForTask(bytes32 _path) public view nodeExists(_path) returns (Bounty[] memory) {
+    function getBountiesForTask(bytes32 _path) public view nodeExists(_path) isTaskNode(_path) returns (Bounty[] memory) {
         return bounties[_path];
     }
 
@@ -119,7 +123,7 @@ contract TaskPortal is ERC2771Context, Ownable {
         address _owner,
         NodeType _nodeType,
         bytes32 _taskPath
-    ) private returns (bytes32) {
+    ) internal returns (bytes32) {
         require(_data.length > 0);
 
         bytes32 _id = getNextNodeId();
@@ -139,7 +143,7 @@ contract TaskPortal is ERC2771Context, Ownable {
         nodes[_parent].nodes.push(path);
         nodesCount += 1;
 
-        emit NewNodeCreated(_owner, _parent, path, _nodeType);
+        emit NodeUpdated(path, _owner, _nodeType, _parent);
         return path;
     }
 
@@ -172,7 +176,6 @@ contract TaskPortal is ERC2771Context, Ownable {
         } else {
             taskPath = nodes[_parent].taskPath;
         }
-        //        require(!hasSenderContributedToAnySubnode(taskPath), "One share per task for each wallet");
 
         return _addNode(_parent, _data, _msgSender(), NodeType.Share, taskPath);
     }
@@ -188,7 +191,7 @@ contract TaskPortal is ERC2771Context, Ownable {
         bytes32 _taskPath,
         address _tokenAddress,
         uint256 _amount
-    ) public payable nodeExists(_taskPath) {
+    ) public payable nodeExists(_taskPath) isTaskNode(_taskPath) {
         uint256 amount;
 
         if (_tokenAddress == address(0)) {// no ERC token, but native chain currency is used
@@ -219,22 +222,6 @@ contract TaskPortal is ERC2771Context, Ownable {
         token.safeTransferFrom(_msgSender(), address(this), _amount);
     }
 
-    function hasSenderContributedToAnySubnode(bytes32 _path) public nodeExists(_path) view returns (bool) {
-        bytes32[] memory _nodes = nodes[_path].nodes;
-        for (uint i = 0; i < _nodes.length; i++) {
-            if (nodes[_nodes[i]].owner == _msgSender()) {
-                return true;
-            }
-            if (nodes[_nodes[i]].nodes.length > 0) {
-                bool hasContributedToAnySubnode = hasSenderContributedToAnySubnode(_nodes[i]);
-                if (hasContributedToAnySubnode) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 
     function updateNodesIsOpen(bytes32[] memory _paths, bool[] memory _isOpens) public returns (uint) {
         require(_paths.length == _isOpens.length, "Number of node paths and isOpens must be equal");
@@ -260,12 +247,21 @@ contract TaskPortal is ERC2771Context, Ownable {
         return nodeUpdateCounter;
     }
 
+    function updateTaskData(
+        bytes32 _path,
+        bytes memory _data
+    ) public canEditNode(_path) isTaskNode(_path) {
+        nodes[_path].data = _data;
+
+        emit NodeUpdated(_path, nodes[_path].owner, nodes[_path].nodeType, nodes[_path].parent);
+    }
+
     function payoutTask(
         bytes32 taskPath,
         address[] memory addresses,
         address[] memory tokenAddresses,
         uint256[] memory amounts
-    ) public canEditNode(taskPath) {
+    ) public canEditNode(taskPath) isTaskNode(taskPath) {
         require(addresses.length > 0, "No addresses provided");
         require(addresses.length == amounts.length, "Must be same number of addresses and amounts");
 

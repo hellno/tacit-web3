@@ -5,26 +5,6 @@ import { isEmpty, truncate } from 'lodash'
 import Web3Modal from 'web3modal'
 import { getDeployedContractForChainId, taskPortalContractAbi } from './constDeployedContracts'
 
-/**
- * @param {number} chainId
- */
-export const getUserFriendlyNameForChainId = (chainId) => {
-  switch (chainId) {
-    case 1:
-      return 'Ethereum'
-    case 5:
-      return 'Görli Testnet'
-    case 1337:
-      return 'Localhost 1337'
-    case 1338:
-      return 'Localhost 1338'
-    case 1339:
-      return 'Localhost 1339'
-    default:
-      return ''
-  }
-}
-
 export const providerOptions = {
   coinbasewallet: {
     package: CoinbaseWalletSDK,
@@ -134,7 +114,7 @@ export const loadWeb3Modal = (dispatch) => {
 
 export const getDefaultTransactionGasOptions = () => {
   const gasPrice = ethers.utils.parseUnits('5', 'gwei')
-  const gasLimit = 8000000
+  const gasLimit = 1000000
   return {
     gasPrice,
     gasLimit
