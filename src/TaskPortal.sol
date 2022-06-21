@@ -256,6 +256,15 @@ contract TaskPortal is ERC2771Context, Ownable {
         emit NodeUpdated(_path, nodes[_path].owner, nodes[_path].nodeType, nodes[_path].parent);
     }
 
+    function updateTaskOwner(
+        bytes32 _path,
+        address _newOwner
+    ) public canEditNode(_path) isTaskNode(_path) {
+        nodes[_path].owner = _newOwner;
+
+        emit NodeUpdated(_path, nodes[_path].owner, nodes[_path].nodeType, nodes[_path].parent);
+    }
+
     function payoutTask(
         bytes32 taskPath,
         address[] memory addresses,
@@ -287,10 +296,22 @@ contract TaskPortal is ERC2771Context, Ownable {
                         token.safeIncreaseAllowance(address(this), amounts[i]);
                         token.safeTransfer(addresses[i], amounts[i]);
                     }
-
                 }
             }
         }
+    }
 
+    function withdrawToOwner(uint256 _amount) public onlyOwner {
+        require(address(this).balance >= _amount, "Contract must have enough balance");
+
+        payable(owner()).transfer(_amount);
+    }
+
+    function withdrawTokenToOwner(address _tokenAddress, uint256 _amount) public onlyOwner {
+        IERC20 token = IERC20(_tokenAddress);
+        require(token.balanceOf(address(this)) >= _amount, "Contract must have enough tokens");
+
+        token.safeIncreaseAllowance(address(this), _amount);
+        token.safeTransfer(owner(), _amount);
     }
 }

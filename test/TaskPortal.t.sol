@@ -29,8 +29,6 @@ contract TaskPortalTest is Test {
     function getRandomWalletAddress() public returns (address) {
         skip(10);
         bytes32 addr = keccak256(abi.encodePacked(block.timestamp));
-
-        //        emit log_named_bytes32("generated random wallet address", addr);
         return address(uint160(uint256(addr)));
     }
 
@@ -118,7 +116,6 @@ contract TaskPortalTest is Test {
     function testTaskToShareToSolutionFlow() public {
         bytes memory taskData = defaultTaskData;
         bytes32 taskPath = addTaskWithEthBounty(taskData);
-        emit log_named_bytes32("taskPath", taskPath);
 
         vm.prank(getRandomWalletAddress());
         bytes32 sharePath1 = taskPortal.addShare(taskPath, "some share data");
@@ -256,7 +253,7 @@ contract TaskPortalTest is Test {
         assertEq(bounties[0].amount, 2 ether);
     }
 
-    function testTaskUpdateData() public {
+    function testTaskUpdateOwnerThenUpdateData() public {
         bytes memory taskData = "initial task data test";
         bytes32 taskPath = addTaskWithEthBounty(taskData);
 
@@ -264,14 +261,48 @@ contract TaskPortalTest is Test {
         (,,, nodeData,,,) = taskPortal.getNode(taskPath);
 
         assertEq(nodeData, taskData);
-        bytes memory newTaskData = "123 this is new data";
+
+        address newOwnerAddress = getRandomWalletAddress();
+
+        // fail when non-owner tries to update task owner
+        vm.expectRevert(bytes("Only node owner can edit node"));
+        taskPortal.updateTaskOwner(taskPath, newOwnerAddress);
 
         vm.prank(msg.sender);
+        taskPortal.updateTaskOwner(taskPath, newOwnerAddress);
+
+        address nodeOwner;
+        (, nodeOwner,,,,,) = taskPortal.getNode(taskPath);
+
+        assertEq(nodeOwner, newOwnerAddress);
+
+        bytes memory newTaskData = "123 this is new data";
+        vm.prank(newOwnerAddress);
         taskPortal.updateTaskData(taskPath, newTaskData);
 
         (,,, nodeData,,,) = taskPortal.getNode(taskPath);
 
         assertEq(nodeData, newTaskData);
+    }
+
+    function testTaskOwnerWithdrawsFromContractBalance() public {
+        vm.prank(msg.sender);
+        taskPortal = new TaskPortal(address(0));
+
+        bytes memory taskData = "task data";
+        addTaskWithEthBounty(taskData);
+        uint256 ownerBalanceBeforeWithdraw = msg.sender.balance;
+        uint256 amountToWithdraw = 1 ether;
+
+        // fail when non-owner tries to withdraw
+        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        taskPortal.withdrawToOwner(amountToWithdraw);
+
+        vm.prank(msg.sender);
+        taskPortal.withdrawToOwner(amountToWithdraw);
+
+        assertEq(address(taskPortal).balance, 2 ether);
+        assertEq(msg.sender.balance - ownerBalanceBeforeWithdraw, 1 ether);
     }
 }
 

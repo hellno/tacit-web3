@@ -68,7 +68,6 @@ export default function SharePage ({ shareObject }) {
       return
     }
 
-
     if (biconomyState.name === BiconomyLoadingState.Success) {
       return
     }
