@@ -78,7 +78,8 @@ export default function SharePage ({ shareObject }) {
       walletProvider: library.provider,
       debug: true
     }
-    const jsonRpcProvider = new ethers.providers.JsonRpcProvider(process.env.INFURA_RPC_ENDPOINT)
+    const rpcUrl = network.chainId === 100 ? 'https://rpc.ankr.com/gnosis' : process.env.INFURA_RPC_ENDPOINT
+    const jsonRpcProvider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const biconomy = new Biconomy(jsonRpcProvider, biconomyOptions)
 
     setBiconomyState({
