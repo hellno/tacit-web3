@@ -196,18 +196,7 @@ export default function SharePage ({ shareObject }) {
     const signer = biconomyState.biconomy.getSignerByAddress(account)
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
 
-    // const shareNodeCreatedEventFilter = {
-    //   address: tokenAddress,
-    //   topics: [
-    //     utils.id('NewNodeCreated(address,bytes32,bytes32,enum NodeType)'),
-    //     hexZeroPad(myAddress, 32),
-    //     parent,
-    //     null,
-    //     nodeType
-    //   ]
-    // }
-
-    taskPortalContract.on('NodeUpdated', (owner, parent, path, nodeType) => {
+    taskPortalContract.on('NodeUpdated', (path, owner, nodeType, parent) => {
       if (owner === account && nodeType === NodeType.Share) {
         setSharePageData({
           name: SharePageState.SuccessSubmitShare,

@@ -18,8 +18,6 @@ const PresentActionLinksComponent = ({
     network
   } = state
 
-  console.log('data', data)
-
   const shortNameForChain = getDeployedContractForChainId(network.chainId).shortName
   const blockExplorerForChain = getDeployedContractForChainId(network.chainId).blockExplorer
 

@@ -12,7 +12,7 @@ const _contracts = [{
   shortName: 'gor',
   // if changed, must update biconomy as well
   contractAddress: '0x8ae3baa9452b2483c2c1bd43b2d89ee554c123e5',
-  blockExplorer: 'https://goerli.etherscan.io/',
+  blockExplorer: 'https://goerli.etherscan.io',
   nativeCurrency: {
     name: 'Görli Ether',
     symbol: 'GOR',
@@ -23,7 +23,7 @@ const _contracts = [{
   name: 'Gnosis Chain',
   shortName: 'gno',
   contractAddress: '0x4faec6b457eba54f264b23a5dd748bf7078f94c9',
-  blockExplorer: 'https://blockscout.com/xdai/mainnet/',
+  blockExplorer: 'https://blockscout.com/xdai/mainnet',
   nativeCurrency: {
     name: 'xDAI',
     symbol: 'xDAI',

@@ -405,7 +405,6 @@ export default function TaskPage ({ taskObject }) {
   }
 
   function renderRow (nodeObject) {
-    const nodeOwnerStr = nodeObject.owner === taskObject.owner ? 'Creating Task' : nodeObject.owner
     const rowData = ethers.utils.toUtf8String(nodeObject.data)
 
     const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
@@ -429,7 +428,7 @@ export default function TaskPage ({ taskObject }) {
           <div className="group inline-flex space-x-2 truncate text-sm">
             {renderIconBasedOnNodeType(nodeObject.nodeType, 'flex-shrink-0 h-5 w-5 text-gray-500')}
             <p className="text-gray-500 truncate ">
-              {NodeType[nodeObject.nodeType]} by {nodeOwnerStr}
+              {NodeType[nodeObject.nodeType]} by {nodeObject.owner}
             </p>
           </div>
         </div>
@@ -777,13 +776,13 @@ export async function getStaticProps ({ params }) {
   return {
     props: {
       taskObject
-    }
-    // revalidate: 300 // every 5mins
+    },
+    revalidate: 60 // every 1 min
   }
 }
 
 export async function getStaticPaths () {
-  // can add some paths by reading from shares on smart-contract by default later
+  // can add some paths by reading from tasks in smart contract on-chain later
   const paths = []
 
   // fallback: true means that the missing pages
