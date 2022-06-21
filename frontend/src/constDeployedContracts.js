@@ -11,7 +11,7 @@ const _contracts = [{
   name: 'Görli Testnet',
   shortName: 'gor',
   // if changed, must update biconomy as well
-  contractAddress: '0x3a71F0562cD82a8b8a7245845259B925d95FEBF9',
+  contractAddress: '0x8ae3baa9452b2483c2c1bd43b2d89ee554c123e5',
   blockExplorer: 'https://goerli.etherscan.io/',
   nativeCurrency: {
     name: 'Görli Ether',
@@ -22,7 +22,7 @@ const _contracts = [{
   chainId: 100,
   name: 'Gnosis Chain',
   shortName: 'gno',
-  contractAddress: '0x155b1c795492c8d20fae39364dcd830c6d94839f',
+  contractAddress: '0x4faec6b457eba54f264b23a5dd748bf7078f94c9',
   blockExplorer: 'https://blockscout.com/xdai/mainnet/',
   nativeCurrency: {
     name: 'xDAI',
