@@ -6,10 +6,9 @@ import {
   ClipboardIcon,
   ExternalLinkIcon,
   HomeIcon,
-  ShareIcon,
-  XCircleIcon
+  ShareIcon
 } from '@heroicons/react/outline'
-import { constant, filter, get, isEmpty, map, sum, times, truncate } from 'lodash'
+import { constant, filter, get, isEmpty, map, sum, times, trim, truncate } from 'lodash'
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
@@ -177,7 +176,7 @@ export default function TaskPage ({ taskObject }) {
 
   const isWalletConnected = !isEmpty(account)
   const bountyCurrency = getBountyCurrency(taskObject.bounties[0], taskObject.chainId)
-  const shortNameForChain = network ? getDeployedContractForChainId(network.chainId).shortName : ''
+  const shortNameForChain = getDeployedContractForChainId(taskObject.chainId).shortName
 
   // video mock
   // if (taskObject.owner === '0x63b2E4a23240727C2d62b1c91EE76D79E185e2ba') {
@@ -406,6 +405,9 @@ export default function TaskPage ({ taskObject }) {
 
   function renderRow (nodeObject) {
     const rowData = ethers.utils.toUtf8String(nodeObject.data)
+    if (rowData === 'TaskCreatorShare') {
+      return <></>
+    }
 
     const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
     const viewShareLink = () => {
@@ -435,7 +437,7 @@ export default function TaskPage ({ taskObject }) {
       </td>
       <td className="max-w-sm px-6 py-4 text-right text-sm text-gray-500">
         <span className="text-gray-900 font-medium">
-          {rowData}
+          {trim(rowData, '"')}
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -447,20 +449,20 @@ export default function TaskPage ({ taskObject }) {
       </td>
       <td className="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
         <span className="relative z-0 inline-flex shadow-sm rounded-sm">
-          <button
-            type="button"
-            className="relative inline-flex items-center px-4 py-2 rounded-l-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
-          >
-            <span className="sr-only">Approve</span>
-            <CheckCircleIcon className="h-5 w-5" aria-hidden="true" />
-          </button>
-        <button
-          type="button"
-          className="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
-        >
-          <span className="sr-only">Reject</span>
-          <XCircleIcon className="h-5 w-5" aria-hidden="true" />
-        </button>
+        {/*   <button */}
+          {/*     type="button" */}
+          {/*     className="relative inline-flex items-center px-4 py-2 rounded-l-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10" */}
+          {/*   > */}
+          {/*     <span className="sr-only">Approve</span> */}
+          {/*     <CheckCircleIcon className="h-5 w-5" aria-hidden="true" /> */}
+          {/*   </button> */}
+          {/* <button */}
+          {/*   type="button" */}
+          {/*   className="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10" */}
+          {/* > */}
+          {/*   <span className="sr-only">Reject</span> */}
+          {/*   <XCircleIcon className="h-5 w-5" aria-hidden="true" /> */}
+          {/* </button> */}
           {isShareNode && viewShareLink()}
         </span>
       </td>
