@@ -1,4 +1,4 @@
-import { getNameToTokenAddressForChainId } from './constDeployedContracts'
+import { getDeployedContractForChainId, getNameToTokenAddressForChainId } from './constDeployedContracts'
 import { get, invert } from 'lodash'
 
 export const classNames = (...classes) => {
@@ -26,4 +26,14 @@ export const getBountyAmountWithCurrencyStringFromTaskObject = (bounty, chainId)
   const userTokenAmount = getBountyAmount(bounty)
 
   return `${userTokenAmount} ${tokenCurrency}`
+}
+
+export const getUrlForNode = ({
+  nodeType,
+  chainId,
+  path
+}) => {
+  const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
+  const shortNameForChain = getDeployedContractForChainId(chainId).shortName
+  return `${url}/${nodeType}/${shortNameForChain}:${path}`
 }

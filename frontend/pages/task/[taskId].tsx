@@ -6,9 +6,10 @@ import {
   ClipboardIcon,
   ExternalLinkIcon,
   HomeIcon,
+  LightBulbIcon,
   ShareIcon
 } from '@heroicons/react/outline'
-import { constant, filter, get, isEmpty, map, sum, times, trim, truncate } from 'lodash'
+import { constant, filter, findIndex, get, isEmpty, map, pullAt, sum, times, trim, truncate } from 'lodash'
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
@@ -22,7 +23,8 @@ import {
   classNames,
   flattenNodesRecursively,
   getBountyAmountWithCurrencyStringFromTaskObject,
-  getBountyCurrency
+  getBountyCurrency,
+  getUrlForNode
 } from '../../src/utils'
 // eslint-disable-next-line node/no-missing-import
 import { BountyPayoutState, IncreaseBountyState, NodeType } from '../../src/const'
@@ -40,46 +42,6 @@ import {
 
 const unit = require('ethjs-unit')
 
-// eslint-disable-next-line no-unused-vars
-// const mockNodesForDemoVideo = [
-//   {
-//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-//     owner: '0xc8064f04e8C38C9451e10Ff8FA5330904ac97ff7',
-//     nodeType: 1,
-//     data: ethers.utils.toUtf8Bytes('Discord: tongm1n#1492'),
-//     nodes: [],
-//     isOpen: true,
-//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-//   },
-//   {
-//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-//     owner: '0xa5030A585B2b1EEd0543F14794443Df552509E11',
-//     nodeType: 1,
-//     data: ethers.utils.toUtf8Bytes('Discord: SieFrank#9832'),
-//     nodes: [],
-//     isOpen: true,
-//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-//   },
-//   {
-//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-//     owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-//     nodeType: 1,
-//     data: ethers.utils.toUtf8Bytes('by_taltinot#4028'),
-//     nodes: [],
-//     isOpen: true,
-//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-//   },
-//   {
-//     parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-//     owner: '0x8a155697BEc333861785aC1fC43999BA850160F9',
-//     nodeType: 1,
-//     data: ethers.utils.toUtf8Bytes('Telegram: @wfelix82'),
-//     nodes: [],
-//     isOpen: true,
-//     taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-//   }
-// ]
-
 interface BountyPayoutStateType {
   name: BountyPayoutState,
   data?: object | string
@@ -88,6 +50,17 @@ interface BountyPayoutStateType {
 interface IncreaseBountyStateType {
   name: IncreaseBountyState,
   data?: object | string
+}
+
+interface IContractNode {
+  data: string,
+  path: string,
+  taskPath: string,
+  owner: string,
+  parent: string,
+  nodeType: NodeType,
+  isOpen: boolean,
+  nodes: Array<object>
 }
 
 export default function TaskPage ({ taskObject }) {
@@ -120,7 +93,20 @@ export default function TaskPage ({ taskObject }) {
     setRenderIncreaseBountyModal(false)
   }
 
-  const allNodes = isLoading ? [] : flattenNodesRecursively(taskObject.nodes)
+  let allNodes: Array<IContractNode> = !isLoading && !isEmpty(taskObject.nodes) ? flattenNodesRecursively(taskObject.nodes) : []
+  console.log(allNodes)
+  allNodes = map(allNodes,
+    (node) => {
+      return {
+        // eslint-disable-next-line node/no-unsupported-features/es-syntax
+        ...node, ...{ data: trim(ethers.utils.toUtf8String(node.data), '"') }
+      }
+    })
+
+  const taskCreationShareIndex = findIndex(allNodes, ({ data }) => data === 'TaskCreatorShare')
+  const [taskCreationNode]: Array<IContractNode> = pullAt(allNodes, taskCreationShareIndex)
+  const hasContentForTable = !isEmpty(allNodes)
+
   const defaultPayoutFields = isEmpty(allNodes)
     ? []
     : map(allNodes, (node) => ({
@@ -176,12 +162,6 @@ export default function TaskPage ({ taskObject }) {
 
   const isWalletConnected = !isEmpty(account)
   const bountyCurrency = getBountyCurrency(taskObject.bounties[0], taskObject.chainId)
-  const shortNameForChain = getDeployedContractForChainId(taskObject.chainId).shortName
-
-  // video mock
-  // if (taskObject.owner === '0x63b2E4a23240727C2d62b1c91EE76D79E185e2ba') {
-  //   allNodes = concat(allNodes, mockNodesForDemoVideo)
-  // }
 
   const cards = [
     {
@@ -403,19 +383,35 @@ export default function TaskPage ({ taskObject }) {
       </form>)
   }
 
-  function renderRow (nodeObject) {
-    const rowData = ethers.utils.toUtf8String(nodeObject.data)
-    if (rowData === 'TaskCreatorShare') {
-      return <></>
-    }
+  console.log('isEmpty(allNodes)', allNodes, isEmpty(allNodes))
+  const renderEmptyState = () => {
+    console.log('rendering empty state')
+    return (
+      <tr key="empty-state" className="bg-white">
+        <td
+          className="flex md:justify-center whitespace-nowrap text-sm text-gray-900">
+          <div className="px-12 py-8 group inline-flex">
+            <div
+              className="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-12 text-center"
+            >
+              <LightBulbIcon className="mx-auto h-12 w-12 text-gray-400" />
+              <span className="mt-2 block text-sm font-medium text-gray-500">User activity will show up here</span>
+            </div>
+          </div>
+        </td>
+      </tr>
+    )
+  }
 
+  function renderRow (nodeObject) {
     const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
     const viewShareLink = () => {
-      const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
-      const taskShareLink = `${url}/share/${shortNameForChain}:${nodeObject.path}`
-
       return (<a
-        href={taskShareLink}
+        href={getUrlForNode({
+          nodeType: 'share',
+          chainId: taskObject.chainId,
+          path: nodeObject.path
+        })}
         target="_blank" rel="noopener noreferrer"
         type="button"
         className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
@@ -437,7 +433,7 @@ export default function TaskPage ({ taskObject }) {
       </td>
       <td className="max-w-sm px-6 py-4 text-right text-sm text-gray-500">
         <span className="text-gray-900 font-medium">
-          {trim(rowData, '"')}
+          {nodeObject.data}
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -516,7 +512,7 @@ export default function TaskPage ({ taskObject }) {
                             Verified account
                           </dd>
                           <dd
-                            className="mt-3 flex items-center text-sm text-gray-700 font-medium sm:mr-6 sm:mt-0 capitalize">
+                            className="mt-3 flex items-center text-sm text-gray-700 font-medium sm:mr-6 sm:mt-1 capitalize">
                             <HomeIcon
                               className="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400"
                               aria-hidden="true"
@@ -529,6 +525,17 @@ export default function TaskPage ({ taskObject }) {
                   </div>
                 </div>
                 <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
+                  <a href={getUrlForNode({
+                    nodeType: 'share',
+                    chainId: taskObject.chainId,
+                    path: taskCreationNode.path
+                  })}
+                     target="_blank" rel="noopener noreferrer"
+                     type="button"
+                     className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Share this Task<ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
+                  </a>
                   <button
                     type="button"
                     onClick={() => setRenderIncreaseBountyModal(true)}
@@ -626,28 +633,31 @@ export default function TaskPage ({ taskObject }) {
                           >
                             Transaction
                           </th>
-                          <th
-                            className="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            Data
-                          </th>
-                          <th
-                            className="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block"
-                            scope="col"
-                          >
-                            Status
-                          </th>
-                          <th
-                            className="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                            scope="col"
-                          >
-                            Actions
-                          </th>
+                          {hasContentForTable && (<>
+                              <th
+                                className="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                scope="col"
+                              >
+                                Data
+                              </th>
+                              <th
+                                className="hidden px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:block"
+                                scope="col"
+                              >
+                                Status
+                              </th>
+                              <th
+                                className="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                scope="col"
+                              >
+                                Actions
+                              </th>
+                            </>
+                          )}
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                        {allNodes.map(renderRow)}
+                        {hasContentForTable ? allNodes.map(renderRow) : renderEmptyState()}
                         </tbody>
                       </table>
                       {/* Pagination */}
@@ -703,13 +713,6 @@ export default function TaskPage ({ taskObject }) {
                   {taskObject.title}
                 </span>
             </h1>
-            {/* <div className="mt-5 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl"> */}
-            {/*   <ReactMarkdown */}
-            {/*     children={taskObject.description} */}
-            {/*     remarkPlugins={[remarkGfm]} */}
-            {/*     rehypePlugins={[rehypeFormat]} */}
-            {/*   /> */}
-            {/* </div> */}
           </div>
         </div>
       </div>

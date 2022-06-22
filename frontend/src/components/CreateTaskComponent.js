@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react'
-import { ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
+import { ArrowSmRightIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
 
 import { ethers } from 'ethers'
 import { useForm } from 'react-hook-form'
@@ -21,10 +21,11 @@ import {
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType } from '../const'
-import { sleep } from '../utils'
+import { classNames, sleep } from '../utils'
 import { MinusSmIcon, PlusSmIcon, XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
 import { addUserToDatabase } from '../supabase'
+import { Tab } from '@headlessui/react'
 
 const unit = require('ethjs-unit')
 
@@ -52,10 +53,11 @@ export default function CreateTaskComponent ({
     watch
   } = useForm({
     defaultValues: {
-      email: 'test@test.com',
-      title: 'this is a sweet test title',
-      description: 'amazing test description',
-      tokenAmount: '1',
+      // email: 'test@test.com',
+      // title: 'this is a sweet test title',
+      description: '## test\n ' +
+        'abc',
+      // tokenAmount: '1',
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
   })
@@ -229,29 +231,84 @@ export default function CreateTaskComponent ({
         label: 'Search Title',
         placeholder: 'A short title of what you are looking for'
       })}
-      <div className="">
+      <div>
         <label
-          htmlFor="about"
-          className="block text-sm font-medium text-gray-700"
+          htmlFor="description"
+          className="mb-2 block text-sm font-medium text-gray-700"
         >
           Task Description
         </label>
-        <div className="mt-1">
-          <textarea
-            {...register('description', { required: true })}
-            id="description"
-            name="description"
-            rows={8}
-            className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
-            defaultValue={''}
-            placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward."
-          />
-        </div>
-        {/* <p className="mt-2 text-sm text-gray-500"> */}
-        {/*   Write a few sentences about the task and how others */}
-        {/*   can fulfill it. */}
-        {/* </p> */}
+        <Tab.Group>
+          <Tab.List className="flex items-center">
+            <Tab
+              className={({ selected }) =>
+                classNames(
+                  selected
+                    ? 'text-gray-900 bg-gray-200 hover:bg-gray-300'
+                    : 'text-gray-500 bg-gray-100 hover:text-gray-900 bg-white hover:bg-gray-200',
+                  'px-3 py-1.5 border border-transparent text-sm font-medium rounded-md'
+                )
+              }
+            >
+              Write
+            </Tab>
+            <Tab
+              className={({ selected }) =>
+                classNames(
+                  selected
+                    ? 'text-gray-900 bg-gray-200 hover:bg-gray-300'
+                    : 'text-gray-500 bg-gray-100 hover:text-gray-900 bg-white hover:bg-gray-200',
+                  'ml-2 px-3 py-1.5 border border-transparent text-sm font-medium rounded-md'
+                )
+              }
+            >
+              Preview
+            </Tab>
+          </Tab.List>
+          <Tab.Panels className="mt-2">
+            <Tab.Panel className="p-0.5 -m-0.5 rounded-lg">
+              <div>
+                    <textarea
+                      {...register('description', { required: true })}
+                      id="description"
+                      name="description"
+                      rows={6}
+                      className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
+                      defaultValue={''}
+                      placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward."
+                    />
+              </div>
+            </Tab.Panel>
+            <Tab.Panel className="p-0.5 -m-0.5 rounded-sm">
+              <div className="">
+                <div className="mx-px mt-px px-3 pt-2 pb-12 text-sm leading-5 text-gray-800">
+                  <MarkdownComponent content={formTaskDescription} />
+                </div>
+              </div>
+            </Tab.Panel>
+          </Tab.Panels>
+        </Tab.Group>
       </div>
+
+      {/* <div className=""> */}
+      {/*   <label */}
+      {/*     htmlFor="about" */}
+      {/*     className="block text-sm font-medium text-gray-700" */}
+      {/*   > */}
+      {/*     Task Description */}
+      {/*   </label> */}
+      {/*   <div className="mt-1"> */}
+      {/*     <textarea */}
+      {/*       {...register('description', { required: true })} */}
+      {/*       id="description" */}
+      {/*       name="description" */}
+      {/*       rows={8} */}
+      {/*       className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm" */}
+      {/*       defaultValue={''} */}
+      {/*       placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward." */}
+      {/*     /> */}
+      {/*   </div> */}
+      {/* </div> */}
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300" />
@@ -345,9 +402,12 @@ export default function CreateTaskComponent ({
       : (<button
         onClick={(event) => onNextStepSubmit(event)}
         disabled={!isWalletConnected}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+        className={classNames(
+          isWalletConnected ? 'hover:bg-yellow-500 focus:outline-none' : '',
+          'bg-yellow-400 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white '
+        )}
       >
-        Preview Task
+        Select Bounty <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
       </button>)
   }
 

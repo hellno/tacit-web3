@@ -1,6 +1,7 @@
 import { AppContext } from '../context'
 import { useContext } from 'react'
 import { getDeployedContractForChainId } from '../constDeployedContracts'
+import { getUrlForNode } from '../utils'
 
 const PresentActionLinksComponent = ({
   data
@@ -18,13 +19,19 @@ const PresentActionLinksComponent = ({
     network
   } = state
 
-  const shortNameForChain = getDeployedContractForChainId(network.chainId).shortName
   const blockExplorerForChain = getDeployedContractForChainId(network.chainId).blockExplorer
-
-  const url = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
-  const taskShareLink = `${url}/share/${shortNameForChain}:${data.sharePath}`
   const transactionLink = `${blockExplorerForChain}/tx/${data.transactionHash}`
-  const userTasksLink = `${url}/task/${shortNameForChain}:${data.taskPath}`
+
+  const taskShareLink = getUrlForNode({
+    nodeType: 'share',
+    chainId: network.chainId,
+    path: data.sharePath
+  })
+  const userTasksLink = getUrlForNode({
+    nodeType: 'task',
+    chainId: network.chainId,
+    path: data.taskPath
+  })
 
   return (<>
     <div className="mt-6">
