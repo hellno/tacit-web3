@@ -55,8 +55,7 @@ export default function CreateTaskComponent ({
     defaultValues: {
       // email: 'test@test.com',
       // title: 'this is a sweet test title',
-      description: '## test\n ' +
-        'abc',
+      // description: '## test\n ',
       // tokenAmount: '1',
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
