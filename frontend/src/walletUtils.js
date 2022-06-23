@@ -5,6 +5,7 @@ import { isEmpty } from 'lodash'
 import Web3Modal from 'web3modal'
 import { getDeployedContractForChainId, taskPortalContractAbi } from './constDeployedContracts'
 import { toHex } from 'web3-utils'
+import { getProviderForChainId } from './apiUtils'
 
 export const providerOptions = {
   coinbasewallet: {
@@ -50,9 +51,23 @@ export const connectWallet = async (web3Modal, dispatch) => {
         network
       }
     })
+    const ensName = await lookupEnsName(account)
+    if (ensName) {
+      dispatch({
+        type: 'SET_ENS_NAME',
+        state: {
+          ensName
+        }
+      })
+    }
   } catch (error) {
     console.error(error)
   }
+}
+
+export const lookupEnsName = async (account) => {
+  const provider = getProviderForChainId(1)
+  return await provider.lookupAddress(account)
 }
 
 export const handleChainInteractionError = (error) => {
@@ -100,7 +115,9 @@ export const loadWeb3Modal = (dispatch) => {
 
   dispatch({
     type: 'SET_WEB3_MODAL',
-    web3Modal
+    state: {
+      web3Modal
+    }
   })
 
   if (web3Modal.cachedProvider) {

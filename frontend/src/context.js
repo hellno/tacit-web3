@@ -5,9 +5,10 @@ export const AppContext = createContext()
 const initialState = {
   web3Modal: null,
   provider: null,
-  account: null,
   library: null,
-  network: null
+  network: null,
+  account: null,
+  ensName: null
 }
 
 const reducer = (state, action) => {
@@ -15,12 +16,12 @@ const reducer = (state, action) => {
     case 'SET_PROVIDER':
       return {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
-        ...state, ...{ provider: action.provider }
+        ...state, ...{ provider: action.state.provider }
       }
     case 'SET_ACCOUNT':
       return {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
-        ...state, ...{ account: action.account }
+        ...state, ...{ account: action.state.account }
       }
     case 'SET_STATE':
       // eslint-disable-next-line node/no-unsupported-features/es-syntax
@@ -28,7 +29,12 @@ const reducer = (state, action) => {
     case 'SET_WEB3_MODAL':
       return {
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
-        ...state, ...{ web3Modal: action.web3Modal }
+        ...state, ...{ web3Modal: action.state.web3Modal }
+      }
+    case 'SET_ENS_NAME':
+      return {
+        // eslint-disable-next-line node/no-unsupported-features/es-syntax
+        ...state, ...{ ensName: action.state.ensName }
       }
   }
   return state

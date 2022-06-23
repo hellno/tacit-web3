@@ -4,6 +4,8 @@ export const getProviderForChainId = (chainId) => {
   let url
 
   switch (chainId) {
+    case 1:
+      return new ethers.providers.AlchemyProvider('homestead', process.env.ALCHEMY_API_KEY)
     case 5:
       return new ethers.providers.AlchemyProvider('goerli', process.env.ALCHEMY_API_KEY)
     case 100:

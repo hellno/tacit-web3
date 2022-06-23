@@ -40,13 +40,15 @@ export default function CreateTaskComponent ({
     web3Modal,
     account,
     library,
-    network
+    network,
+    ensName
   } = globalState
 
   const [showUserMessage, setShowUserMessage] = useState(true)
   const [showAdvancedFields, setShowAdvancedFields] = useState(false)
   const isWalletConnected = !isEmpty(account)
   const isReadyToSubmit = isWalletConnected && isSupportedNetwork(network.chainId)
+  const walletAddress = ensName || account
 
   const {
     register,
@@ -224,7 +226,7 @@ export default function CreateTaskComponent ({
   const renderTaskDescriptionFormPart = () => {
     return <>
       {isWalletConnected && !isSupportedNetwork(network.chainId) && renderWalletSwitchCta()}
-      {isReadyToSubmit && renderWalletAddressInputField(account)}
+      {isReadyToSubmit && renderWalletAddressInputField(walletAddress)}
       {renderFormField({
         register,
         name: 'email',

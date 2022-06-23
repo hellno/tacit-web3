@@ -22,11 +22,15 @@ const Web3ChainSwitcher = () => {
   const disconnectWallet = () => {
     dispatch({
       type: 'SET_PROVIDER',
-      provider: null
+      state: {
+        provider: null
+      }
     })
     dispatch({
       type: 'SET_ACCOUNT',
-      account: null
+      state: {
+        account: null
+      }
     })
   }
 

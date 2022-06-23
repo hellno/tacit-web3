@@ -17,9 +17,12 @@ const Web3NavBar = () => {
   const [state, dispatch] = useContext(AppContext)
   const {
     web3Modal,
-    account
+    account,
+    ensName
   } = state
+
   const isWalletConnected = !isEmpty(account)
+  const walletAddress = ensName || truncate(account, { length: 14 })
 
   const renderWalletAction = () => {
     return !isWalletConnected
@@ -29,7 +32,7 @@ const Web3NavBar = () => {
       })
       : <span
         className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400">
-                    Wallet {truncate(account, { length: 14 })}
+                    Wallet {walletAddress}
                   </span>
   }
 

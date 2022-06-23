@@ -48,7 +48,8 @@ export default function SharePage ({ shareObject }) {
     web3Modal,
     network,
     provider,
-    account
+    account,
+    ensName
   } = state
   const [sharePageData, setSharePageData] = useState<ShareSubmissionStateType>({ name: SharePageState.Default })
 
@@ -127,6 +128,7 @@ export default function SharePage ({ shareObject }) {
   const isGaslessTransactionsReady = biconomyState.name === BiconomyLoadingState.Success
   const isUserOnCorrectChain = isWalletConnected && shareObject && shareObject.chainId === network.chainId
   const canSubmitActions = isUserOnCorrectChain && isGaslessTransactionsReady
+  const walletAddress = ensName || account
 
   const resetToDefaultState = () => {
     setSharePageData({
@@ -334,7 +336,8 @@ export default function SharePage ({ shareObject }) {
                 {shareObject.ctaReferral || 'Get referral link'}
               </button>
             </div>
-            <span className="md:w-60 md:text-center block mt-2 pr-4 text-base font-normal text-gray-100">
+            <span
+              className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
               You get part of the reward if someone downstream of your link enters a winning result.
             </span>
           </div>
@@ -347,7 +350,7 @@ export default function SharePage ({ shareObject }) {
                 {shareObject.ctaSolution || 'Solve task and earn'}
               </button>
             </div>
-            <span className="md:w-60 md:text-center block mt-2 pr-4 text-base font-normal text-gray-100">
+            <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
               Enter requested results to become eligible for a reward.
             </span>
           </div>
@@ -376,7 +379,7 @@ export default function SharePage ({ shareObject }) {
             </div>
             <form onSubmit={handleSubmit(handleShareFormSubmit)} className="space-y-4">
               <div>
-                {isWalletConnected && renderWalletAddressInputField(account)}
+                {isWalletConnected && renderWalletAddressInputField(walletAddress)}
               </div>
               <div>
                 {renderFormField({
@@ -449,7 +452,7 @@ export default function SharePage ({ shareObject }) {
             </div>
             <form onSubmit={handleSubmit(handleSolveFormSubmit)} className="space-y-4">
               <div>
-                {isWalletConnected && renderWalletAddressInputField(account)}
+                {isWalletConnected && renderWalletAddressInputField(walletAddress)}
               </div>
               <div>
                 {renderFormField({
