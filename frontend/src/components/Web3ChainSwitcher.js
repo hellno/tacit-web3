@@ -4,14 +4,14 @@ import { ChevronDownIcon } from '@heroicons/react/solid'
 import { isEmpty, map } from 'lodash'
 import { getDeployedContracts, getUserFriendlyNameForNetwork, isSupportedNetwork } from '../constDeployedContracts'
 import { classNames } from '../utils'
-import { toHex } from 'web3-utils'
 import { AppContext } from '../context'
+import { switchNetwork } from '../walletUtils'
 
 const Web3ChainSwitcher = () => {
   const [state, dispatch] = useContext(AppContext)
   const {
     network,
-    library
+    provider
   } = state
 
   if (isEmpty(network)) {
@@ -28,42 +28,6 @@ const Web3ChainSwitcher = () => {
       type: 'SET_ACCOUNT',
       account: null
     })
-  }
-
-  const switchNetwork = async (chainId) => {
-    try {
-      await library.provider.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: toHex(chainId) }]
-      })
-    } catch (switchError) {
-      // This error code indicates that the chain has not been added to MetaMask.
-      if (switchError.code === 4902) {
-        try {
-          // @ts-ignore
-          await library.provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [
-              {
-                chainId: toHex(5),
-                chainName: 'Ethereum Goerli Testnet',
-                rpcUrls: ['https://goerli.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'],
-                blockExplorerUrls: ['https://goerli.etherscan.io']
-              }
-              // {
-              //   chainId: toHex(137),
-              //   chainName: 'Polygon',
-              //   rpcUrls: ['https://polygon-rpc.com/'],
-              //   blockExplorerUrls: ['https://polygonscan.com/']
-              // }
-            ]
-          })
-        } catch (addError) {
-          console.log(addError)
-          throw addError
-        }
-      }
-    }
   }
 
   const chains = getDeployedContracts().filter(
@@ -107,7 +71,7 @@ const Web3ChainSwitcher = () => {
                 <Menu.Item key={chain.chainId}>
                   {({ active }) => (
                     <button
-                      onClick={() => switchNetwork(chain.chainId)}
+                      onClick={() => switchNetwork(provider, chain.chainId).then(() => window.location.reload())}
                       className={classNames(
                         active
                           ? 'bg-gray-100 text-gray-900'

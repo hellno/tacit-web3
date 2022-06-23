@@ -1,6 +1,5 @@
 import { useContext, useState } from 'react'
-import { ArrowSmRightIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
-
+import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
 import { ethers } from 'ethers'
 import { useForm } from 'react-hook-form'
 import {
@@ -10,13 +9,14 @@ import {
 } from '../walletUtils'
 import { AppContext } from '../context'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
-import { isEmpty, pick } from 'lodash'
+import { get, isEmpty, pick } from 'lodash'
 import { generateHashForObject, storeObjectInIPFS } from '../storageUtils'
 import {
   erc20ContractAbi,
   getDeployedContractForChainId,
   getNameToTokenAddressForChainId,
   isNativeChainCurrency,
+  isSupportedNetwork,
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
@@ -46,11 +46,14 @@ export default function CreateTaskComponent ({
   const [showUserMessage, setShowUserMessage] = useState(true)
   const [showAdvancedFields, setShowAdvancedFields] = useState(false)
   const isWalletConnected = !isEmpty(account)
+  const isReadyToSubmit = isWalletConnected && isSupportedNetwork(network.chainId)
 
   const {
     register,
     handleSubmit,
-    watch
+    watch,
+    trigger,
+    formState: { errors }
   } = useForm({
     defaultValues: {
       // email: 'test@test.com',
@@ -61,7 +64,6 @@ export default function CreateTaskComponent ({
     }
   })
 
-  const formTaskTitle = watch('title')
   const formTaskDescription = watch('description')
 
   // eslint-disable-next-line no-unused-vars
@@ -72,7 +74,6 @@ export default function CreateTaskComponent ({
       .then(cid => {
         console.log('res from ipfs upload', cid, 'filename', fname)
         console.log(`view at https://${cid}.ipfs.dweb.link/${fname}`)
-        console.log('\n\n')
         return `${cid}/${fname}`
       })
       .catch(e => {
@@ -212,15 +213,25 @@ export default function CreateTaskComponent ({
     </div>)
   }
 
+  const renderWalletSwitchCta = () => <button
+    type="submit"
+    disabled={true}
+    className="mt-1 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400"
+  >
+    Switch to supported chain <ArrowSmUpIcon className="rounded-full w-6 h-6 animate-bounce" />
+  </button>
+
   const renderTaskDescriptionFormPart = () => {
     return <>
-      {isWalletConnected && renderWalletAddressInputField(account)}
+      {isWalletConnected && !isSupportedNetwork(network.chainId) && renderWalletSwitchCta()}
+      {isReadyToSubmit && renderWalletAddressInputField(account)}
       {renderFormField({
         register,
         name: 'email',
         type: 'email',
         required: true,
-        label: 'Your Email'
+        label: 'Your Email',
+        errors
       })}
       {renderFormField({
         register,
@@ -228,38 +239,25 @@ export default function CreateTaskComponent ({
         type: 'text',
         required: true,
         label: 'Search Title',
-        placeholder: 'A short title of what you are looking for'
+        placeholder: 'A short title of what you are looking for',
+        errors
       })}
       <div>
         <label
           htmlFor="description"
-          className="mb-2 block text-sm font-medium text-gray-700"
+          className="mb-2 block text-md font-medium text-gray-700"
         >
           Task Description
         </label>
         <Tab.Group>
           <Tab.List className="flex items-center">
             <Tab
-              className={({ selected }) =>
-                classNames(
-                  selected
-                    ? 'text-gray-900 bg-gray-200 hover:bg-gray-300'
-                    : 'text-gray-500 bg-gray-100 hover:text-gray-900 bg-white hover:bg-gray-200',
-                  'px-3 py-1.5 border border-transparent text-sm font-medium rounded-md'
-                )
-              }
+              className={({ selected }) => classNames(selected ? 'text-gray-900 bg-gray-100 hover:bg-gray-300' : 'text-gray-500  hover:text-gray-900 bg-white hover:bg-gray-200', 'px-2 py-1.5 border border-transparent text-sm font-medium rounded-l-sm')}
             >
               Write
             </Tab>
             <Tab
-              className={({ selected }) =>
-                classNames(
-                  selected
-                    ? 'text-gray-900 bg-gray-200 hover:bg-gray-300'
-                    : 'text-gray-500 bg-gray-100 hover:text-gray-900 bg-white hover:bg-gray-200',
-                  'ml-2 px-3 py-1.5 border border-transparent text-sm font-medium rounded-md'
-                )
-              }
+              className={({ selected }) => classNames(selected ? 'text-gray-900 bg-gray-100 hover:bg-gray-300' : 'text-gray-500  hover:text-gray-900 bg-white hover:bg-gray-200', 'px-2 py-1.5 border border-transparent text-sm font-medium rounded-r-sm')}
             >
               Preview
             </Tab>
@@ -272,10 +270,23 @@ export default function CreateTaskComponent ({
                       id="description"
                       name="description"
                       rows={6}
-                      className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
+                      className={classNames(
+                        get(errors, 'description')
+                          ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
+                          : 'text-gray-900 focus:ring-yellow-500 focus:border-yellow-500 border-gray-300',
+                        ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
+                      )}
                       defaultValue={''}
                       placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward."
                     />
+                <p className="mt-2 text-sm text-gray-500">
+                  Your can style this description with{' '}
+                  <a className="underline text-gray-500 hover:text-gray-600"
+                     href="https://commonmark.org/help/"
+                     target="_blank" rel="noopener noreferrer"
+                  >
+                    Markdown formatting
+                  </a>.</p>
               </div>
             </Tab.Panel>
             <Tab.Panel className="p-0.5 -m-0.5 rounded-sm">
@@ -321,8 +332,7 @@ export default function CreateTaskComponent ({
             {showAdvancedFields ? 'Hide' : 'Show'} Advanced Options
             {showAdvancedFields
               ? <MinusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
-              : <PlusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
-            }
+              : <PlusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />}
           </button>
         </div>
       </div>
@@ -382,9 +392,10 @@ export default function CreateTaskComponent ({
     </>
   }
 
-  function onNextStepSubmit (event) {
+  const onNextStepSubmit = async (event) => {
     event.preventDefault()
-    if (formTaskTitle && formTaskDescription) {
+    const res = await trigger(['email', 'title', 'description'])
+    if (res) {
       setState({ name: CreateTaskState.PendingUserInputBounty })
     }
   }
@@ -393,18 +404,15 @@ export default function CreateTaskComponent ({
     return localState.name === CreateTaskState.PendingUserInputBounty
       ? (<button
         type="submit"
-        disabled={!isWalletConnected}
+        disabled={!isReadyToSubmit}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
       >
         Submit Task & Bounty
       </button>)
       : (<button
         onClick={(event) => onNextStepSubmit(event)}
-        disabled={!isWalletConnected}
-        className={classNames(
-          isWalletConnected ? 'hover:bg-yellow-500 focus:outline-none' : '',
-          'bg-yellow-400 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white '
-        )}
+        disabled={!isReadyToSubmit}
+        className={classNames(isReadyToSubmit ? 'hover:bg-yellow-500 focus:outline-none' : '', 'bg-yellow-400 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
       >
         Select Bounty <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
       </button>)
@@ -427,7 +435,7 @@ export default function CreateTaskComponent ({
         <div>
           {localState.name === CreateTaskState.Default && (<label
             htmlFor="walletAddress"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-md font-medium text-gray-700"
           >
             Your Wallet Address
           </label>)}

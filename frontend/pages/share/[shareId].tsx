@@ -3,9 +3,11 @@ import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/
 import { get, includes, isEmpty } from 'lodash'
 import { useForm } from 'react-hook-form'
 import {
+  getBaseBiconomyGaslessTransactionParams,
   getTaskPortalContractInstanceViaActiveWallet,
   loadWeb3Modal,
-  renderWalletConnectComponent
+  renderWalletConnectComponent,
+  switchNetwork
 } from '../../src/walletUtils'
 // @ts-ignore
 import { classNames, getBountyAmountWithCurrencyStringFromTaskObject } from '../../src/utils'
@@ -44,8 +46,8 @@ export default function SharePage ({ shareObject }) {
 
   const {
     web3Modal,
-    library,
     network,
+    provider,
     account
   } = state
   const [sharePageData, setSharePageData] = useState<ShareSubmissionStateType>({ name: SharePageState.Default })
@@ -61,10 +63,10 @@ export default function SharePage ({ shareObject }) {
 
   useEffect(() => {
     setupBiconomy()
-  }, [library])
+  }, [provider])
 
   const setupBiconomy = async () => {
-    if (!library) {
+    if (!provider) {
       return
     }
 
@@ -75,10 +77,15 @@ export default function SharePage ({ shareObject }) {
     setBiconomyState({ name: BiconomyLoadingState.Init })
     const biconomyOptions = {
       apiKey: network.chainId === 100 ? process.env.BICONOMY_GNOSIS_API_KEY : process.env.BICONOMY_GOERLI_API_KEY,
-      walletProvider: library.provider,
+      walletProvider: provider,
       debug: true
     }
-    const rpcUrl = network.chainId === 100 ? 'https://gnosis-mainnet.public.blastapi.io' : process.env.INFURA_RPC_ENDPOINT
+    // const gnosisRpcUrl = 'https://gnosis-mainnet.public.blastapi.io/'
+    const gnosisRpcUrl = 'https://rpc.ankr.com/gnosis'
+    // const gnosisRpcUrl = 'https://gnosischain-rpc.gateway.pokt.network/'
+    // const gnosisRpcUrl = 'https://rpc.gnosischain.com/'
+    console.log('gnosis rpc url', gnosisRpcUrl)
+    const rpcUrl = network.chainId === 100 ? gnosisRpcUrl : process.env.INFURA_RPC_ENDPOINT
     const jsonRpcProvider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const biconomy = new Biconomy(jsonRpcProvider, biconomyOptions)
 
@@ -118,7 +125,8 @@ export default function SharePage ({ shareObject }) {
 
   const isWalletConnected = !isEmpty(account)
   const isGaslessTransactionsReady = biconomyState.name === BiconomyLoadingState.Success
-  const canSubmitActions = isWalletConnected && isGaslessTransactionsReady
+  const isUserOnCorrectChain = isWalletConnected && shareObject && shareObject.chainId === network.chainId
+  const canSubmitActions = isUserOnCorrectChain && isGaslessTransactionsReady
 
   const resetToDefaultState = () => {
     setSharePageData({
@@ -140,13 +148,15 @@ export default function SharePage ({ shareObject }) {
     const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addSolution(shareObject.path, solutionData)
 
     const txParams = {
-      data: populateTransactionData,
-      to: contractAddress,
-      from: account,
-      gasLimit: 8000000,
-      signatureType: 'EIP712_SIGN'
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...getBaseBiconomyGaslessTransactionParams(),
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...{
+        data: populateTransactionData,
+        to: contractAddress,
+        from: account
+      }
     }
-
     const biconomyProvider = new ethers.providers.Web3Provider(biconomyState.biconomy)
     let res
     try {
@@ -212,11 +222,14 @@ export default function SharePage ({ shareObject }) {
     const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addShare(shareObject.path, transactionData)
 
     const txParams = {
-      data: populateTransactionData,
-      to: contractAddress,
-      from: account,
-      gasLimit: 8000000,
-      signatureType: 'EIP712_SIGN'
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...getBaseBiconomyGaslessTransactionParams(),
+      // eslint-disable-next-line node/no-unsupported-features/es-syntax
+      ...{
+        data: populateTransactionData,
+        to: contractAddress,
+        from: account
+      }
     }
 
     const biconomyProvider = new ethers.providers.Web3Provider(biconomyState.biconomy)
@@ -249,6 +262,16 @@ export default function SharePage ({ shareObject }) {
         email
       })
     }
+  }
+
+  const renderWalletSwitchIfNeeded = () => {
+    return !isUserOnCorrectChain && <button
+      onClick={() => switchNetwork(provider, shareObject.chainId).then(() => window.location.reload())}
+      type="button"
+      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 focus:outline-none hover:bg-yellow-500"
+    >
+      Switch to {getDeployedContractForChainId(shareObject.chainId).name}
+    </button>
   }
 
   const renderGaslessTransactionSetupProgress = () => {
@@ -321,7 +344,7 @@ export default function SharePage ({ shareObject }) {
                 onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
                 className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-100 hover:bg-yellow-200"
               >
-                {shareObject.ctaSolution || 'Get referral link'}
+                {shareObject.ctaSolution || 'Solve task and earn'}
               </button>
             </div>
             <span className="md:w-60 md:text-center block mt-2 pr-4 text-base font-normal text-gray-100">
@@ -335,12 +358,8 @@ export default function SharePage ({ shareObject }) {
   const renderShareModalContent = () => {
     switch (sharePageData.name) {
       case SharePageState.ShareIntent:
-        // @ts-ignore
         return <div>
-          <p className="text-sm text-gray-500">
-            I want to share this task with someone.
-            Let me login with my wallet and generate a link.
-          </p>
+          {renderWalletSwitchIfNeeded()}
           <div className="mt-6 mr-8">
             <label
               htmlFor="walletAddress"
@@ -350,7 +369,6 @@ export default function SharePage ({ shareObject }) {
             </label>
             <div className="mt-1">
               {!isWalletConnected && renderWalletConnectComponent({
-                account,
                 web3Modal,
                 dispatch,
                 onSubmitFunc: resetToDefaultState
@@ -413,10 +431,8 @@ export default function SharePage ({ shareObject }) {
   const renderSolveModalContent = () => {
     switch (sharePageData.name) {
       case SharePageState.SolveIntent:
-        return <div><p className="text-sm text-gray-500">
-          I want to submit my solution here!
-          Needs form with text description and submit button
-        </p>
+        return <div>
+          {renderWalletSwitchIfNeeded()}
           <div className="mt-6 mr-8">
             <label
               htmlFor="walletAddress"
@@ -426,7 +442,6 @@ export default function SharePage ({ shareObject }) {
             </label>
             <div className="mt-1">
               {!isWalletConnected && renderWalletConnectComponent({
-                account,
                 web3Modal,
                 dispatch,
                 onSubmitFunc: resetToDefaultState

@@ -11,7 +11,7 @@ export default function BannerComponent ({ title }) {
       <div className="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
         <div className="pr-16 sm:text-center sm:px-16">
           <p className="font-medium text-white">
-            {/* <span className="md:hidden">We announced a new product!</span> */}
+            <span className="md:hidden">{title}</span>
             <span className="hidden md:inline">{title}</span>
             {/* <span className="block sm:ml-2 sm:inline-block"> */}
             {/*   <a href="#" className="text-white font-bold underline"> */}

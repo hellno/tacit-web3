@@ -2,7 +2,7 @@ import { Fragment, useContext } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
 import Web3ChainSwitcher from './Web3ChainSwitcher'
-import { isEmpty } from 'lodash'
+import { isEmpty, truncate } from 'lodash'
 import { renderWalletConnectComponent } from '../walletUtils'
 import { AppContext } from '../context'
 import Image from 'next/image'
@@ -20,6 +20,18 @@ const Web3NavBar = () => {
     account
   } = state
   const isWalletConnected = !isEmpty(account)
+
+  const renderWalletAction = () => {
+    return !isWalletConnected
+      ? renderWalletConnectComponent({
+        web3Modal,
+        dispatch
+      })
+      : <span
+        className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400">
+                    Wallet {truncate(account, { length: 14 })}
+                  </span>
+  }
 
   return <Popover>
     <nav
@@ -57,11 +69,7 @@ const Web3NavBar = () => {
         </div>
       </div>
       <div className="hidden md:flex">
-        {renderWalletConnectComponent({
-          account,
-          web3Modal,
-          dispatch
-        })}
+        {renderWalletAction()}
         <div className="ml-2">
           {isWalletConnected && <Web3ChainSwitcher />}
         </div>
@@ -84,11 +92,7 @@ const Web3NavBar = () => {
         <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5">
           <div className="px-5 py-2 flex items-center justify-between">
             <div className="block w-full">
-              {renderWalletConnectComponent({
-                account,
-                web3Modal,
-                dispatch
-              })}
+              {renderWalletAction()}
             </div>
             <div className="-mr-2">
               <Popover.Button

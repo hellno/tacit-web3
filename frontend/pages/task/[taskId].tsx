@@ -13,7 +13,8 @@ import { constant, filter, findIndex, get, isEmpty, map, pullAt, sum, times, tri
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
-  loadWeb3Modal
+  loadWeb3Modal,
+  switchNetwork
 } from '../../src/walletUtils'
 import { AppContext } from '../../src/context'
 import Web3NavBar from '../../src/components/Web3NavBar'
@@ -68,7 +69,8 @@ export default function TaskPage ({ taskObject }) {
   const {
     account,
     library,
-    network
+    network,
+    provider
   } = globalState
 
   const [bountyPayoutState, setBountyPayoutState] = useState<BountyPayoutStateType>({
@@ -161,6 +163,7 @@ export default function TaskPage ({ taskObject }) {
   }
 
   const isWalletConnected = !isEmpty(account)
+  const isUserOnCorrectChain = taskObject && isWalletConnected && taskObject.chainId === network.chainId
   const bountyCurrency = getBountyCurrency(taskObject.bounties[0], taskObject.chainId)
 
   const cards = [
@@ -525,31 +528,41 @@ export default function TaskPage ({ taskObject }) {
                   </div>
                 </div>
                 <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
-                  <a href={getUrlForNode({
-                    nodeType: 'share',
-                    chainId: taskObject.chainId,
-                    path: taskCreationNode.path
-                  })}
-                     target="_blank" rel="noopener noreferrer"
-                     type="button"
-                     className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    Share this Task<ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => setRenderIncreaseBountyModal(true)}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    Increase bounty
-                  </button>
-                  <button
-                    onClick={() => setRenderPayoutModal(true)}
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
-                  >
-                    Payout bounty 💸
-                  </button>
+                  {isUserOnCorrectChain
+                    ? <>
+                      <a href={getUrlForNode({
+                        nodeType: 'share',
+                        chainId: taskObject.chainId,
+                        path: taskCreationNode.path
+                      })}
+                         target="_blank" rel="noopener noreferrer"
+                         type="button"
+                         className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        Share this Task<ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setRenderIncreaseBountyModal(true)}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        Increase bounty
+                      </button>
+                      <button
+                        onClick={() => setRenderPayoutModal(true)}
+                        type="button"
+                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
+                      >
+                        Payout bounty 💸
+                      </button>
+                    </>
+                    : <button
+                      onClick={() => switchNetwork(provider, taskObject.chainId).then(() => window.location.reload())}
+                      type="button"
+                      className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
+                    >
+                      Switch to {getDeployedContractForChainId(taskObject.chainId).name}
+                    </button>}
                 </div>
               </div>
             </div>

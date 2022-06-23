@@ -1,4 +1,5 @@
-import { map, startCase } from 'lodash'
+import { get, map, startCase } from 'lodash'
+import { classNames } from './utils'
 
 export const renderWalletAddressInputField = (account) => {
   return <input
@@ -19,13 +20,14 @@ export const renderFormField = ({
   value = undefined,
   required = false,
   label = '',
-  placeholder = ''
+  placeholder = '',
+  errors = {}
 }) => {
   return (
     <div>
       <label
         htmlFor={name}
-        className="block text-sm font-medium text-gray-700"
+        className="block text-md font-medium text-gray-700"
       >
         {label || startCase(name)}
       </label>
@@ -38,7 +40,12 @@ export const renderFormField = ({
         placeholder={placeholder || label || startCase(name)}
         value={value}
         required={required}
-        className="text-gray-900 mt-1 block w-full shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border-gray-300 rounded-sm"
+        className={classNames(
+          get(errors, name)
+            ? 'border-red-300 text-red-800 placeholder-red-400 focus:outline-none focus:ring-red-500 focus:border-red-500'
+            : 'text-gray-900 focus:ring-yellow-500 focus:border-yellow-500 border-gray-300',
+          ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
+        )}
       />
     </div>
   )

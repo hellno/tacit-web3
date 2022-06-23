@@ -119,6 +119,7 @@ export const getTaskFromContractAsObject = async (contract, taskPath) => {
 }
 
 export const getUserFriendlyNameForNetwork = (network) => {
-  const name = getDeployedContractForChainId(network.chainId).name || network.name
+  const contract = getDeployedContractForChainId(network.chainId)
+  const name = (contract && contract.name) || network.name
   return startCase(name)
 }

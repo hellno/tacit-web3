@@ -1,16 +1,20 @@
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk'
 import WalletConnect from '@walletconnect/web3-provider'
 import { ethers } from 'ethers'
-import { isEmpty, truncate } from 'lodash'
+import { isEmpty } from 'lodash'
 import Web3Modal from 'web3modal'
 import { getDeployedContractForChainId, taskPortalContractAbi } from './constDeployedContracts'
+import { toHex } from 'web3-utils'
 
 export const providerOptions = {
   coinbasewallet: {
-    package: CoinbaseWalletSDK,
+    package: CoinbaseWalletSDK, // Required
     options: {
-      appName: 'Web 3 Modal Demo',
-      infuraId: process.env.INFURA_KEY
+      appName: 'Tacit', // Required
+      infuraId: process.env.INFURA_KEY, // Required
+      // rpc: '', // Optional if `infuraId` is provided; otherwise it's required
+      // chainId: 1, // Optional. It defaults to 1 if not provided
+      darkMode: true // Optional. Use dark theme, defaults to false
     }
   },
   walletconnect: {
@@ -65,13 +69,10 @@ export const handleChainInteractionError = (error) => {
 }
 
 export const renderWalletConnectComponent = ({
-  account,
   web3Modal,
   dispatch,
   onSubmitFunc
 }) => {
-  const isWalletConnected = !isEmpty(account)
-
   const onButtonSubmit = () => {
     if (onSubmitFunc) {
       onSubmitFunc()
@@ -81,25 +82,20 @@ export const renderWalletConnectComponent = ({
   }
 
   return <div className="">
-    {isWalletConnected
-      ? <span
-        className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400">
-                    Wallet {truncate(account, { length: 14 })}
-                  </span>
-      : <button
-        onClick={onButtonSubmit}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
-      >
-        Connect Wallet
-      </button>}
+    <button
+      onClick={onButtonSubmit}
+      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+    >
+      Connect Your Wallet
+    </button>
   </div>
 }
 
 export const loadWeb3Modal = (dispatch) => {
   const web3Modal = new Web3Modal({
-    network: 'localhost', // optional
-    cacheProvider: true, // optional
-    providerOptions // required
+    cacheProvider: true,
+    providerOptions, // required
+    theme: 'dark'
   })
 
   dispatch({
@@ -133,7 +129,37 @@ export const getBiconomyTransactionGasOptions = async (biconomy, account, contra
   return { gasLimit }
 }
 
+export const getBaseBiconomyGaslessTransactionParams = () => ({
+  gasLimit: 8000000,
+  signatureType: 'EIP712_SIGN'
+  // signatureType: 'PERSONAL_SIGN'
+})
+
 export const getTaskPortalContractInstanceViaActiveWallet = (signer, chainId) => {
   const { contractAddress } = getDeployedContractForChainId(chainId)
   return new ethers.Contract(contractAddress, taskPortalContractAbi, signer)
+}
+
+export const switchNetwork = async (provider, chainId) => {
+  try {
+    await provider.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: toHex(chainId) }]
+    })
+  } catch (switchError) {
+    // error code = chain has not been added to MetaMask.
+    if (switchError.code === 4902) {
+      try {
+        await provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [
+            getDeployedContractForChainId(chainId)
+          ]
+        })
+      } catch (addError) {
+        console.log(addError)
+        throw addError
+      }
+    }
+  }
 }

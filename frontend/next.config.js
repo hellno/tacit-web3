@@ -10,7 +10,8 @@ module.exports = {
     HEAP_ANALYTICS_ID: process.env.HEAP_ANALYTICS_ID,
     BICONOMY_GOERLI_API_KEY: process.env.BICONOMY_GOERLI_API_KEY,
     BICONOMY_GNOSIS_API_KEY: process.env.BICONOMY_GNOSIS_API_KEY,
-    INFURA_RPC_ENDPOINT: process.env.INFURA_RPC_ENDPOINT
+    INFURA_RPC_ENDPOINT: process.env.INFURA_RPC_ENDPOINT,
+    INFURA_KEY: process.env.INFURA_KEY
   },
   images: {
     domains: ['images.unsplash.com']
