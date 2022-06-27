@@ -234,10 +234,10 @@ export default function TaskPage ({ taskObject }) {
     const addresses = map(formData.payoutFields, (field) => field.address)
     // assumes all payouts are in same token that first bounty is given in
     const tokenAddresses = times(formData.payoutFields.length, constant(taskObject.bounties[0].tokenAddress))
-    // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
-    const payoutFields = filter(formData.payoutFields, (field) => !(isNil(field.tokenAmount) || field.tokenAmount === '0'))
+    const payoutFields = filter(formData.payoutFields, (field) => !(isNil(field.tokenAmount) || field.tokenAmount === '0' || field.tokenAmount === ''))
 
     const amounts = map(payoutFields, (field) => {
+      // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
       return ethers.utils.parseUnits(field.tokenAmount, 18)
     })
     setBountyPayoutState({

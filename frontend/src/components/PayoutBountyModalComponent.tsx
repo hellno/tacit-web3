@@ -7,7 +7,7 @@ import {
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/outline'
-import { filter, get, includes, invert, isEmpty, map, pickBy, sum, uniq, uniqBy, zipObject } from 'lodash'
+import { concat, filter, get, includes, invert, isEmpty, map, pickBy, sum, uniq, uniqBy, zipObject } from 'lodash'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { AppContext } from '../context'
 import { useContext } from 'react'
@@ -27,12 +27,14 @@ export default function PayoutBountyModalComponent ({
 
   const defaultPayoutFields = isEmpty(allNodes)
     ? []
-    : map(uniqBy(allNodes, 'owner'), (node) => ({
-      // @ts-ignore
-      address: node.owner,
-      tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
-      tokenAmount: '2'
-    }))
+    : map(uniqBy(allNodes, 'owner'), (node) => {
+      return ({
+        // @ts-ignore
+        address: taskObject.owner,
+        tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
+        tokenAmount: '1'
+      })
+    })
 
   const {
     register,
@@ -56,7 +58,7 @@ export default function PayoutBountyModalComponent ({
   const bountiesNameToTokenAddress = pickBy(nameToTokenAddress, (tokenAddress, name) => includes(bountyTokenAddresses, tokenAddress))
   // const formFieldPayoutFields = getValues('payoutFields')
 
-  const payoutRecipients = uniq(map(allNodes, 'owner'))
+  const payoutRecipients = uniq(concat(map(allNodes, 'owner'), taskObject.owner))
 
   const renderPayoutModalContent = () => {
     if (state.name === BountyPayoutState.Success) {
@@ -82,7 +84,7 @@ export default function PayoutBountyModalComponent ({
       </div>)
     }
 
-    return (<form onSubmit={handleSubmit(onSubmit)}>
+    return (<form>
       <ul role="list" className="divide-y divide-gray-200">
         {fields.map((node, index) => (
           <li key={`li-${node.id}`} className="py-2">
@@ -156,8 +158,8 @@ export default function PayoutBountyModalComponent ({
           <button
             className="inline-flex rounded-sm bg-gray-200 hover:bg-gray-300 px-2 py-1 text-gray-700"
             onClick={() => append({
-              tokenAddress: bountyTokenAddresses[0],
-              address: allNodes[0].owner
+              address: taskObject.owner,
+              tokenAddress: bountyTokenAddresses[0]
             })}>
             <PlusCircleIcon className="h-5 w-5 mt-0.5 mr-1" />Add payout
           </button>
@@ -179,6 +181,7 @@ export default function PayoutBountyModalComponent ({
       </div>
       <button
         type="submit"
+        onClick={handleSubmit(onSubmit)}
         disabled={!isWalletConnected}
         className={classNames(isWalletConnected ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-gray-300', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
       >
