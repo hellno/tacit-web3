@@ -369,6 +369,12 @@ export default function CreateTaskComponent ({
 
   const renderTaskBountyFormPart = () => {
     return <>
+      <label
+        htmlFor="price"
+        className="mb-1 block text-sm font-medium text-gray-700"
+      >
+        Bounty Amount
+      </label>
       {renderAmountAndCurrencyFormFields({
         register,
         nameToTokenAddress: getNameToTokenAddressForChainId(network.chainId)

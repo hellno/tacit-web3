@@ -22,7 +22,7 @@ const _contracts = [{
   chainId: 100,
   name: 'Gnosis Chain',
   shortName: 'gno',
-  contractAddress: '0x4faec6b457eba54f264b23a5dd748bf7078f94c9',
+  contractAddress: '0x77c508997cb35f566be4803865d22976374f63eb',
   blockExplorer: 'https://blockscout.com/xdai/mainnet',
   nativeCurrency: {
     name: 'xDAI',

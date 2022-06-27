@@ -43,12 +43,12 @@ contract TaskPortal is ERC2771Context, Ownable {
     uint256 public nodesCount = 0;
     bytes32 public rootTaskPath;
 
-    address private _trustedForwarder;
+    address public trustedForwarder;
 
     event NodeUpdated(bytes32 indexed path, address indexed owner, NodeType indexed nodeType, bytes32 parent);
     event BountyUpdated(bytes32 indexed path, address indexed tokenAddress, uint256 amount);
 
-    constructor(address trustedForwarder) ERC2771Context(trustedForwarder) Ownable() {
+    constructor(address _trustedForwarder) ERC2771Context(_trustedForwarder) Ownable() {
         rootTaskPath = _addNode("", "RootTask", msg.sender, NodeType.Task, "");
     }
 
@@ -80,8 +80,8 @@ contract TaskPortal is ERC2771Context, Ownable {
         return ERC2771Context._msgData();
     }
 
-    function setTrustedForwarder(address trustedForwarder) public onlyOwner {
-        _trustedForwarder = trustedForwarder;
+    function setTrustedForwarder(address _trustedForwarder) public onlyOwner {
+        trustedForwarder = _trustedForwarder;
     }
 
     function getTask(bytes32 _path) public view nodeExists(_path) isTaskNode(_path) returns (address, bytes memory, bool, bytes32[] memory) {

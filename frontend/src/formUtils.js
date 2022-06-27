@@ -51,8 +51,9 @@ export const renderFormField = ({
   )
 }
 
-const renderCurrencyDropdown = ({
+export const renderCurrencyDropdown = ({
   register,
+  fieldName,
   nameToTokenAddress
 }) => {
   return (<>
@@ -60,14 +61,14 @@ const renderCurrencyDropdown = ({
       Bounty Token
     </label>
     <select
-      {...register('tokenAddress')}
-      id="tokenAddress"
-      name="tokenAddress"
+      {...register(fieldName)}
+      id={fieldName}
+      name={fieldName}
       required
       className="focus:ring-yellow-500 focus:border-yellow-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-sm"
     >
-      {map(nameToTokenAddress, (value, key) => {
-        return <option key={value} value={value}>{key}</option>
+      {map(nameToTokenAddress, (tokenAddress, name) => {
+        return <option key={tokenAddress} value={tokenAddress}>{name}</option>
       })}
     </select>
   </>)
@@ -78,13 +79,7 @@ export const renderAmountAndCurrencyFormFields = ({
   nameToTokenAddress
 }) => {
   return (<div>
-    <label
-      htmlFor="price"
-      className="block text-sm font-medium text-gray-700"
-    >
-      Bounty Amount
-    </label>
-    <div className="mt-1 relative rounded-md shadow-sm">
+    <div className="relative rounded-md shadow-sm">
       <input
         {...register('tokenAmount')}
         required
@@ -97,6 +92,7 @@ export const renderAmountAndCurrencyFormFields = ({
       <div className="absolute inset-y-0 right-0 flex items-center">
         {renderCurrencyDropdown({
           register,
+          fieldName: 'tokenAddress',
           nameToTokenAddress
         })}
       </div>
