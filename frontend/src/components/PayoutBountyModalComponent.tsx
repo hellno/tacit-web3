@@ -37,8 +37,7 @@ export default function PayoutBountyModalComponent ({
   const {
     register,
     control,
-    handleSubmit,
-    getValues
+    handleSubmit
   } = useForm({
     defaultValues: { payoutFields: defaultPayoutFields }
   })
