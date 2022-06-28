@@ -1,6 +1,6 @@
 import ModalComponent from './ModalComponent'
 // eslint-disable-next-line node/no-missing-import
-import { create, get, intersection, isNil, keys, omitBy, pick } from 'lodash'
+import { create, get, intersection, isEmpty, isNil, keys, omitBy, pick } from 'lodash'
 import { AppContext } from '../context'
 import { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -24,14 +24,14 @@ export default function EditTaskModalComponent ({
   taskObject,
   onClose
 }) {
+  taskObject = omitBy(taskObject, isEmpty)
+  console.log(taskObject)
+
   const [globalState] = useContext(AppContext)
   const {
     library,
     network
   } = globalState
-
-  console.log(taskObject)
-  console.log(network)
 
   const [editTaskState, setEditTaskState] = useState<EditTaskStateType>({ name: EditTaskState.Default })
 
@@ -97,7 +97,7 @@ export default function EditTaskModalComponent ({
       case EditTaskState.Default:
       case EditTaskState.Loading:
         return <div>
-          <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6 max-w-sm">
             {renderFormField({
               register,
               name: 'title',

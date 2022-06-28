@@ -36,7 +36,7 @@ export default function TaskDescriptionInputField ({
               {...register('description', { required: true })}
               id="description"
               name="description"
-              rows={6}
+              rows={8}
               className={classNames(
                 errorsForField
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'

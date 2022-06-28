@@ -88,7 +88,7 @@ export default function TaskPage ({ taskObject }) {
 
   const [renderPayoutModal, setRenderPayoutModal] = useState(false)
   const [renderIncreaseBountyModal, setRenderIncreaseBountyModal] = useState(false)
-  const [renderEditTaskModal, setRenderEditTaskModal] = useState(true)
+  const [renderEditTaskModal, setRenderEditTaskModal] = useState(false)
 
   const onClosePayoutModal = () => {
     setRenderPayoutModal(false)
