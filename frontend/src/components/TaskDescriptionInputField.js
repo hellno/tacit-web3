@@ -40,7 +40,7 @@ export default function TaskDescriptionInputField ({
               className={classNames(
                 errorsForField
                   ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                  : 'text-gray-900 focus:ring-yellow-500 focus:border-yellow-500 border-gray-300',
+                  : 'text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300',
                 ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
               )}
               defaultValue={''}

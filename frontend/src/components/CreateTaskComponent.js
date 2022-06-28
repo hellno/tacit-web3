@@ -205,7 +205,7 @@ export default function CreateTaskComponent ({
   const renderWalletSwitchCta = () => <button
     type="submit"
     disabled={true}
-    className="mt-1 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400"
+    className="mt-1 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary"
   >
     Switch to supported chain <ArrowSmUpIcon className="rounded-full w-6 h-6 animate-bounce" />
   </button>

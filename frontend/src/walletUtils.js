@@ -99,7 +99,7 @@ export const renderWalletConnectComponent = ({
   return <div className="">
     <button
       onClick={onButtonSubmit}
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
     >
       Connect Your Wallet
     </button>

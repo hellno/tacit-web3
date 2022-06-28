@@ -116,7 +116,7 @@ export default function PayoutBountyModalComponent ({
                       key={node.id}
                       name={`payoutFields.${index}.address`}
                       required
-                      className="focus:ring-yellow-500 focus:border-yellow-500 w-full py-2 pl-2 pr-7 bg-transparent text-gray-500 sm:text-sm rounded-t-sm border-gray-300"
+                      className="focus:ring-gray-500 focus:border-gray-500 w-full py-2 pl-2 pr-7 bg-transparent text-gray-500 sm:text-sm rounded-t-sm border-gray-300"
                     >
                       {map(payoutRecipients, (payoutAddress) => {
                         return <option key={payoutAddress} value={payoutAddress}>{payoutAddress}</option>
@@ -130,7 +130,7 @@ export default function PayoutBountyModalComponent ({
                       type="text"
                       name={`payoutFields.${index}.tokenAmount`}
                       id={node.id}
-                      className="focus:ring-yellow-500 focus:border-yellow-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-b-sm"
+                      className="focus:ring-gray-500 focus:border-gray-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-b-sm"
                       placeholder="0.00001"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center">
@@ -139,7 +139,7 @@ export default function PayoutBountyModalComponent ({
                         id={node.id}
                         name={`payoutFields.${index}.tokenAddress`}
                         required
-                        className="focus:ring-yellow-500 focus:border-yellow-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-b-sm"
+                        className="focus:ring-gray-500 focus:border-gray-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-b-sm"
                       >
                         {map(bountiesNameToTokenAddress, (tokenAddress, name) => {
                           return <option key={tokenAddress} value={tokenAddress}>{name}</option>
@@ -183,7 +183,7 @@ export default function PayoutBountyModalComponent ({
         type="submit"
         onClick={handleSubmit(onSubmit)}
         disabled={!isWalletConnected}
-        className={classNames(isWalletConnected ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-gray-300', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
+        className={classNames(isWalletConnected ? 'bg-secondary hover:bg-secondary-light' : 'bg-gray-300', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
       >
         Payout bounties
       </button>
