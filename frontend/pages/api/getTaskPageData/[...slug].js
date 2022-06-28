@@ -25,7 +25,6 @@ export default async function handler (req, res) {
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskId)
     const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
     const [cid, fname] = ipfsPath.split('/')
-    console.log('cid', cid, 'fname', fname)
 
     const taskObject = await getObjectInIPFS(cid, fname)
     const nestedNodesObject = await getRecursiveNodes(taskPortalContract, taskId)

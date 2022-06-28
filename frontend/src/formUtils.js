@@ -17,7 +17,7 @@ export const renderFormField = ({
   register,
   name,
   type,
-  value = undefined,
+  defaultValue = undefined,
   required = false,
   label = '',
   placeholder = '',
@@ -36,9 +36,8 @@ export const renderFormField = ({
         type={type}
         name={name}
         id={name}
-        autoComplete={name}
         placeholder={placeholder || label || startCase(name)}
-        value={value}
+        defaultValue={defaultValue}
         required={required}
         className={classNames(
           get(errors, name)

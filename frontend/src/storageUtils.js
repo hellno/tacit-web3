@@ -40,3 +40,18 @@ export async function getObjectInIPFS (cid, fname) {
   }
   return null
 }
+
+export const uploadTaskDataToIpfs = async (data) => {
+  console.log('starting to upload form data to ipfs', data)
+  const fname = generateHashForObject(data)
+  return storeObjectInIPFS(data, fname)
+    .then(cid => {
+      console.log('res from ipfs upload', cid, 'filename', fname)
+      console.log(`view at https://${cid}.ipfs.dweb.link/${fname}`)
+      return `${cid}/${fname}`
+    })
+    .catch(e => {
+      console.log('error when uploading', e)
+      return ''
+    })
+}

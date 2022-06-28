@@ -1,3 +1,5 @@
+export const TASK_VIEW_FORM_FIELDS = ['title', 'description', 'subtitle', 'ctaReferral', 'ctaSolution']
+
 /* eslint no-unused-vars: 0 */
 export enum SharePageState {
   Default,
@@ -57,6 +59,13 @@ export enum BountyPayoutState {
 export enum IncreaseBountyState {
   Default,
   Init,
+  Loading,
+  Success,
+  Error
+}
+
+export enum EditTaskState {
+  Default,
   Loading,
   Success,
   Error

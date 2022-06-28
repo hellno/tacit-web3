@@ -30,7 +30,6 @@ import {
 import { BountyPayoutState, IncreaseBountyState, NodeType } from '../../src/const'
 import { ethers } from 'ethers'
 import ModalComponent from '../../src/components/ModalComponent'
-// @ts-ignore
 import { renderAmountAndCurrencyFormFields } from '../../src/formUtils'
 import {
   erc20ContractAbi,
@@ -38,9 +37,11 @@ import {
   getNameToTokenAddressForChainId,
   isNativeChainCurrency
 } from '../../src/constDeployedContracts'
+import { useForm } from 'react-hook-form'
 // eslint-disable-next-line node/no-missing-import
 import PayoutBountyModalComponent from '../../src/components/PayoutBountyModalComponent'
-import { useForm } from 'react-hook-form'
+// eslint-disable-next-line node/no-missing-import
+import EditTaskModalComponent from '../../src/components/EditTaskModalComponent'
 
 const unit = require('ethjs-unit')
 
@@ -87,6 +88,7 @@ export default function TaskPage ({ taskObject }) {
 
   const [renderPayoutModal, setRenderPayoutModal] = useState(false)
   const [renderIncreaseBountyModal, setRenderIncreaseBountyModal] = useState(false)
+  const [renderEditTaskModal, setRenderEditTaskModal] = useState(true)
 
   const onClosePayoutModal = () => {
     setRenderPayoutModal(false)
@@ -94,6 +96,10 @@ export default function TaskPage ({ taskObject }) {
 
   const onCloseIncreaseBountyModal = () => {
     setRenderIncreaseBountyModal(false)
+  }
+
+  const onCloseEditTaskModal = () => {
+    setRenderEditTaskModal(false)
   }
 
   let allNodes: Array<IContractNode> = !isLoading && !isEmpty(taskObject.nodes) ? flattenNodesRecursively(taskObject.nodes) : []
@@ -455,7 +461,7 @@ export default function TaskPage ({ taskObject }) {
                   </div>
                 </div>
                 <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
-                  {isWalletConnected
+                  {isUserOnCorrectChain
                     ? <>
                       <a href={getUrlForNode({
                         nodeType: 'share',
@@ -476,6 +482,13 @@ export default function TaskPage ({ taskObject }) {
                         Increase bounty
                       </button>
                       <button
+                        type="button"
+                        onClick={() => setRenderEditTaskModal(true)}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        Edit Task
+                      </button>
+                      <button
                         onClick={() => setRenderPayoutModal(true)}
                         type="button"
                         className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
@@ -483,7 +496,7 @@ export default function TaskPage ({ taskObject }) {
                         Payout bounty 💸
                       </button>
                     </>
-                    : isUserOnCorrectChain && <button
+                    : isWalletConnected && <button
                     onClick={() => switchNetwork(provider, taskObject.chainId).then(() => window.location.reload())}
                     type="button"
                     className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
@@ -676,6 +689,11 @@ export default function TaskPage ({ taskObject }) {
             renderContent={renderIncreaseBountyModalContent}
             titleText="Increase the bounty for this task"
             onClose={onCloseIncreaseBountyModal}
+          />}
+        {renderEditTaskModal &&
+          <EditTaskModalComponent
+            taskObject={taskObject}
+            onClose={onCloseEditTaskModal}
           />}
         {renderTaskPageHeader()}
         {renderPageContent()}

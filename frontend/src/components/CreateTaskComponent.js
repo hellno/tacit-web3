@@ -10,7 +10,7 @@ import {
 import { AppContext } from '../context'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
 import { get, isEmpty, pick } from 'lodash'
-import { generateHashForObject, storeObjectInIPFS } from '../storageUtils'
+import { uploadTaskDataToIpfs } from '../storageUtils'
 import {
   erc20ContractAbi,
   getDeployedContractForChainId,
@@ -20,12 +20,13 @@ import {
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
-import { NodeType } from '../const'
+import { NodeType, TASK_VIEW_FORM_FIELDS } from '../const'
 import { classNames, sleep } from '../utils'
-import { MinusSmIcon, PlusSmIcon, XIcon } from '@heroicons/react/outline'
+import { XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
 import { addUserToDatabase } from '../supabase'
-import { Tab } from '@headlessui/react'
+import TaskDescriptionInputField from './TaskDescriptionInputField'
+import TaskAdvancedInputFields from './TaskAdvancedInputFields'
 
 const unit = require('ethjs-unit')
 
@@ -45,7 +46,6 @@ export default function CreateTaskComponent ({
   } = globalState
 
   const [showUserMessage, setShowUserMessage] = useState(true)
-  const [showAdvancedFields, setShowAdvancedFields] = useState(false)
   const isWalletConnected = !isEmpty(account)
   const isReadyToSubmit = isWalletConnected && isSupportedNetwork(network.chainId)
   const walletAddress = ensName || account
@@ -68,23 +68,7 @@ export default function CreateTaskComponent ({
 
   const formTaskDescription = watch('description')
 
-  // eslint-disable-next-line no-unused-vars
-  const uploadTaskDataToIpfs = async (data) => {
-    console.log('starting to upload form data to ipfs', data)
-    const fname = generateHashForObject(data)
-    return storeObjectInIPFS(data, fname)
-      .then(cid => {
-        console.log('res from ipfs upload', cid, 'filename', fname)
-        console.log(`view at https://${cid}.ipfs.dweb.link/${fname}`)
-        return `${cid}/${fname}`
-      })
-      .catch(e => {
-        console.log('error when uploading', e)
-      })
-  }
-
   const addTask = async (formData) => {
-    console.log(formData)
     let {
       email,
       tokenAmount,
@@ -103,20 +87,22 @@ export default function CreateTaskComponent ({
     //   dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
     // } else {
     console.log('starting to upload data to ipfs')
-    const ipfsData = pick(formData, ['title', 'description', 'ctaReferral', 'ctaSolution'])
+    const ipfsData = pick(formData, TASK_VIEW_FORM_FIELDS)
     const dataPath = await uploadTaskDataToIpfs(ipfsData)
 
-    const userUploadStatus = await addUserToDatabase({
-      walletAddress: account,
-      email
-    })
-
-    if (!userUploadStatus.success && userUploadStatus.error) {
-      setState({
-        name: CreateTaskState.ErrorCreatingTask,
-        error: userUploadStatus.error
+    if (email) {
+      const userUploadStatus = await addUserToDatabase({
+        walletAddress: account,
+        email
       })
-      return
+
+      if (!userUploadStatus.success && userUploadStatus.error) {
+        setState({
+          name: CreateTaskState.ErrorCreatingTask,
+          error: userUploadStatus.error
+        })
+        return
+      }
     }
 
     setState({ name: CreateTaskState.PendingUserApproval })
@@ -244,126 +230,15 @@ export default function CreateTaskComponent ({
         placeholder: 'A short title of what you are looking for',
         errors
       })}
-      <div>
-        <label
-          htmlFor="description"
-          className="mb-2 block text-md font-medium text-gray-700"
-        >
-          Task Description
-        </label>
-        <Tab.Group>
-          <Tab.List className="flex items-center">
-            <Tab
-              className={({ selected }) => classNames(selected ? 'text-gray-900 bg-gray-100 hover:bg-gray-300' : 'text-gray-500  hover:text-gray-900 bg-white hover:bg-gray-200', 'px-2 py-1.5 border border-transparent text-sm font-medium rounded-l-sm')}
-            >
-              Write
-            </Tab>
-            <Tab
-              className={({ selected }) => classNames(selected ? 'text-gray-900 bg-gray-100 hover:bg-gray-300' : 'text-gray-500  hover:text-gray-900 bg-white hover:bg-gray-200', 'px-2 py-1.5 border border-transparent text-sm font-medium rounded-r-sm')}
-            >
-              Preview
-            </Tab>
-          </Tab.List>
-          <Tab.Panels className="mt-2">
-            <Tab.Panel className="p-0.5 -m-0.5 rounded-lg">
-              <div>
-                    <textarea
-                      {...register('description', { required: true })}
-                      id="description"
-                      name="description"
-                      rows={6}
-                      className={classNames(
-                        get(errors, 'description')
-                          ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                          : 'text-gray-900 focus:ring-yellow-500 focus:border-yellow-500 border-gray-300',
-                        ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
-                      )}
-                      defaultValue={''}
-                      placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward."
-                    />
-                <p className="mt-2 text-sm text-gray-500">
-                  Your can style this description with{' '}
-                  <a className="underline text-gray-500 hover:text-gray-600"
-                     href="https://commonmark.org/help/"
-                     target="_blank" rel="noopener noreferrer"
-                  >
-                    Markdown formatting
-                  </a>.</p>
-              </div>
-            </Tab.Panel>
-            <Tab.Panel className="p-0.5 -m-0.5 rounded-sm">
-              <div className="">
-                <div className="mx-px mt-px px-3 pt-2 pb-12 text-sm leading-5 text-gray-800">
-                  <MarkdownComponent content={formTaskDescription} />
-                </div>
-              </div>
-            </Tab.Panel>
-          </Tab.Panels>
-        </Tab.Group>
-      </div>
 
-      {/* <div className=""> */}
-      {/*   <label */}
-      {/*     htmlFor="about" */}
-      {/*     className="block text-sm font-medium text-gray-700" */}
-      {/*   > */}
-      {/*     Task Description */}
-      {/*   </label> */}
-      {/*   <div className="mt-1"> */}
-      {/*     <textarea */}
-      {/*       {...register('description', { required: true })} */}
-      {/*       id="description" */}
-      {/*       name="description" */}
-      {/*       rows={8} */}
-      {/*       className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm" */}
-      {/*       defaultValue={''} */}
-      {/*       placeholder="Describe what you are looking for and how your community can fulfill it to claim a reward." */}
-      {/*     /> */}
-      {/*   </div> */}
-      {/* </div> */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300" />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <button
-            type="button"
-            onClick={() => setShowAdvancedFields(!showAdvancedFields)}
-            className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-sm text-white bg-gray-400 hover:bg-gray-500 focus:outline-none"
-          >
-            {showAdvancedFields ? 'Hide' : 'Show'} Advanced Options
-            {showAdvancedFields
-              ? <MinusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
-              : <PlusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />}
-          </button>
-        </div>
-      </div>
-      {showAdvancedFields && (<div className="mt-4 space-y-4 ">
-        {renderFormField({
-          register,
-          name: 'ctaReferral',
-          type: 'text',
-          label: 'Call To Action on Referral Button (optional)',
-          placeholder: 'Get referral link'
-        })}
-        {renderFormField({
-          register,
-          name: 'ctaSolution',
-          type: 'text',
-          required: false,
-          label: 'Call To Action on Solution Button (optional)',
-          placeholder: 'Enter customer details'
-        })}
-        {renderFormField({
-          register,
-          name: 'subtitle',
-          type: 'text',
-          required: false,
-          label: 'Subtitle (optional)',
-          placeholder: 'Support us by doing X'
-        })}
-      </div>)}
-
+      <TaskDescriptionInputField
+        register={register}
+        watch={watch}
+        errorsForField={get(errors, 'description')}
+      />
+      <TaskAdvancedInputFields
+        register={register}
+      />
     </>
   }
 
