@@ -7,7 +7,7 @@ export default function BannerComponent ({ title }) {
     return <></>
   }
   return (
-    <div className="relative bg-blue-500">
+    <div className="relative bg-secondary">
       <div className="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
         <div className="pr-16 sm:text-center sm:px-16">
           <p className="font-medium text-white">
@@ -25,7 +25,7 @@ export default function BannerComponent ({ title }) {
           <button
             type="button"
             onClick={() => setIsVisible(false)}
-            className="flex p-2 rounded-md hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-white"
+            className="flex p-2 rounded-md hover:bg-secondary-light focus:outline-none focus:ring-2 focus:ring-white"
           >
             <span className="sr-only">Dismiss</span>
             <XIcon className="h-6 w-6 text-white" aria-hidden="true" />

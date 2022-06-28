@@ -31,7 +31,7 @@ const Web3NavBar = () => {
         dispatch
       })
       : <span
-        className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-yellow-400">
+        className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-white bg-primary">
                     Wallet {walletAddress}
                   </span>
   }

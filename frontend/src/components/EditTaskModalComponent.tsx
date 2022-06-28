@@ -119,7 +119,7 @@ export default function EditTaskModalComponent ({
             />
             <button
               disabled={!isDirty}
-              className={classNames(isDirty ? 'hover:bg-yellow-500 focus:outline-none' : '', 'bg-yellow-400 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
+              className={classNames(isDirty ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary  w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
             >
               Submit changes
             </button>

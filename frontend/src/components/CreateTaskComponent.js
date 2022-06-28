@@ -289,14 +289,14 @@ export default function CreateTaskComponent ({
       ? (<button
         type="submit"
         disabled={!isReadyToSubmit}
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 hover:bg-yellow-500 focus:outline-none"
+        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
       >
         Submit Task & Bounty
       </button>)
       : (<button
         onClick={(event) => onNextStepSubmit(event)}
         disabled={!isReadyToSubmit}
-        className={classNames(isReadyToSubmit ? 'hover:bg-yellow-500 focus:outline-none' : '', 'bg-yellow-400 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
+        className={classNames(isReadyToSubmit ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
       >
         Select Bounty <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
       </button>)

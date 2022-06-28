@@ -270,7 +270,7 @@ export default function SharePage ({ shareObject }) {
     return !isUserOnCorrectChain && <button
       onClick={() => switchNetwork(provider, shareObject.chainId).then(() => window.location.reload())}
       type="button"
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 focus:outline-none hover:bg-yellow-500"
+      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
     >
       Switch to {getDeployedContractForChainId(shareObject.chainId).name}
     </button>
@@ -331,7 +331,7 @@ export default function SharePage ({ shareObject }) {
             <div className="inline-flex rounded-sm shadow">
               <button
                 onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
-                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-200 hover:bg-yellow-100"
+                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-light bg-primary hover:bg-primary-light"
               >
                 {shareObject.ctaReferral || 'Get referral link'}
               </button>
@@ -345,7 +345,7 @@ export default function SharePage ({ shareObject }) {
             <div className="inline-flex">
               <button
                 onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
-                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-yellow-800 bg-yellow-100 hover:bg-yellow-200"
+                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-light bg-primary hover:bg-primary-light"
               >
                 {shareObject.ctaSolution || 'Solve task and earn'}
               </button>
@@ -398,8 +398,8 @@ export default function SharePage ({ shareObject }) {
                   type="submit"
                   disabled={!canSubmitActions}
                   className={classNames(
-                    canSubmitActions && 'hover:bg-yellow-500 ',
-                    'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 focus:outline-none')}
+                    canSubmitActions && 'hover:bg-primary-light',
+                    'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
                 >
                   Create my share link
                 </button>
@@ -480,7 +480,7 @@ export default function SharePage ({ shareObject }) {
                     name="solution"
                     required
                     rows={3}
-                    className="shadow-sm focus:ring-yellow-500 focus:border-yellow-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
+                    className="shadow-sm focus:ring-gray-500 block w-full sm:text-sm border border-gray-300 rounded-sm"
                   />
                 </div>
                 <p className="mt-2 text-sm text-gray-500">
@@ -492,7 +492,7 @@ export default function SharePage ({ shareObject }) {
                 <button
                   type="submit"
                   disabled={!canSubmitActions}
-                  className={classNames(canSubmitActions && 'hover:bg-yellow-500 ', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-yellow-400 focus:outline-none')}
+                  className={classNames(canSubmitActions && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
                 >
                   Submit Solution
                 </button>
@@ -534,7 +534,7 @@ export default function SharePage ({ shareObject }) {
                 className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base"
               >
                 <span
-                  className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
+                  className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-secondary rounded-full">
                   WAGMI
                 </span>
                 <span className="ml-4 mr-2 text-sm">
@@ -544,7 +544,7 @@ export default function SharePage ({ shareObject }) {
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                 {/* <span className="md:block">asdasd</span>{' '} */}
-                <span className="text-yellow-400 md:block">
+                <span className="text-primary md:block">
                   {shareObject.title}
                 </span>
               </h1>

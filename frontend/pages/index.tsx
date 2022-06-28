@@ -225,7 +225,7 @@ export default function Home () {
                     <div
                       className="inline-flex items-center text-gray-800 bg-gray-200 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base">
                     <span
-                      className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-yellow-500 rounded-full">
+                      className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-secondary rounded-full">
                       WAGMI
                     </span>
                       <span className="mx-2 text-sm">
@@ -233,13 +233,13 @@ export default function Home () {
                     </span>
                     </div>
                     <h1
-                      className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
+                      className="mt-4 text-4xl tracking-tight font-extrabold text-light sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                       <span className="md:block">On-chain referrals</span>{' '}
-                      <span className="text-yellow-400 md:block">
+                      <span className="text-primary md:block">
                       for Web3 communities
                     </span>
                     </h1>
-                    <p className="mt-3 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                    <p className="mt-3 text-base text-light sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                       Create a search task, attach a token reward, and share it with your friends, who can share it
                       again
                       with their friends… ∞ Receive results and reward the contributors. Everyone who contributes to
@@ -289,7 +289,7 @@ export default function Home () {
                 <div>
                   <h1 className="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
                     <span className="block">How to leverage Tacit</span>
-                    <span className="block text-indigo-600">for your community</span>
+                    <span className="block text-secondary">for your community</span>
                   </h1>
                   {/* <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl"> */}
                   {/*   Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt */}

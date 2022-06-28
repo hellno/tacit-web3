@@ -21,7 +21,7 @@ export default function TaskAdvancedInputFields ({
         <button
           type="button"
           onClick={() => setShowAdvancedFields(!showAdvancedFields)}
-          className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-sm text-white bg-gray-400 hover:bg-gray-500 focus:outline-none"
+          className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm leading-4 font-medium rounded-sm text-white bg-gray-400 hover:bg-gray-300 focus:outline-none"
         >
           {showAdvancedFields ? 'Hide' : 'Show'} Advanced Options
           {showAdvancedFields

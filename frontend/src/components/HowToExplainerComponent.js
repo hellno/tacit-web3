@@ -36,7 +36,7 @@ export default function HowToExplainerComponent () {
                 <div className="mt-6">
                   <button
                     onClick={() => goToTop()}
-                    className="inline-flex px-4 py-2 border border-transparent text-base font-medium rounded-sm shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                    className="inline-flex px-4 py-2 border border-transparent text-base font-medium rounded-sm shadow-sm text-white bg-secondary hover:bg-secondary-light"
                   >
                     Get started
                   </button>
@@ -116,7 +116,7 @@ export default function HowToExplainerComponent () {
                 <div className="mt-6">
                   <button
                     onClick={() => goToTop()}
-                    className="inline-flex px-4 py-2 border border-transparent text-base font-medium rounded-sm shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                    className="inline-flex px-4 py-2 border border-transparent text-base font-medium rounded-sm shadow-sm text-white bg-secondary hover:bg-secondary-light"
                   >
                     Get started
                   </button>

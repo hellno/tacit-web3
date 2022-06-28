@@ -293,7 +293,7 @@ export default function TaskPage ({ taskObject }) {
               type="submit"
               disabled={!isWalletConnected}
               className={classNames(
-                isWalletConnected ? 'bg-yellow-400 hover:bg-yellow-500' : 'bg-gray-300',
+                isWalletConnected ? 'bg-primary hover:bg-primary-light' : 'bg-gray-300',
                 'mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
             >
               Increase bounty
@@ -491,7 +491,7 @@ export default function TaskPage ({ taskObject }) {
                       <button
                         onClick={() => setRenderPayoutModal(true)}
                         type="button"
-                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
+                        className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-secondary hover:bg-secondary-light"
                       >
                         Payout bounty 💸
                       </button>
@@ -499,7 +499,7 @@ export default function TaskPage ({ taskObject }) {
                     : isWalletConnected && <button
                     onClick={() => switchNetwork(provider, taskObject.chainId).then(() => window.location.reload())}
                     type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-cyan-600 hover:bg-cyan-700"
+                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-secondary hover:bg-secondary-light"
                   >
                     Switch to {getDeployedContractForChainId(taskObject.chainId).name}
                   </button>}

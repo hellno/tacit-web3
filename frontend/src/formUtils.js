@@ -9,7 +9,7 @@ export const renderWalletAddressInputField = (account) => {
     placeholder="Wallet Address"
     value={account}
     disabled={true}
-    className="select-none text-gray-600 mt-1 block w-full shadow-sm focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm border-gray-300 rounded-sm"
+    className="select-none text-gray-600 mt-1 block w-full shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm border-gray-300 rounded-sm"
   />
 }
 
@@ -42,7 +42,7 @@ export const renderFormField = ({
         className={classNames(
           get(errors, name)
             ? 'border-red-300 text-red-800 placeholder-red-400 focus:outline-none focus:ring-red-500 focus:border-red-500'
-            : 'text-gray-900 focus:ring-yellow-500 focus:border-yellow-500 border-gray-300',
+            : 'text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300',
           ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
         )}
       />
@@ -64,7 +64,7 @@ export const renderCurrencyDropdown = ({
       id={fieldName}
       name={fieldName}
       required
-      className="focus:ring-yellow-500 focus:border-yellow-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-sm"
+      className="focus:ring-gray-500 focus:border-gray-500 h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-sm"
     >
       {map(nameToTokenAddress, (tokenAddress, name) => {
         return <option key={tokenAddress} value={tokenAddress}>{name}</option>
@@ -85,7 +85,7 @@ export const renderAmountAndCurrencyFormFields = ({
         type="text"
         name="tokenAmount"
         id="tokenAmount"
-        className="focus:ring-yellow-500 focus:border-yellow-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-sm"
+        className="focus:ring-gray-500 focus:border-gray-500 block w-full pr-12 sm:text-sm border-gray-300 rounded-sm"
         placeholder="0.00001"
       />
       <div className="absolute inset-y-0 right-0 flex items-center">
