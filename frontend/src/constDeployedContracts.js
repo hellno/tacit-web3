@@ -80,7 +80,9 @@ export const getNameToTokenAddressForChainId = (chainId) => {
       return {
         xDai: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
         GNO: '0x9C58BAcC331c9aa871AFD802DB6379a98e80CEdb',
-        USDC: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83'
+        USDC: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+        WETH: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
+        LINK: '0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2'
       }
   }
 }
