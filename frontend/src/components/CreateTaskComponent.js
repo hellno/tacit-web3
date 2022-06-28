@@ -26,6 +26,7 @@ import { XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
 import { addUserToDatabase } from '../supabase'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
+// eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
 
 const unit = require('ethjs-unit')

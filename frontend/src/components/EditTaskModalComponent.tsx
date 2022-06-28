@@ -12,8 +12,9 @@ import { ethers } from 'ethers'
 // eslint-disable-next-line node/no-missing-import
 import { EditTaskState, TASK_VIEW_FORM_FIELDS } from '../const'
 import { uploadTaskDataToIpfs } from '../storageUtils'
-// eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
+
+// eslint-disable-next-line node/no-missing-import
 
 interface EditTaskStateType {
   name: EditTaskState;
