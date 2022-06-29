@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/solid'
-import { get, includes, isEmpty } from 'lodash'
+import { escape, get, includes, isEmpty } from 'lodash'
 import { useForm } from 'react-hook-form'
 import {
   getBaseBiconomyGaslessTransactionParams,
@@ -25,6 +25,7 @@ import { MarkdownComponent } from '../../src/markdownUtils'
 import { addUserToDatabase } from '../../src/supabase'
 import { Biconomy } from '@biconomy/mexa'
 import { getDeployedContractForChainId } from '../../src/constDeployedContracts'
+import Head from 'next/head'
 
 interface ShareSubmissionStateType {
   name: SharePageState;
@@ -520,10 +521,13 @@ export default function SharePage ({ shareObject }) {
   const renderShareModal = includes(shareStates, sharePageData.name)
   const renderSolveModal = includes(solveStates, sharePageData.name)
 
+  const getBountyDescription = () => `Bounty: ${getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}`
+
   function renderPageContent () {
     if (isEmpty(shareObject)) {
       return <></>
     }
+
     return <main className="mt-16 sm:mt-24">
       <div className="mx-auto max-w-7xl">
         <div className="lg:grid lg:grid-cols-6 lg:gap-8">
@@ -550,7 +554,7 @@ export default function SharePage ({ shareObject }) {
               </h1>
               <h1
                 className="mt-2 text-2xl tracking-tight font-bold text-white sm:leading-none lg:mt-2 lg:text-2xl xl:text-4xl">
-                Bounty: {getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}<br />
+                {getBountyDescription()}<br />
                 {shareObject.subtitle && <>{' '}<br /><span className="">{shareObject.subtitle}</span></>}
               </h1>
               <div className="lg:max-w-6xl lg:mx-auto">
@@ -609,25 +613,62 @@ export default function SharePage ({ shareObject }) {
     </main>
   }
 
+  const renderPageMetaProperties = () => {
+    const title = 'Tacit Networks'
+    const description = 'Unlocking the world\'s tacit knowledge.'
+    const url = `${process.env.SITE}`
+    const imageTitle = shareObject.title
+    const imageBountyStr = getBountyDescription()
+    const imageUrl = encodeURI(`${process.env.SITE}/api/og-image?title=${escape(imageTitle)}&bounty=${escape(imageBountyStr)}`)
+    console.log('imageUrl', imageUrl)
+    return (
+      <Head>
+        {/* <title>{title}</title> */}
+        {/* <link rel="icon" href="/favicon.png" /> */}
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        // base properties
+        <meta property="og:site_name" content="Tacit" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={url} />
+        {/* <meta property="og:title" key="ogtitle" content={title} /> */}
+        {/* <meta property="og:description" key="ogdesc" content={description} /> */}
+        // image properties
+        <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:width" content="1200" />
+        // twitter properties
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content={process.env.SITE} />
+        <meta property="twitter:url" content={url} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={imageUrl} />
+      </Head>
+    )
+  }
+
   return (
-    <div className="relative bg-background overflow-hidden min-h-screen">
-      <div className="relative pt-6 pb-16 sm:pb-24">
-        <Web3NavBar />
-        {renderShareModal &&
-          <ModalComponent
-            renderContent={renderShareModalContent}
-            titleText="Share task and earn"
-            onClose={onModalClose}
-          />}
-        {renderSolveModal &&
-          <ModalComponent
-            renderContent={renderSolveModalContent}
-            titleText="Solve this task and earn"
-            onClose={onModalClose}
-          />}
-        {renderPageContent()}
+    <>
+      {renderPageMetaProperties()}
+      <div className="relative bg-background overflow-hidden min-h-screen">
+        <div className="relative pt-6 pb-16 sm:pb-24">
+          <Web3NavBar />
+          {renderShareModal &&
+            <ModalComponent
+              renderContent={renderShareModalContent}
+              titleText="Share task and earn"
+              onClose={onModalClose}
+            />}
+          {renderSolveModal &&
+            <ModalComponent
+              renderContent={renderSolveModalContent}
+              titleText="Solve this task and earn"
+              onClose={onModalClose}
+            />}
+          {renderPageContent()}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
