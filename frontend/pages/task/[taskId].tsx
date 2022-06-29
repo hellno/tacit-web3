@@ -24,6 +24,7 @@ import {
   classNames,
   flattenNodesRecursively,
   getBountyAmountWithCurrencyStringFromTaskObject,
+  getSiteUrl,
   getUrlForNode
 } from '../../src/utils'
 // eslint-disable-next-line node/no-missing-import
@@ -732,7 +733,7 @@ const exampleTaskPageObject = {
 
 export async function getStaticProps ({ params }) {
   const { taskId } = params
-  const apiEndpoint = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
+  const apiEndpoint = getSiteUrl()
   const apiUrl = `${apiEndpoint}/api/getTaskPageData/${taskId}/`
   const res = await fetch(apiUrl)
   const taskObject = await res.json()

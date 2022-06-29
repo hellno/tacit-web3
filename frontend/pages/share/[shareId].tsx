@@ -10,7 +10,7 @@ import {
   switchNetwork
 } from '../../src/walletUtils'
 // @ts-ignore
-import { classNames, getBountyAmountWithCurrencyStringFromTaskObject } from '../../src/utils'
+import { classNames, getBountyAmountWithCurrencyStringFromTaskObject, getSiteUrl } from '../../src/utils'
 import { AppContext } from '../../src/context'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
@@ -616,10 +616,10 @@ export default function SharePage ({ shareObject }) {
   const renderPageMetaProperties = () => {
     const title = 'Tacit Networks'
     const description = 'Unlocking the world\'s tacit knowledge.'
-    const url = `${process.env.SITE}`
+    const url = getSiteUrl()
     const imageTitle = shareObject.title
     const imageBountyStr = getBountyDescription()
-    const imageUrl = encodeURI(`${process.env.SITE}/api/og-image?title=${escape(imageTitle)}&bounty=${escape(imageBountyStr)}`)
+    const imageUrl = encodeURI(`${url}/api/og-image?title=${escape(imageTitle)}&bounty=${escape(imageBountyStr)}`)
     console.log('imageUrl', imageUrl)
     return (
       <Head>
@@ -685,7 +685,7 @@ const exampleSharePageObject = {
 
 export async function getStaticProps ({ params }) {
   const { shareId } = params
-  const apiEndpoint = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
+  const apiEndpoint = getSiteUrl()
   const apiUrl = `${apiEndpoint}/api/getSharePageData/${shareId}/`
   console.log('getStaticProps with internal API URL', apiUrl)
   const res = await fetch(apiUrl)

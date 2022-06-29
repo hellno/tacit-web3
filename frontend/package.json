@@ -6,6 +6,9 @@
     "start": "next start",
     "prepare": "cd .. && husky install frontend/"
   },
+  "engines": {
+    "node": "14.x || 16.x"
+  },
   "dependencies": {
     "@biconomy/mexa": "^2.0.32",
     "@coinbase/wallet-sdk": "^3.3.0",

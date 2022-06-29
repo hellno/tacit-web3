@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import { withOGImage } from 'next-api-og-image'
 
 enum QueryParams {
