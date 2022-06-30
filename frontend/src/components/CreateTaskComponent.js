@@ -298,7 +298,7 @@ export default function CreateTaskComponent ({
         disabled={!isReadyToSubmit}
         className={classNames(isReadyToSubmit ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
       >
-        Select Bounty <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
+        Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
       </button>)
   }
 
