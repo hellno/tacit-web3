@@ -59,10 +59,10 @@ export default function CreateTaskComponent ({
     formState: { errors }
   } = useForm({
     defaultValues: {
-      // email: 'test@test.com',
-      // title: 'this is a sweet test title',
-      // description: '## test\n ',
-      // tokenAmount: '1',
+      email: process.env.NODE_ENV === 'development' ? 'test@test.com' : '',
+      title: process.env.NODE_ENV === 'development' ? 'this is a sweet title' : '',
+      description: process.env.NODE_ENV === 'development' ? '# description 123' : '',
+      tokenAmount: '1',
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
   })
