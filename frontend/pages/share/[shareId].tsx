@@ -614,8 +614,8 @@ export default function SharePage ({ shareObject }) {
   }
 
   const renderPageMetaProperties = () => {
-    const title = 'Tacit Networks'
-    const description = 'Unlocking the world\'s tacit knowledge.'
+    const title = 'Tacit - On-chain tasks, referrals & bounties '
+    const description = ''
     const url = getSiteUrl()
     const imageTitle = shareObject.title
     const imageBountyStr = getBountyDescription()
