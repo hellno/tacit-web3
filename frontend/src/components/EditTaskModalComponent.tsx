@@ -46,6 +46,7 @@ export default function EditTaskModalComponent ({
   } = useForm({
     defaultValues: {
       title: taskObject.title,
+      subtitle: taskObject.subtitle,
       description: taskObject.description
     }
   })
@@ -106,6 +107,14 @@ export default function EditTaskModalComponent ({
               label: 'Search Title',
               placeholder: 'A short title of what you are looking for',
               errors
+            })}
+            {renderFormField({
+              register,
+              name: 'subtitle',
+              type: 'text',
+              required: false,
+              label: 'Subtitle (optional)',
+              placeholder: 'Support us by doing X'
             })}
             <TaskDescriptionInputField
               register={register}

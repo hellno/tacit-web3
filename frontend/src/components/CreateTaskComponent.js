@@ -21,13 +21,14 @@ import {
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType, TASK_VIEW_FORM_FIELDS } from '../const'
-import { classNames, sleep } from '../utils'
+import { classNames, getSiteUrl, sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
 import { addUserToDatabase } from '../supabase'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
 // eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
+import Head from 'next/head'
 
 const unit = require('ethjs-unit')
 
@@ -231,7 +232,14 @@ export default function CreateTaskComponent ({
         placeholder: 'A short title of what you are looking for',
         errors
       })}
-
+      {renderFormField({
+        register,
+        name: 'subtitle',
+        type: 'text',
+        required: true,
+        label: 'Payout Description',
+        placeholder: 'Get 1 ETH for doing XYZ'
+      })}
       <TaskDescriptionInputField
         register={register}
         watch={watch}
@@ -312,7 +320,34 @@ export default function CreateTaskComponent ({
     </button>)
   }
 
+  const renderPageMetaProperties = () => {
+    const title = 'Tacit - On-chain tasks, referrals & bounties '
+    const description = ''
+    const url = getSiteUrl()
+
+    return (
+      <Head>
+        <title>{title}</title>
+        {/* <link rel="icon" href="/favicon.png" /> */}
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        // base properties
+        <meta property="og:site_name" content="Tacit" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={url} />
+        <meta property="og:title" key="ogtitle" content={title} />
+        <meta property="og:description" key="ogdesc" content={description} />
+        // twitter properties
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="twitter:domain" content={process.env.SITE} />
+        <meta property="twitter:url" content={url} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+      </Head>
+    )
+  }
+
   return (<>
+    {renderPageMetaProperties()}
     <div className="px-4 py-8 sm:px-10">
       {localState.message && renderUseInfoMessage()}
       <div className="mt-2">

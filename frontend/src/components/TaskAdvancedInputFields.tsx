@@ -48,15 +48,6 @@ export default function TaskAdvancedInputFields ({
         placeholder: 'Enter customer details',
         defaultValue: get(values, 'ctaSolution')
       })}
-      {renderFormField({
-        register,
-        name: 'subtitle',
-        type: 'text',
-        required: false,
-        label: 'Subtitle (optional)',
-        placeholder: 'Support us by doing X',
-        defaultValue: get(values, 'subtitle')
-      })}
     </div>)}
   </>
 }

@@ -18,7 +18,6 @@ import { BiconomyLoadingState, NodeType, SharePageState, shareStates, solveState
 import { renderFormField, renderWalletAddressInputField } from '../../src/formUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
-import BlockiesComponent from '../../src/components/BlockiesComponent'
 import { ethers } from 'ethers'
 import PresentActionLinksComponent from '../../src/components/PresentActionLinksComponent'
 import { MarkdownComponent } from '../../src/markdownUtils'
@@ -329,10 +328,23 @@ export default function SharePage ({ shareObject }) {
       <div className="mx-auto py-12">
         <div className="mt-4 flex grid grid-cols-2 gap-x-2">
           <div>
-            <div className="inline-flex rounded-sm shadow">
+            <div className="inline-flex">
+              <button
+                onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
+                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm text-primary bg-gray-100 hover:bg-light"
+              >
+                {shareObject.ctaSolution || 'Solve task and earn'}
+              </button>
+            </div>
+            <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
+              Enter requested results to become eligible for a reward.
+            </span>
+          </div>
+          <div>
+            <div className="inline-flex">
               <button
                 onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
-                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-light bg-primary hover:bg-primary-light"
+                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm text-light bg-primary hover:bg-primary-light"
               >
                 {shareObject.ctaReferral || 'Get referral link'}
               </button>
@@ -340,19 +352,6 @@ export default function SharePage ({ shareObject }) {
             <span
               className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
               You get part of the reward if someone downstream of your link enters a winning result.
-            </span>
-          </div>
-          <div>
-            <div className="inline-flex">
-              <button
-                onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
-                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-sm text-light bg-primary hover:bg-primary-light"
-              >
-                {shareObject.ctaSolution || 'Solve task and earn'}
-              </button>
-            </div>
-            <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
-              Enter requested results to become eligible for a reward.
             </span>
           </div>
         </div>
@@ -521,7 +520,7 @@ export default function SharePage ({ shareObject }) {
   const renderShareModal = includes(shareStates, sharePageData.name)
   const renderSolveModal = includes(solveStates, sharePageData.name)
 
-  const getBountyDescription = () => `Bounty: ${getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}`
+  const getBountyDescription = () => shareObject.subtitle ? shareObject.subtitle : `Bounty: ${getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}`
 
   function renderPageContent () {
     if (isEmpty(shareObject)) {
@@ -554,57 +553,38 @@ export default function SharePage ({ shareObject }) {
               </h1>
               <h1
                 className="mt-2 text-2xl tracking-tight font-bold text-white sm:leading-none lg:mt-2 lg:text-2xl xl:text-4xl">
-                {getBountyDescription()}<br />
-                {shareObject.subtitle && <>{' '}<br /><span className="">{shareObject.subtitle}</span></>}
+                {getBountyDescription()}
               </h1>
-              <div className="lg:max-w-6xl lg:mx-auto">
-                <div className="py-6 md:flex md:items-center md:justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center">
-                      <BlockiesComponent
-                        opts={{
-                          seed: shareObject.ownerAddress,
-                          color: '#dfe'
-                          // size: 15
-                          // scale: 3,
-                        }} />
-                      <div>
-                        <div className="flex items-center">
-                          <h1
-                            className="ml-3 text-xl font-bold leading-7 text-gray-100 sm:leading-9 sm:truncate">
-                            {shareObject.ownerAddress}
-                          </h1>
-                        </div>
-                        <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
-                          {/* <dt className="sr-only">Created at</dt> */}
-                          {/* <dd className="flex items-center text-sm text-gray-400 font-medium capitalize sm:mr-6"> */}
-                          {/*   <ClockIcon */}
-                          {/*     className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" */}
-                          {/*     aria-hidden="true" */}
-                          {/*   /> */}
-                          {/*   {taskObject.createdAt} */}
-                          {/* </dd> */}
-                          <dt className="sr-only">Account status</dt>
-                          <dd
-                            className="mt-3 flex items-center text-sm text-gray-400 font-medium sm:mr-6 sm:mt-0 capitalize">
-                            <CheckCircleIcon
-                              className="flex-shrink-0 mr-1.5 h-5 w-5 text-green-400"
-                              aria-hidden="true"
-                            />
-                            Verified account
-                          </dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div
                 className="px-4 sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6 lg:text-left ">
                 {renderActionButtonCard()}
               </div>
               <div className="mt-5 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                 <MarkdownComponent content={shareObject.description} />
+              </div>
+              <div className="lg:max-w-6xl lg:mx-auto">
+                <div className="py-6 md:flex md:items-center">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center">
+                      <div>
+                        <dd
+                          className="flex items-left text-sm text-gray-400 font-medium sm:mr-6 sm:mt-0">
+                          Created by verified account
+                          <CheckCircleIcon
+                            className="flex-shrink-0 ml-1 mt-0.5 h-4 w-4 text-green-400"
+                            aria-hidden="true"
+                          />
+                        </dd>
+                        <div className="flex items-center">
+                          <h1
+                            className="text-xl font-bold leading-7 text-gray-100 sm:leading-9 sm:truncate">
+                            {shareObject.ownerAddress}
+                          </h1>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -625,7 +605,7 @@ export default function SharePage ({ shareObject }) {
 
     return (
       <Head>
-        {/* <title>{title}</title> */}
+        <title>{title}</title>
         {/* <link rel="icon" href="/favicon.png" /> */}
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         // base properties
