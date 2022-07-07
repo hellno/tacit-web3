@@ -38,3 +38,5 @@ export const getUrlForNode = ({
 }
 
 export const getSiteUrl = () => process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'
+
+export const isProd = () => process.env.NODE_ENV === 'production'

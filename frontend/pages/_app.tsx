@@ -2,6 +2,8 @@ import '../styles/globals.css'
 import type { AppProps } from 'next/app'
 import { AppContextProvider } from '../src/context'
 import BannerComponent from '../src/components/BannerComponent'
+// @ts-ignore
+import { isProd } from '../src/utils'
 
 function MyApp ({
   Component,
@@ -30,13 +32,12 @@ function MyApp ({
       </>
     )
   }
-  const isProd = process.env.NODE_ENV === 'production'
 
   return <AppContextProvider>
     <BannerComponent
       title={'This is an alpha release → you are early '} />
     <Component {...pageProps} />
-    {isProd && renderAnalyticsScripts()}
+    {isProd() && renderAnalyticsScripts()}
   </AppContextProvider>
 }
 

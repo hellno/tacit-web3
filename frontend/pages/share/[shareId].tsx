@@ -9,8 +9,7 @@ import {
   renderWalletConnectComponent,
   switchNetwork
 } from '../../src/walletUtils'
-// @ts-ignore
-import { classNames, getBountyAmountWithCurrencyStringFromTaskObject, getSiteUrl } from '../../src/utils'
+import { classNames, getBountyAmountWithCurrencyStringFromTaskObject, getSiteUrl, isProd } from '../../src/utils'
 import { AppContext } from '../../src/context'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
@@ -36,7 +35,7 @@ interface BiconomyLoadingStateType {
   biconomy?: Biconomy
 }
 
-export default function SharePage ({ shareObject }) {
+function SharePage ({ shareObject }) {
   const [state, dispatch] = useContext(AppContext)
   const isLoading = isEmpty(shareObject)
   const [biconomyState, setBiconomyState] = useState<BiconomyLoadingStateType>({
@@ -267,13 +266,16 @@ export default function SharePage ({ shareObject }) {
   }
 
   const renderWalletSwitchIfNeeded = () => {
-    return !isUserOnCorrectChain && <button
-      onClick={() => switchNetwork(provider, shareObject.chainId).then(() => window.location.reload())}
-      type="button"
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
-    >
-      Switch to {getDeployedContractForChainId(shareObject.chainId).name}
-    </button>
+    return !isUserOnCorrectChain &&
+      <div className="mb-6">
+        <button
+          onClick={() => switchNetwork(provider, shareObject.chainId).then(() => window.location.reload())}
+          type="button"
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
+        >
+          Switch to {getDeployedContractForChainId(shareObject.chainId).name}
+        </button>
+      </div>
   }
 
   const renderGaslessTransactionSetupProgress = () => {
@@ -362,8 +364,8 @@ export default function SharePage ({ shareObject }) {
     switch (sharePageData.name) {
       case SharePageState.ShareIntent:
         return <div>
-          {renderWalletSwitchIfNeeded()}
           <div className="mt-6 mr-8">
+            {renderWalletSwitchIfNeeded()}
             <label
               htmlFor="walletAddress"
               className="block text-sm font-medium text-gray-700"
@@ -435,8 +437,8 @@ export default function SharePage ({ shareObject }) {
     switch (sharePageData.name) {
       case SharePageState.SolveIntent:
         return <div>
-          {renderWalletSwitchIfNeeded()}
           <div className="mt-6 mr-8">
+            {renderWalletSwitchIfNeeded()}
             <label
               htmlFor="walletAddress"
               className="block text-sm font-medium text-gray-700"
@@ -600,8 +602,7 @@ export default function SharePage ({ shareObject }) {
     const imageTitle = shareObject.title
     const imageBountyStr = getBountyDescription()
     const ogImageUrl = process.env.OG_IMAGE_URL
-    const isProd = process.env.NODE_ENV === 'production'
-    const imageUrl = isProd && ogImageUrl && encodeURI(`${ogImageUrl}api/og-image?title=${escape(imageTitle)}&bounty=${escape(imageBountyStr)}`)
+    const imageUrl = isProd() && ogImageUrl && encodeURI(`${ogImageUrl}api/og-image?title=${escape(imageTitle)}&bounty=${escape(imageBountyStr)}`)
 
     return (
       <Head>
@@ -656,17 +657,6 @@ export default function SharePage ({ shareObject }) {
   )
 }
 
-// eslint-disable-next-line no-unused-vars
-const exampleSharePageObject = {
-  title: 'Looking for a Smart Contract Developer',
-  description: 'asdasd',
-  ownerAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  taskData: '0x6261667962656967796866626b3273337062743334716479727870737432776271656e676861336e37657a69716b76346b72626176766a6f356d6d2f3163323130353564323231653638346438373339363738613165353161343734',
-  taskIsOpen: true,
-  bountyTokenAddress: '0x0000000000000000000000000000000000000000',
-  bountyAmount: '12.0'
-}
-
 export async function getStaticProps ({ params }) {
   const { shareId } = params
   const apiEndpoint = getSiteUrl()
@@ -693,3 +683,5 @@ export async function getStaticPaths () {
     fallback: true
   }
 }
+
+export default SharePage

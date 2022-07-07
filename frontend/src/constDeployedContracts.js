@@ -29,7 +29,32 @@ const _contracts = [{
     symbol: 'xDAI',
     decimals: 18
   }
-}]
+},
+// {
+//   chainId: 137,
+//   name: 'Polygon Mainnet',
+//   shortName: 'MATIC',
+//   contractAddress: '',
+//   blockExplorer: 'https://polygonscan.com',
+//   nativeCurrency: {
+//     name: 'MATIC',
+//     symbol: 'MATIC',
+//     decimals: 18
+//   }
+// },
+{
+  chainId: 80001,
+  name: 'Polygon Testnet Mumbai',
+  contractAddress: '0xAb3160358410B2912f319C2Ec61a6d88bF138520',
+  shortName: 'maticmum',
+  blockExplorer: 'https://mumbai.polygonscan.com',
+  nativeCurrency: {
+    name: 'MATIC',
+    symbol: 'MATIC',
+    decimals: 18
+  }
+}
+]
 
 export const getDeployedContracts = () => {
   let contracts = _contracts
@@ -83,6 +108,19 @@ export const getNameToTokenAddressForChainId = (chainId) => {
         USDC: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
         WETH: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1',
         LINK: '0xE2e73A1c69ecF83F464EFCE6A5be353a37cA09b2'
+      }
+    case 137:
+      return {
+        USDC: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
+        WETH: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
+        FRAX: '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89',
+        BAT: '0x3cef98bb43d732e2f285ee605a8158cde967d219',
+        WBTC: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6'
+      }
+    case 80001:
+      return {
+        MATIC: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
+        DUMMY_ERC20: '0xfe4f5145f6e09952a5ba9e956ed0c25e3fa4c7f1'
       }
   }
 }

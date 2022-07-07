@@ -126,10 +126,10 @@ export const loadWeb3Modal = (dispatch) => {
 }
 
 export const getDefaultTransactionGasOptions = () => {
-  const gasPrice = ethers.utils.parseUnits('5', 'gwei')
+  // const gasPrice = ethers.utils.parseUnits('5', 'gwei')
   const gasLimit = 1000000
   return {
-    gasPrice,
+    // gasPrice,
     gasLimit
   }
 }
