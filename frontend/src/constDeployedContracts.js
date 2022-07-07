@@ -30,18 +30,18 @@ const _contracts = [{
     decimals: 18
   }
 },
-// {
-//   chainId: 137,
-//   name: 'Polygon Mainnet',
-//   shortName: 'MATIC',
-//   contractAddress: '',
-//   blockExplorer: 'https://polygonscan.com',
-//   nativeCurrency: {
-//     name: 'MATIC',
-//     symbol: 'MATIC',
-//     decimals: 18
-//   }
-// },
+{
+  chainId: 137,
+  name: 'Polygon Mainnet',
+  shortName: 'MATIC',
+  contractAddress: '0xab3160358410b2912f319c2ec61a6d88bf138520',
+  blockExplorer: 'https://polygonscan.com',
+  nativeCurrency: {
+    name: 'MATIC',
+    symbol: 'MATIC',
+    decimals: 18
+  }
+},
 {
   chainId: 80001,
   name: 'Polygon Testnet Mumbai',
