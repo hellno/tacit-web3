@@ -7,14 +7,14 @@ import "forge-std/console.sol";
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
-    using stdStorage for StdStorage;
-
+using stdStorage for StdStorage;
 
 contract TaskPortalTest is Test {
     TaskPortal taskPortal;
     address daiTokenAddress = 0x6B175474E89094C44Da98b954EedeAC495271d0F;
     //    address daiTokenAddress = 0x1776e1F26f98b1A5dF9cD347953a26dd3Cb46671;
-    bytes defaultTaskData = "bafybeigyhfbk2s3pbt34qdyrxpst2wbqengha3n7eziqkv4krbavvjo5mm/1c21055d221e684d8739678a1e51a474";
+    bytes defaultTaskData =
+        "bafybeigyhfbk2s3pbt34qdyrxpst2wbqengha3n7eziqkv4krbavvjo5mm/1c21055d221e684d8739678a1e51a474";
     address[] addresses;
     bytes32[] nodePaths;
     bool[] isOpens;
@@ -54,12 +54,13 @@ contract TaskPortalTest is Test {
     //        return taskPortal.addTask(taskData, daiTokenAddress, 1);
     //    }
 
-
-    function addTaskWithEthBounty(bytes memory taskData) internal returns (bytes32) {
+    function addTaskWithEthBounty(bytes memory taskData)
+        internal
+        returns (bytes32)
+    {
         vm.prank(msg.sender);
-        return taskPortal.addTask{value : 3 ether}(taskData, address(0), 0);
+        return taskPortal.addTask{value: 3 ether}(taskData, address(0), 0);
     }
-
 
     function testTaskCreationWithEth(bytes memory taskData) public {
         vm.assume(taskData.length > 0);
@@ -78,11 +79,12 @@ contract TaskPortalTest is Test {
         NodeType nodeType;
         bytes memory nodeData;
         bool nodeIsOpen;
-        (nodeParent, nodeOwner, nodeType, nodeData,,nodeIsOpen,) = taskPortal.getNode(taskPath);
+        (nodeParent, nodeOwner, nodeType, nodeData,, nodeIsOpen,) =
+            taskPortal.getNode(taskPath);
 
         assertEq(nodeParent, taskPortal.rootTaskPath());
         assertEq(nodeOwner, msg.sender);
-        assertEq(uint(nodeType), uint(NodeType.Task));
+        assertEq(uint256(nodeType), uint256(NodeType.Task));
         assertEq(nodeData, taskData);
         assert(nodeIsOpen);
     }
@@ -112,7 +114,6 @@ contract TaskPortalTest is Test {
     //        assertEq(nodeData, taskData);
     //    }
 
-
     function testTaskToShareToSolutionFlow() public {
         bytes memory taskData = defaultTaskData;
         bytes32 taskPath = addTaskWithEthBounty(taskData);
@@ -123,7 +124,8 @@ contract TaskPortalTest is Test {
         vm.prank(secondShareSenderAddress);
         bytes32 sharePath2 = taskPortal.addShare(sharePath1, "some share data2");
         vm.prank(getRandomWalletAddress());
-        bytes32 solutionPath = taskPortal.addSolution(sharePath2, "some solution data");
+        bytes32 solutionPath =
+            taskPortal.addSolution(sharePath2, "some solution data");
         //        emit log_named_bytes32("sharePath1", sharePath1);
         //        emit log_named_bytes32("sharePath2", sharePath2);
         //        emit log_named_bytes32("solutionPath", solutionPath);
@@ -141,7 +143,8 @@ contract TaskPortalTest is Test {
 
         bytes32[] memory firstShareChildNodes;
         bytes32 firstShareTaskPath;
-        (,,,, firstShareChildNodes,,firstShareTaskPath) = taskPortal.getNode(sharePath1);
+        (,,,, firstShareChildNodes,, firstShareTaskPath) =
+            taskPortal.getNode(sharePath1);
 
         assertEq(firstShareChildNodes.length, 1);
         assertEq(firstShareChildNodes[0], sharePath2);
@@ -149,7 +152,8 @@ contract TaskPortalTest is Test {
 
         bytes32[] memory secondShareChildNodes;
         bytes32 secondShareTaskPath;
-        (,,,, secondShareChildNodes,, secondShareTaskPath) = taskPortal.getNode(sharePath2);
+        (,,,, secondShareChildNodes,, secondShareTaskPath) =
+            taskPortal.getNode(sharePath2);
 
         assertEq(secondShareChildNodes.length, 1);
         assertEq(secondShareChildNodes[0], solutionPath);
@@ -165,7 +169,8 @@ contract TaskPortalTest is Test {
         vm.prank(getRandomWalletAddress());
         bytes32 sharePath2 = taskPortal.addShare(taskPath, "some share data2");
         vm.prank(getRandomWalletAddress());
-        bytes32 solutionPath = taskPortal.addSolution(sharePath1, "some solution data");
+        bytes32 solutionPath =
+            taskPortal.addSolution(sharePath1, "some solution data");
 
         assertEq(taskPortal.nodesCount(), 6);
 
@@ -173,7 +178,8 @@ contract TaskPortalTest is Test {
         isOpens = [false, true, false, true];
 
         vm.prank(msg.sender);
-        uint updatedNodesCount = taskPortal.updateNodesIsOpen(nodePaths, isOpens);
+        uint256 updatedNodesCount =
+            taskPortal.updateNodesIsOpen(nodePaths, isOpens);
         assertEq(updatedNodesCount, 2, "All nodes must have been updated");
 
         bool validateNodeIsOpen;
@@ -240,14 +246,16 @@ contract TaskPortalTest is Test {
         uint256[] memory amounts = new uint256[](1);
         amounts[0] = 2 ether;
 
-        taskPortal.payoutTask(taskPath, receiverAddresses, tokenAddresses, amounts);
+        taskPortal.payoutTask(
+            taskPath, receiverAddresses, tokenAddresses, amounts
+        );
         bounties = taskPortal.getBountiesForTask(taskPath);
         assertEq(bounties[0].amount, 1 ether);
 
         address notTaskCreatorAddress = address(1338);
         vm.deal(notTaskCreatorAddress, 1 ether);
         vm.prank(notTaskCreatorAddress);
-        taskPortal.increaseBounty{value : 1 ether}(taskPath, address(0), 1);
+        taskPortal.increaseBounty{value: 1 ether}(taskPath, address(0), 1);
 
         bounties = taskPortal.getBountiesForTask(taskPath);
         assertEq(bounties[0].amount, 2 ether);
@@ -305,4 +313,3 @@ contract TaskPortalTest is Test {
         assertEq(msg.sender.balance - ownerBalanceBeforeWithdraw, 1 ether);
     }
 }
-
