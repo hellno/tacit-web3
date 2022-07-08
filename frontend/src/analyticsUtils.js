@@ -1,22 +1,27 @@
-const useAnalytics = process.env.NODE_ENV === 'production' && typeof window !== 'undefined'
+import { isDevEnv, isProdEnv } from './utils'
+
+const useAnalytics = isProdEnv() && typeof window !== 'undefined'
 
 export const analyticsIdentify = (id) => {
   if (useAnalytics) {
-    return
+    window.heap.identify(id)
+  } else if (isDevEnv()) {
+    console.log('analytics identify with id:', id)
   }
-  window.heap.identify(id)
 }
 
 export const analyticsAddUserProperties = (properties) => {
   if (useAnalytics) {
-    return
+    window.heap.addUserProperties(properties)
+  } else if (isDevEnv()) {
+    console.log('analytics add properties:', properties)
   }
-  window.heap.addUserProperties(properties)
 }
 
 export const analyticsTrackEvent = (eventName, properties) => {
   if (useAnalytics) {
-    return
+    window.heap.track(eventName, properties)
+  } else if (isDevEnv()) {
+    console.log('analytics track event', eventName, properties)
   }
-  window.heap.track(eventName, properties)
 }

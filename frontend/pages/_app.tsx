@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app'
 import { AppContextProvider } from '../src/context'
 import BannerComponent from '../src/components/BannerComponent'
 // @ts-ignore
-import { isProd } from '../src/utils'
+import { isProdEnv } from '../src/utils'
 
 function MyApp ({
   Component,
@@ -37,7 +37,7 @@ function MyApp ({
     <BannerComponent
       title={'This is an alpha release → you are early '} />
     <Component {...pageProps} />
-    {isProd() && renderAnalyticsScripts()}
+    {isProdEnv() && renderAnalyticsScripts()}
   </AppContextProvider>
 }
 

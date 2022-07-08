@@ -9,7 +9,7 @@ import {
   renderWalletConnectComponent,
   switchNetwork
 } from '../../src/walletUtils'
-import { classNames, getBountyAmountWithCurrencyStringFromTaskObject, getSiteUrl, isProd } from '../../src/utils'
+import { classNames, getBountyAmountWithCurrencyStringFromTaskObject, getSiteUrl, isProdEnv } from '../../src/utils'
 import { AppContext } from '../../src/context'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
@@ -602,7 +602,7 @@ function SharePage ({ shareObject }) {
     const imageTitle = shareObject.title
     const imageBountyStr = getBountyDescription()
     const ogImageUrl = process.env.OG_IMAGE_URL
-    const imageUrl = isProd() && ogImageUrl && encodeURI(`${ogImageUrl}api/og-image?title=${escape(imageTitle)}&bounty=${escape(imageBountyStr)}`)
+    const imageUrl = isProdEnv() && ogImageUrl && encodeURI(`${ogImageUrl}api/og-image?title=${escape(imageTitle)}&bounty=${escape(imageBountyStr)}`)
 
     return (
       <Head>
