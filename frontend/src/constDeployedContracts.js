@@ -33,7 +33,7 @@ const _contracts = [{
 {
   chainId: 137,
   name: 'Polygon Mainnet',
-  shortName: 'MATIC',
+  shortName: 'matic',
   contractAddress: '0xab3160358410b2912f319c2ec61a6d88bf138520',
   blockExplorer: 'https://polygonscan.com',
   nativeCurrency: {
