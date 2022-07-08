@@ -6,14 +6,6 @@ import { getUrlForNode } from '../utils'
 const PresentActionLinksComponent = ({
   data
 }) => {
-  // state = {
-  //   name: CreateTaskState.DoneCreatingTask,
-  //   data: {
-  //     transactionHash: '0xdef97bea1c68deea54ee7daccb31be59bbfd10488b8814b3d22a9651cc74b7c6',
-  //     taskPath: '0x58e74df8c68655e9430d118e0f569aed199b93dcc42d0f2da863b0e38529ac55'
-  //   }
-  // }
-
   const [state] = useContext(AppContext)
   const {
     network
@@ -61,9 +53,6 @@ const PresentActionLinksComponent = ({
         {data.taskPath && (<div className="sm:col-span-2">
           <dt className="text-md font-medium text-gray-500">
             Dashboard for task and bounty
-            {/* <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800"> */}
-            {/*     Not Live Yet */}
-            {/*   </span> */}
           </dt>
           <dd className="mt-1 text-md text-gray-900 truncate underline">
             <a href={userTasksLink} target="_blank" rel="noopener noreferrer">

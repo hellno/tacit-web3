@@ -29,6 +29,7 @@ import TaskDescriptionInputField from './TaskDescriptionInputField'
 // eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
 import Head from 'next/head'
+import { analyticsTrackEvent } from '../analyticsUtils'
 
 const unit = require('ethjs-unit')
 
@@ -134,8 +135,7 @@ export default function CreateTaskComponent ({
       }
 
       options = {
-        // eslint-disable-next-line node/no-unsupported-features/es-syntax
-        ...options, // eslint-disable-next-line node/no-unsupported-features/es-syntax
+        ...options,
         ...getDefaultTransactionGasOptions()
       }
       console.log('creating on-chain transaction')
@@ -156,6 +156,7 @@ export default function CreateTaskComponent ({
         sharePath: `${shareEvent.args.path}`
       }
 
+      analyticsTrackEvent('CreatedTask', { ...data, ...{ chainId: network.chainId } })
       await sleep(1000) // just a random wait, so that the transaction actually shows up in etherscan and share link will work
       // todo: maybe we can trigger a render of the share page in the background, so it's cached already??!?
       setState({

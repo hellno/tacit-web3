@@ -6,6 +6,7 @@ import Web3Modal from 'web3modal'
 import { getDeployedContractForChainId, taskPortalContractAbi } from './constDeployedContracts'
 import { toHex } from 'web3-utils'
 import { getProviderForChainId } from './apiUtils'
+import { analyticsIdentify } from './analyticsUtils'
 
 export const providerOptions = {
   coinbasewallet: {
@@ -51,6 +52,9 @@ export const connectWallet = async (web3Modal, dispatch) => {
         network
       }
     })
+
+    analyticsIdentify(account)
+
     const ensName = await lookupEnsName(account)
     if (ensName) {
       dispatch({
@@ -132,18 +136,6 @@ export const getDefaultTransactionGasOptions = () => {
     // gasPrice,
     gasLimit
   }
-}
-
-export const getBiconomyTransactionGasOptions = async (biconomy, account, contractAddress, data) => {
-  const provider = biconomy.getEthersProvider()
-
-  const gasLimit = await provider.estimateGas({
-    to: contractAddress,
-    from: account,
-    data
-  })
-  console.log('Gas limit : ', gasLimit)
-  return { gasLimit }
 }
 
 export const getBaseBiconomyGaslessTransactionParams = () => ({
