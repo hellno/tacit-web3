@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { ArrowSmDownIcon, CheckCircleIcon } from '@heroicons/react/solid'
 import { loadWeb3Modal } from '../src/walletUtils'
 import Web3NavBar from '../src/components/Web3NavBar'
@@ -12,6 +12,8 @@ import dynamic from 'next/dynamic'
 
 // eslint-disable-next-line node/no-unsupported-features/es-syntax
 const HowToExplainerComponent = dynamic(() => import('../src/components/HowToExplainerComponent'))
+// eslint-disable-next-line node/no-unsupported-features/es-syntax
+const LoomExplainerVideoComponent = dynamic(() => import('../src/components/LoomExplainerVideoComponent'))
 
 const exampleSuccessStateData = {
   transactionHash: '0xd852a40d8bd87f34315f7fc0280a31df974bf0089fed2c8f49df38759a43f755',
@@ -28,6 +30,7 @@ interface TaskSubmissionStateType {
 export default function Home () {
   const [, dispatch] = useContext(AppContext)
   const [taskSubmissionState, setTaskSubmissionState] = useState<TaskSubmissionStateType>({ name: CreateTaskState.Default })
+  const [didScroll, setDidScroll] = useState(false)
 
   useEffect(() => {
     if (window.ethereum) {
@@ -46,6 +49,17 @@ export default function Home () {
     loadWeb3Modal(dispatch)
   }, [])
 
+  const onScroll = useCallback(event => {
+    setDidScroll(true)
+    window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('scroll', onScroll, { passive: true })
+    // remove event on unmount to prevent a memory leak
+  }, [])
+
+  console.log(didScroll)
   const renderTaskComponent = () => {
     return (<div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
         <div className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-sm sm:overflow-hidden">
@@ -291,18 +305,7 @@ export default function Home () {
                     <span className="block">How to leverage Tacit</span>
                     <span className="block text-secondary">for your community</span>
                   </h1>
-                  {/* <p className="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl"> */}
-                  {/*   Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt */}
-                  {/*   amet */}
-                  {/*   fugiat veniam occaecat fugiat aliqua. */}
-                  {/* </p> */}
-                  <div
-                    className="mt-12 h-96 aspect-video max-w-7xl relative flex items-center justify-center">
-                    <iframe src="https://www.loom.com/embed/737f3c8d1ecd4f3aaedc6c5f0d7ae60a"
-                            className="h-full w-full"
-                            allowFullScreen
-                    />
-                  </div>
+                  {didScroll && <LoomExplainerVideoComponent />}
                 </div>
               </div>
             </div>
