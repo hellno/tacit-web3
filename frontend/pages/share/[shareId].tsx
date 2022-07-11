@@ -339,7 +339,7 @@ function SharePage ({ shareObject }) {
               </button>
             </div>
             <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
-              Enter requested results to become eligible for a reward.
+              Enter requested results to become eligible for a reward
             </span>
           </div>
           <div>
@@ -353,7 +353,7 @@ function SharePage ({ shareObject }) {
             </div>
             <span
               className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
-              You get part of the reward if someone downstream of your link enters a winning result.
+              Invite others to earn and get a share of their reward
             </span>
           </div>
         </div>
