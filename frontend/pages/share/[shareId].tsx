@@ -596,7 +596,7 @@ function SharePage ({ shareObject }) {
   }
 
   const renderPageMetaProperties = () => {
-    const title = 'Tacit - On-chain tasks, referrals & bounties '
+    const title = shareObject.title
     const description = ''
     const url = getSiteUrl()
     const imageTitle = shareObject.title
