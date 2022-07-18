@@ -3,7 +3,7 @@ import ModalComponent from './ModalComponent'
 import { BountyPayoutState } from '../const'
 import { classNames } from '../utils'
 import {
-  getNameToTokenAddressForChainId,
+  getNameToTokenAddressObjectForChainId,
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/outline'
@@ -53,7 +53,7 @@ export default function PayoutBountyModalComponent ({
     name: 'payoutFields'
   })
 
-  const nameToTokenAddress = getNameToTokenAddressForChainId(taskObject.chainId)
+  const nameToTokenAddress = getNameToTokenAddressObjectForChainId(taskObject.chainId)
   const bountyTokenAddresses = map(taskObject.bounties, 'tokenAddress')
   const bountiesNameToTokenAddress = pickBy(nameToTokenAddress, (tokenAddress, name) => includes(bountyTokenAddresses, tokenAddress))
   // const formFieldPayoutFields = getValues('payoutFields')

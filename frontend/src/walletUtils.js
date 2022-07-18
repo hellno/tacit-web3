@@ -1,12 +1,18 @@
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk'
 import WalletConnect from '@walletconnect/web3-provider'
 import { ethers } from 'ethers'
-import { isEmpty } from 'lodash'
+import { isEmpty, map, values, zipObject } from 'lodash'
 import Web3Modal from 'web3modal'
-import { getDeployedContractForChainId, taskPortalContractAbi } from './constDeployedContracts'
+import {
+  erc20ContractAbi,
+  getDeployedContractForChainId,
+  isNativeChainCurrency,
+  taskPortalContractAbi
+} from './constDeployedContracts'
 import { toHex } from 'web3-utils'
 import { getProviderForChainId } from './apiUtils'
 import { analyticsIdentify } from './analyticsUtils'
+import { formatEther } from 'ethers/lib/utils'
 
 export const providerOptions = {
   coinbasewallet: {
@@ -171,4 +177,25 @@ export const switchNetwork = async (provider, chainId) => {
       }
     }
   }
+}
+
+export const getERC20ContractForTokenAddress = (tokenAddress, signer) => {
+  return new ethers.Contract(tokenAddress, erc20ContractAbi, signer)
+}
+
+const getTokenBalance = async (provider, account, tokenAddress) => {
+  let balance
+  if (isNativeChainCurrency(tokenAddress)) {
+    balance = await provider.getBalance(account)
+  } else {
+    const erc20Contract = getERC20ContractForTokenAddress(tokenAddress, provider.getSigner())
+    balance = await erc20Contract.balanceOf(account)
+  }
+  return formatEther(balance)
+}
+
+export const getTokenAddressToMaxAmounts = async (nameToTokenAddress, provider, account) => {
+  const tokenAddresses = values(nameToTokenAddress)
+  const maxAmounts = await Promise.all(map(tokenAddresses, async (tokenAddress) => await getTokenBalance(provider, account, tokenAddress)))
+  return zipObject(tokenAddresses, maxAmounts)
 }

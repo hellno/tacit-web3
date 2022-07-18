@@ -1,10 +1,11 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
 import { ethers } from 'ethers'
 import { useForm } from 'react-hook-form'
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
+  getTokenAddressToMaxAmounts,
   renderWalletConnectComponent
 } from '../walletUtils'
 import { AppContext } from '../context'
@@ -14,14 +15,14 @@ import { uploadTaskDataToIpfs } from '../storageUtils'
 import {
   erc20ContractAbi,
   getDeployedContractForChainId,
-  getNameToTokenAddressForChainId,
+  getNameToTokenAddressObjectForChainId,
   isNativeChainCurrency,
   isSupportedNetwork,
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType, TASK_VIEW_FORM_FIELDS } from '../const'
-import { classNames, getSiteUrl, sleep } from '../utils'
+import { classNames, getSiteUrl, isDevEnv, sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
 import { addUserToDatabase } from '../supabase'
@@ -48,10 +49,20 @@ export default function CreateTaskComponent ({
     ensName
   } = globalState
 
+  const [nameToTokenAddress, setNameToTokenAddress] = useState({})
+  const [tokenAddressToMaxAmount, setTokenAddressToMaxAmount] = useState({})
   const [showUserMessage, setShowUserMessage] = useState(true)
   const isWalletConnected = !isEmpty(account)
   const isReadyToSubmit = isWalletConnected && isSupportedNetwork(network.chainId)
   const walletAddress = ensName || account
+
+  useEffect(async () => {
+    if (network) {
+      const nameToTokenAddr = getNameToTokenAddressObjectForChainId(network.chainId)
+      setNameToTokenAddress(nameToTokenAddr)
+      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, library, account))
+    }
+  }, [network])
 
   const {
     register,
@@ -61,9 +72,9 @@ export default function CreateTaskComponent ({
     formState: { errors }
   } = useForm({
     defaultValues: {
-      email: process.env.NODE_ENV === 'development' ? 'test@test.com' : '',
-      title: process.env.NODE_ENV === 'development' ? 'this is a sweet title' : '',
-      description: process.env.NODE_ENV === 'development' ? '# description 123' : '',
+      email: isDevEnv() ? 'test@test.com' : '',
+      title: isDevEnv() ? 'this is a sweet title' : '',
+      description: isDevEnv() ? '# description 123' : '',
       tokenAmount: '1',
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
@@ -135,8 +146,7 @@ export default function CreateTaskComponent ({
       }
 
       options = {
-        ...options,
-        ...getDefaultTransactionGasOptions()
+        ...options, ...getDefaultTransactionGasOptions()
       }
       console.log('creating on-chain transaction')
       const addTaskTransaction = await taskPortalContract.addTask(ethers.utils.toUtf8Bytes(dataPath), tokenAddress, tokenAmount, options)
@@ -256,17 +266,20 @@ export default function CreateTaskComponent ({
     return <>
       <label
         htmlFor="price"
-        className="mb-1 block text-sm font-medium text-gray-700"
+        className="mb-1 block text-md font-medium text-gray-700"
       >
         Bounty Amount
       </label>
       {renderAmountAndCurrencyFormFields({
         register,
-        nameToTokenAddress: getNameToTokenAddressForChainId(network.chainId)
+        watch,
+        nameToTokenAddress,
+        tokenAddressToMaxAmount
       })}
+
       <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <dt className="text-md font-medium text-gray-500">Task Preview
+          <dt className="text-md font-medium text-gray-700">Task Preview
           </dt>
           <dd className="mt-1 text-md text-gray-900">
             <MarkdownComponent content={formTaskDescription} />
@@ -326,25 +339,23 @@ export default function CreateTaskComponent ({
     const description = ''
     const url = getSiteUrl()
 
-    return (
-      <Head>
-        <title>{title}</title>
-        {/* <link rel="icon" href="/favicon.png" /> */}
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        // base properties
-        <meta property="og:site_name" content="Tacit" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={url} />
-        <meta property="og:title" key="ogtitle" content={title} />
-        <meta property="og:description" key="ogdesc" content={description} />
-        // twitter properties
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta property="twitter:domain" content={process.env.SITE} />
-        <meta property="twitter:url" content={url} />
-        <meta name="twitter:title" content={title} />
-        <meta name="twitter:description" content={description} />
-      </Head>
-    )
+    return (<Head>
+      <title>{title}</title>
+      {/* <link rel="icon" href="/favicon.png" /> */}
+      <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      // base properties
+      <meta property="og:site_name" content="Tacit" />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={url} />
+      <meta property="og:title" key="ogtitle" content={title} />
+      <meta property="og:description" key="ogdesc" content={description} />
+      // twitter properties
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta property="twitter:domain" content={process.env.SITE} />
+      <meta property="twitter:url" content={url} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+    </Head>)
   }
 
   return (<>

@@ -1,4 +1,4 @@
-import { getDeployedContractForChainId, getNameToTokenAddressForChainId } from './constDeployedContracts'
+import { getDeployedContractForChainId, getNameToTokenAddressObjectForChainId } from './constDeployedContracts'
 import { get, invert } from 'lodash'
 
 export const classNames = (...classes) => {
@@ -14,7 +14,7 @@ export function flattenNodesRecursively (obj) {
 }
 
 export const getBountyCurrency = (bounty, chainId) => {
-  return get(invert(getNameToTokenAddressForChainId(chainId)), bounty.tokenAddress)
+  return get(invert(getNameToTokenAddressObjectForChainId(chainId)), bounty.tokenAddress)
 }
 
 export const getBountyAmount = (bounty) => {

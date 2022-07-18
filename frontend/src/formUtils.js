@@ -1,4 +1,4 @@
-import { get, map, startCase } from 'lodash'
+import { ceil, get, invert, isEmpty, map, startCase } from 'lodash'
 import { classNames } from './utils'
 
 export const renderWalletAddressInputField = (account) => {
@@ -75,10 +75,16 @@ export const renderCurrencyDropdown = ({
 
 export const renderAmountAndCurrencyFormFields = ({
   register,
-  nameToTokenAddress
+  watch,
+  nameToTokenAddress,
+  tokenAddressToMaxAmount
 }) => {
+  const tokenAddress = watch('tokenAddress')
+  const maxToken = get(tokenAddressToMaxAmount, tokenAddress, 0.0)
+  const tokenAddressToName = invert(nameToTokenAddress)
+
   return (<div>
-    <div className="relative rounded-md shadow-sm">
+    <div className="relative rounded-sm shadow-sm">
       <input
         {...register('tokenAmount')}
         required
@@ -96,5 +102,11 @@ export const renderAmountAndCurrencyFormFields = ({
         })}
       </div>
     </div>
+    {!isEmpty(tokenAddressToMaxAmount) && (<p className="mt-2 text-sm text-gray-500">
+      MAX in your wallet
+      <span className="ml-1 font-semibold">
+        {ceil(maxToken, 2)} {get(tokenAddressToName, tokenAddress)}
+      </span>
+    </p>)}
   </div>)
 }

@@ -59,7 +59,6 @@ export default function Home () {
     // remove event on unmount to prevent a memory leak
   }, [])
 
-  console.log(didScroll)
   const renderTaskComponent = () => {
     return (<div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
         <div className="bg-white sm:max-w-md sm:w-full sm:mx-auto sm:rounded-sm sm:overflow-hidden">

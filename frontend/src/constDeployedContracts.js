@@ -91,7 +91,7 @@ export const NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT = '0x0000000000
 
 export const isNativeChainCurrency = (tokenAddress) => tokenAddress === NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 
-export const getNameToTokenAddressForChainId = (chainId) => {
+export const getNameToTokenAddressObjectForChainId = (chainId) => {
   switch (chainId) {
     case 5:
     case 1337:
@@ -147,9 +147,6 @@ export const getTaskFromContractAsObject = async (contract, taskPath) => {
     amount: ethers.utils.formatUnits(bounty[1])
   }))
 
-  // if (isEthBounty(bountyTokenAddress)) {
-  //   bountyAmount = ethers.utils.formatUnits(bountyAmount)
-  // }
   return {
     ownerAddress,
     taskData,

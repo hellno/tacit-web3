@@ -13,6 +13,7 @@ import { constant, filter, findIndex, get, isEmpty, isNil, map, pullAt, times, t
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
+  getTokenAddressToMaxAmounts,
   loadWeb3Modal,
   switchNetwork
 } from '../../src/walletUtils'
@@ -35,7 +36,7 @@ import { renderAmountAndCurrencyFormFields } from '../../src/formUtils'
 import {
   erc20ContractAbi,
   getDeployedContractForChainId,
-  getNameToTokenAddressForChainId,
+  getNameToTokenAddressObjectForChainId,
   isNativeChainCurrency
 } from '../../src/constDeployedContracts'
 import { useForm } from 'react-hook-form'
@@ -87,9 +88,20 @@ export default function TaskPage ({ taskObject }) {
   const isLoading = isEmpty(taskObject)
   const isError = !isEmpty(get(taskObject, 'error'))
 
+  const [nameToTokenAddress, setNameToTokenAddress] = useState({})
+  const [tokenAddressToMaxAmount, setTokenAddressToMaxAmount] = useState({})
   const [renderPayoutModal, setRenderPayoutModal] = useState(false)
   const [renderIncreaseBountyModal, setRenderIncreaseBountyModal] = useState(false)
   const [renderEditTaskModal, setRenderEditTaskModal] = useState(false)
+
+  // @ts-ignore
+  useEffect(async () => {
+    if (network) {
+      const nameToTokenAddr = getNameToTokenAddressObjectForChainId(network.chainId)
+      setNameToTokenAddress(nameToTokenAddr)
+      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, library, account))
+    }
+  }, [network])
 
   const onClosePayoutModal = () => {
     setRenderPayoutModal(false)
@@ -118,6 +130,7 @@ export default function TaskPage ({ taskObject }) {
 
   const {
     register,
+    watch,
     handleSubmit
   } = useForm()
 
@@ -141,7 +154,6 @@ export default function TaskPage ({ taskObject }) {
     return renderErrorScreen()
   }
 
-  const nameToTokenAddress = getNameToTokenAddressForChainId(taskObject.chainId)
   const isWalletConnected = !isEmpty(account)
   const isUserOnCorrectChain = taskObject && network && taskObject.chainId === network.chainId
 
@@ -278,17 +290,19 @@ export default function TaskPage ({ taskObject }) {
       case IncreaseBountyState.Default:
       case IncreaseBountyState.Init:
       case IncreaseBountyState.Loading:
-        return (<div>
+        return <div>
           <form onSubmit={handleSubmit(handleTriggerIncreaseBountyButton)}>
             <label
               htmlFor="price"
-              className="mb-1 block text-sm font-medium text-gray-700"
+              className="mb-1 block text-md font-medium text-gray-700"
             >
               Bounty Amount
             </label>
             {renderAmountAndCurrencyFormFields({
               register,
-              nameToTokenAddress
+              watch,
+              nameToTokenAddress,
+              tokenAddressToMaxAmount: {}
             })}
             <button
               type="submit"
@@ -300,7 +314,7 @@ export default function TaskPage ({ taskObject }) {
               Increase bounty
             </button>
           </form>
-        </div>)
+        </div>
       case IncreaseBountyState.Error:
         return <div>Error, this shouldn't happen =/</div>
       case IncreaseBountyState.Success:
