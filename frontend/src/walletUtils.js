@@ -188,7 +188,8 @@ const getTokenBalance = async (provider, account, tokenAddress) => {
   if (isNativeChainCurrency(tokenAddress)) {
     balance = await provider.getBalance(account)
   } else {
-    const erc20Contract = getERC20ContractForTokenAddress(tokenAddress, provider.getSigner())
+    const signer = new ethers.VoidSigner(account, provider)
+    const erc20Contract = getERC20ContractForTokenAddress(tokenAddress, signer)
     balance = await erc20Contract.balanceOf(account)
   }
   return formatEther(balance)

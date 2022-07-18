@@ -44,6 +44,7 @@ import { useForm } from 'react-hook-form'
 import PayoutBountyModalComponent from '../../src/components/PayoutBountyModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import EditTaskModalComponent from '../../src/components/EditTaskModalComponent'
+import { getProviderForChainId } from '../../src/apiUtils'
 
 const unit = require('ethjs-unit')
 
@@ -99,7 +100,8 @@ export default function TaskPage ({ taskObject }) {
     if (network) {
       const nameToTokenAddr = getNameToTokenAddressObjectForChainId(network.chainId)
       setNameToTokenAddress(nameToTokenAddr)
-      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, library, account))
+      const provider = getProviderForChainId(network.chainId)
+      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, account))
     }
   }, [network])
 
