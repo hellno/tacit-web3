@@ -302,7 +302,7 @@ export default function TaskPage ({ taskObject }) {
               register,
               watch,
               nameToTokenAddress,
-              tokenAddressToMaxAmount: {}
+              tokenAddressToMaxAmount
             })}
             <button
               type="submit"
