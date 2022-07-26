@@ -30,7 +30,6 @@ export const CustomList = ({
 }
 
 export const CustomLineBreak = () => {
-  console.log('custom line break')
   return <><br /></>
 }
 

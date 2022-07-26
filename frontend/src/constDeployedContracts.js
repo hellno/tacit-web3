@@ -112,11 +112,11 @@ export const getNameToTokenAddressObjectForChainId = (chainId) => {
     case 137:
       return {
         MATIC: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
-        USDC: '0x2791bca1f2de4661ed88a30c99a7a9449aa84174',
-        WETH: '0x7ceb23fd6bc0add59e62ac25578270cff1b9f619',
-        FRAX: '0x45c32fa6df82ead1e2ef74d17b76547eddfaff89',
-        BAT: '0x3cef98bb43d732e2f285ee605a8158cde967d219',
-        WBTC: '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6'
+        USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+        WETH: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
+        FRAX: '0x45c32fA6DF82ead1e2EF74d17b76547EDdFaFF89',
+        BAT: '0x3Cef98bb43d732E2F285eE605a8158cDE967D219',
+        WBTC: '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6'
       }
     case 80001:
       return {
