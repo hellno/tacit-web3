@@ -339,7 +339,7 @@ function SharePage ({ shareObject }) {
               </button>
             </div>
             <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
-              Enter requested results to become eligible for a reward
+              {shareObject.subtitleSolution || 'Enter requested results to become eligible for a reward'}
             </span>
           </div>
           <div>
@@ -353,7 +353,7 @@ function SharePage ({ shareObject }) {
             </div>
             <span
               className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
-              Invite others to earn and get a share of their reward
+              {shareObject.subtitleReferral || 'Invite others to earn and get a share of their reward'}
             </span>
           </div>
         </div>
@@ -392,7 +392,7 @@ function SharePage ({ shareObject }) {
                   label: 'Your Email'
                 })}
                 <p className="mt-2 text-sm text-gray-500">
-                  Enter your email so that the poster can get in touch with you if needed (not stored on-chain).
+                  Enter your email so that the poster can get in touch with you if needed. Is stored off-chain.
                 </p>
               </div>
               <div>
@@ -465,15 +465,15 @@ function SharePage ({ shareObject }) {
                   label: 'Your Email'
                 })}
                 <p className="mt-2 text-sm text-gray-500">
-                  Enter your email so that the poster can get in touch with you if needed (not stored on-chain).
+                  Enter your email so that the poster can get in touch with you if needed. Is stored off-chain.
                 </p>
               </div>
               <div className="">
                 <label
                   htmlFor="about"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-md font-medium text-gray-700"
                 >
-                  Solution Description
+                  {shareObject.headerSolutionModal || 'Your description'}
                 </label>
                 <div className="mt-1">
                   <textarea
@@ -486,8 +486,7 @@ function SharePage ({ shareObject }) {
                   />
                 </div>
                 <p className="mt-2 text-sm text-gray-500">
-                  This could be your email address, your Discord name, your Twitter handle or something else the poster
-                  requested.
+                  {shareObject.subtitleSolutionModal || 'This could be your email address, your Discord / Twitter name or something else the poster requested.'}
                 </p>
               </div>
               <div>
@@ -496,7 +495,7 @@ function SharePage ({ shareObject }) {
                   disabled={!canSubmitActions}
                   className={classNames(canSubmitActions && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
                 >
-                  Submit Solution
+                  Submit
                 </button>
               </div>
               {renderGaslessTransactionSetupProgress()}

@@ -1,4 +1,8 @@
-export const TASK_VIEW_FORM_FIELDS = ['title', 'description', 'subtitle', 'ctaReferral', 'ctaSolution']
+export const TASK_VIEW_FORM_FIELDS = [
+  'title', 'description', 'subtitle', 'ctaReferral', 'subtitleReferral',
+  'ctaSolution', 'subtitleSolution', 'headerSolutionModal',
+  'subtitleSolutionModal'
+]
 
 /* eslint no-unused-vars: 0 */
 export enum SharePageState {

@@ -33,20 +33,52 @@ export default function TaskAdvancedInputFields ({
     {showFields && (<div className="mt-4 space-y-4 ">
       {renderFormField({
         register,
+        name: 'ctaSolution',
+        type: 'text',
+        required: false,
+        label: 'Call To Action on Solution Button',
+        placeholder: 'Enter customer details',
+        defaultValue: get(values, 'ctaSolution')
+      })}
+      {renderFormField({
+        register,
+        name: 'subtitleSolution',
+        type: 'text',
+        label: 'Subtitle of Solution Button',
+        placeholder: 'Submit your answer to become eligible for a reward',
+        defaultValue: get(values, 'subtitleSolution')
+      })}
+      {renderFormField({
+        register,
         name: 'ctaReferral',
         type: 'text',
-        label: 'Call To Action on Referral Button (optional)',
+        label: 'Call To Action on Referral Button',
         placeholder: 'Get referral link',
         defaultValue: get(values, 'ctaReferral')
       })}
       {renderFormField({
         register,
-        name: 'ctaSolution',
+        name: 'subtitleReferral',
         type: 'text',
-        required: false,
-        label: 'Call To Action on Solution Button (optional)',
-        placeholder: 'Enter customer details',
-        defaultValue: get(values, 'ctaSolution')
+        label: 'Subtitle of Referral Button',
+        placeholder: 'Invite others to earn and get a share of their reward',
+        defaultValue: get(values, 'subtitleReferral')
+      })}
+      {renderFormField({
+        register,
+        name: 'headerSolutionModal',
+        type: 'text',
+        label: 'Header Title of the Solution Window',
+        placeholder: 'Submit your solution',
+        defaultValue: get(values, 'headerSolutionModal')
+      })}
+      {renderFormField({
+        register,
+        name: 'subtitleSolutionModal',
+        type: 'text',
+        label: 'Subtitle of the Solution Window',
+        placeholder: 'Submit your solution',
+        defaultValue: get(values, 'subtitleSolutionModal')
       })}
     </div>)}
   </>
