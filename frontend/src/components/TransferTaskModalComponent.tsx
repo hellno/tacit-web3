@@ -112,8 +112,7 @@ export default function TransferTaskModalComponent ({
   } = useENS(newOwnerAddress)
 
   const validateInput = (input) => {
-    console.log('validate input', input)
-    return ensName || ethers.utils.isAddress(input)
+    return /[a-zA-Z]+\.[a-zA-Z]/gm.test(ensName) || ethers.utils.isAddress(input)
   }
 
   console.log(ensName,
@@ -225,7 +224,7 @@ export default function TransferTaskModalComponent ({
       case EditTaskState.Success:
         return <div>
           <p className="text-sm text-gray-700">
-            🎉 Success 🥳<br />You transferred the task to {}
+            🎉 Success 🥳<br />You transferred the task to {ensName || ensResolvedAddress}
           </p>
         </div>
       case EditTaskState.Error:
