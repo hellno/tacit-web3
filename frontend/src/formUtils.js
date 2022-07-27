@@ -21,7 +21,8 @@ export const renderFormField = ({
   required = false,
   label = '',
   placeholder = '',
-  errors = {}
+  errors = {},
+  validateFunction = undefined
 }) => {
   return (
     <div>
@@ -32,7 +33,10 @@ export const renderFormField = ({
         {label || startCase(name)}
       </label>
       <input
-        {...register(name, { required })}
+        {...register(name, {
+          required,
+          validate: validateFunction
+        })}
         type={type}
         name={name}
         id={name}
@@ -45,6 +49,7 @@ export const renderFormField = ({
             : 'text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300',
           ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
         )}
+
       />
     </div>
   )

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react'
 import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/solid'
-import { escape, get, includes, isEmpty } from 'lodash'
+import { escape, get, includes, isEmpty, map } from 'lodash'
 import { useForm } from 'react-hook-form'
 import {
   getBaseBiconomyGaslessTransactionParams,
@@ -580,6 +580,28 @@ function SharePage ({ shareObject }) {
                           <h1
                             className="text-xl font-bold leading-7 text-gray-100 sm:leading-9 sm:truncate">
                             {shareObject.ownerAddress}
+                          </h1>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="py-6 md:flex md:items-center">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center">
+                      <div>
+                        <dd
+                          className="flex items-left text-sm text-gray-400 font-medium sm:mr-6 sm:mt-0">
+                          This task is backed by
+                        </dd>
+                        <div className="flex items-center">
+                          <h1
+                            className="text-xl font-bold leading-7 text-gray-100 sm:leading-9">
+                            {map(shareObject.bounties, (bounty, idx) =>
+                              <p key={`bounty-${idx}`}>
+                                {getBountyAmountWithCurrencyStringFromTaskObject(bounty, shareObject.chainId)}
+                              </p>)
+                            }
                           </h1>
                         </div>
                       </div>

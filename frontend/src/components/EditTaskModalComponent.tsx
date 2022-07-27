@@ -25,7 +25,6 @@ export default function EditTaskModalComponent ({
   onClose
 }) {
   taskObject = omitBy(taskObject, isEmpty)
-  console.log(taskObject)
 
   const [globalState] = useContext(AppContext)
   const {

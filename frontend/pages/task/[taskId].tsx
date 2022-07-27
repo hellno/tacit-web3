@@ -7,7 +7,10 @@ import {
   ExternalLinkIcon,
   HomeIcon,
   LightBulbIcon,
-  ShareIcon
+  PencilIcon,
+  PlusCircleIcon,
+  ShareIcon,
+  SwitchHorizontalIcon
 } from '@heroicons/react/outline'
 import { constant, filter, findIndex, get, isEmpty, isNil, map, pullAt, times, trim } from 'lodash'
 import {
@@ -44,6 +47,8 @@ import { useForm } from 'react-hook-form'
 import PayoutBountyModalComponent from '../../src/components/PayoutBountyModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import EditTaskModalComponent from '../../src/components/EditTaskModalComponent'
+// eslint-disable-next-line node/no-missing-import
+import TransferTaskModalComponent from '../../src/components/TransferTaskModalComponent'
 import { getProviderForChainId } from '../../src/apiUtils'
 
 const unit = require('ethjs-unit')
@@ -94,6 +99,7 @@ export default function TaskPage ({ taskObject }) {
   const [renderPayoutModal, setRenderPayoutModal] = useState(false)
   const [renderIncreaseBountyModal, setRenderIncreaseBountyModal] = useState(false)
   const [renderEditTaskModal, setRenderEditTaskModal] = useState(false)
+  const [renderTransferTaskModal, setRenderTransferTaskModal] = useState(false)
 
   // @ts-ignore
   useEffect(async () => {
@@ -489,28 +495,39 @@ export default function TaskPage ({ taskObject }) {
                          type="button"
                          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        Share this Task<ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
+                        <ExternalLinkIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
+                        Share
                       </a>
-                      <button
-                        type="button"
-                        onClick={() => setRenderIncreaseBountyModal(true)}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
-                      >
-                        Increase bounty
-                      </button>
                       <button
                         type="button"
                         onClick={() => setRenderEditTaskModal(true)}
                         className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        Edit Task
+                        <PencilIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRenderTransferTaskModal(true)}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        <SwitchHorizontalIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
+                        Transfer
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setRenderIncreaseBountyModal(true)}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        <PlusCircleIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
+                        Increase bounty
                       </button>
                       <button
                         onClick={() => setRenderPayoutModal(true)}
                         type="button"
                         className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-secondary hover:bg-secondary-light"
                       >
-                        Payout bounty 💸
+                        Payout bounty
                       </button>
                     </>
                     : isWalletConnected && <button
@@ -709,6 +726,11 @@ export default function TaskPage ({ taskObject }) {
           />}
         {renderEditTaskModal &&
           <EditTaskModalComponent
+            taskObject={taskObject}
+            onClose={onCloseEditTaskModal}
+          />}
+        {renderTransferTaskModal &&
+          <TransferTaskModalComponent
             taskObject={taskObject}
             onClose={onCloseEditTaskModal}
           />}
