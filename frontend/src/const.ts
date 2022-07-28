@@ -1,8 +1,16 @@
-export const TASK_VIEW_FORM_FIELDS = [
-  'title', 'description', 'subtitle', 'ctaReferral', 'subtitleReferral',
+import { concat } from 'lodash'
+
+export const TASK_ADVANCED_FORM_FIELDS = [
+  'ctaReferral', 'subtitleReferral',
   'ctaSolution', 'subtitleSolution', 'headerSolutionModal',
   'subtitleSolutionModal', 'primaryColorHex'
 ]
+
+export const TASK_ALL_FORM_FIELDS = concat([
+  'title',
+  'description',
+  'subtitle'
+], TASK_ADVANCED_FORM_FIELDS)
 
 /* eslint no-unused-vars: 0 */
 export enum SharePageState {

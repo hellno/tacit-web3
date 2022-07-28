@@ -21,7 +21,7 @@ import {
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
-import { NodeType, TASK_VIEW_FORM_FIELDS } from '../const'
+import { NodeType, TASK_ALL_FORM_FIELDS } from '../const'
 import { classNames, getSiteUrl, isDevEnv, sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
@@ -103,7 +103,7 @@ export default function CreateTaskComponent ({
     //   dataPath = 'bafybeick3k3kfrapb2xpzlv2omwxgnn7fei4rioe5g2t6cm3xmalfpjqwq/cfda5d713a6067c3dd070dfdc7eb655d'
     // } else {
     console.log('starting to upload data to ipfs')
-    const ipfsData = pick(formData, TASK_VIEW_FORM_FIELDS)
+    const ipfsData = pick(formData, TASK_ALL_FORM_FIELDS)
     const dataPath = await uploadTaskDataToIpfs(ipfsData)
 
     if (email) {

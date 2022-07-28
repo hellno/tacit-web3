@@ -1,6 +1,6 @@
 import ModalComponent from './ModalComponent'
 // eslint-disable-next-line node/no-missing-import
-import { create, get, intersection, isEmpty, isNil, keys, omitBy, pick } from 'lodash'
+import { create, get, intersection, isEmpty, keys, omitBy, pick } from 'lodash'
 import { AppContext } from '../context'
 import { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -10,7 +10,7 @@ import { renderFormField } from '../formUtils'
 import { getDefaultTransactionGasOptions, getTaskPortalContractInstanceViaActiveWallet } from '../walletUtils'
 import { ethers } from 'ethers'
 // eslint-disable-next-line node/no-missing-import
-import { EditTaskState, TASK_VIEW_FORM_FIELDS } from '../const'
+import { EditTaskState, TASK_ADVANCED_FORM_FIELDS, TASK_ALL_FORM_FIELDS } from '../const'
 import { uploadTaskDataToIpfs } from '../storageUtils'
 // eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
@@ -52,9 +52,8 @@ export default function EditTaskModalComponent ({
 
   const onFormSubmit = async (formData) => {
     try {
-      formData = omitBy(formData, isNil)
-      // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      const ipfsData = create(pick(taskObject, TASK_VIEW_FORM_FIELDS), formData)
+      formData = omitBy(formData, isEmpty)
+      const ipfsData = create(pick(taskObject, TASK_ALL_FORM_FIELDS), formData)
       const dataPath = await uploadTaskDataToIpfs(ipfsData)
 
       if (!dataPath) {
@@ -91,8 +90,7 @@ export default function EditTaskModalComponent ({
   }
 
   const renderEditTask = () => {
-    const advancedFields = ['subtitle', 'ctaReferral', 'ctaSolution']
-    const hasAdvancedFieldInExistingTask = intersection(keys(taskObject), advancedFields).length > 0
+    const hasAdvancedFieldInExistingTask = intersection(keys(taskObject), TASK_ADVANCED_FORM_FIELDS).length > 0
     switch (editTaskState.name) {
       case EditTaskState.Default:
       case EditTaskState.Loading:
@@ -122,7 +120,7 @@ export default function EditTaskModalComponent ({
             />
             <TaskAdvancedInputFields
               register={register}
-              values={pick(taskObject, advancedFields)}
+              values={pick(taskObject, TASK_ADVANCED_FORM_FIELDS)}
               allowHide={!hasAdvancedFieldInExistingTask}
             />
             <button
