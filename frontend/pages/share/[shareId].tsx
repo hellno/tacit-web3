@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from 'react'
 import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/solid'
 import { escape, get, includes, isEmpty, map } from 'lodash'
 import { useForm } from 'react-hook-form'
+import { colors } from '../../colors'
+import tinycolor from 'tinycolor2'
 import {
   getBaseBiconomyGaslessTransactionParams,
   getTaskPortalContractInstanceViaActiveWallet,
@@ -128,6 +130,8 @@ function SharePage ({ shareObject }) {
   const isUserOnCorrectChain = isWalletConnected && shareObject && shareObject.chainId === network.chainId
   const canSubmitActions = isUserOnCorrectChain && isGaslessTransactionsReady
   const walletAddress = ensName || account
+  const primaryColor = get(shareObject, 'primaryColorHex') || colors.primary.DEFAULT
+  const primaryColorHover = tinycolor(primaryColor).lighten(10)
 
   const resetToDefaultState = () => {
     setSharePageData({
@@ -325,6 +329,14 @@ function SharePage ({ shareObject }) {
     }
   }
 
+  const buttonBgPrimaryColorOnMouseOverEventHandler = (event: any) => {
+    event.target.style.backgroundColor = primaryColorHover
+  }
+
+  const buttonBgPrimaryColorOnMouseOutEventHandler = (event: any) => {
+    event.target.style.backgroundColor = primaryColor
+  }
+
   const renderActionButtonCard = () => {
     return (
       <div className="mx-auto py-12">
@@ -333,7 +345,8 @@ function SharePage ({ shareObject }) {
             <div className="inline-flex">
               <button
                 onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
-                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm text-primary bg-gray-100 hover:bg-light"
+                style={{ color: primaryColor }}
+                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm bg-gray-100 hover:bg-light"
               >
                 {shareObject.ctaSolution || 'Solve task and earn'}
               </button>
@@ -345,6 +358,9 @@ function SharePage ({ shareObject }) {
           <div>
             <div className="inline-flex">
               <button
+                style={{ backgroundColor: primaryColor }}
+                onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+                onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
                 onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
                 className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm text-light bg-primary hover:bg-primary-light"
               >
@@ -398,10 +414,12 @@ function SharePage ({ shareObject }) {
               <div>
                 <button
                   type="submit"
+                  style={{ backgroundColor: primaryColor }}
+                  onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+                  onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
                   disabled={!canSubmitActions}
                   className={classNames(
-                    canSubmitActions && 'hover:bg-primary-light',
-                    'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
+                    'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
                 >
                   Create my share link
                 </button>
@@ -492,8 +510,11 @@ function SharePage ({ shareObject }) {
               <div>
                 <button
                   type="submit"
+                  style={{ backgroundColor: primaryColor }}
+                  onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+                  onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
                   disabled={!canSubmitActions}
-                  className={classNames(canSubmitActions && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
+                  className={classNames('w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
                 >
                   Submit
                 </button>
@@ -548,7 +569,7 @@ function SharePage ({ shareObject }) {
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-white sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                 {/* <span className="md:block">asdasd</span>{' '} */}
-                <span className="text-primary md:block">
+                <span className="md:block" style={{ color: primaryColor }}>
                   {shareObject.title}
                 </span>
               </h1>

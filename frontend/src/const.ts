@@ -1,7 +1,7 @@
 export const TASK_VIEW_FORM_FIELDS = [
   'title', 'description', 'subtitle', 'ctaReferral', 'subtitleReferral',
   'ctaSolution', 'subtitleSolution', 'headerSolutionModal',
-  'subtitleSolutionModal'
+  'subtitleSolutionModal', 'primaryColorHex'
 ]
 
 /* eslint no-unused-vars: 0 */

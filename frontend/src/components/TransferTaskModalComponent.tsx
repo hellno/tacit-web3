@@ -128,7 +128,7 @@ export default function TransferTaskModalComponent ({
       console.log('create options payload for on-chain transaction')
       const options = getDefaultTransactionGasOptions()
       console.log('creating on-chain transaction')
-      const updateTaskTransaction = await taskPortalContract.updateTaskOwner(taskObject.path, newOwnerAddress, options)
+      const updateTaskTransaction = await taskPortalContract.updateTaskOwner(taskObject.path, ensResolvedAddress || newOwnerAddress, options)
 
       setEditTaskState({
         name: EditTaskState.Loading

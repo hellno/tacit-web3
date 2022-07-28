@@ -80,6 +80,14 @@ export default function TaskAdvancedInputFields ({
         placeholder: 'Submit your solution',
         defaultValue: get(values, 'subtitleSolutionModal')
       })}
+      {renderFormField({
+        register,
+        name: 'primaryColorHex',
+        type: 'text',
+        label: 'Primary Brand Color',
+        placeholder: '#0072D0',
+        defaultValue: get(values, 'primaryColorHex')
+      })}
     </div>)}
   </>
 }
