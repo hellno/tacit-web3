@@ -5,7 +5,7 @@ import { AppContext } from '../context'
 import { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
-import { classNames } from '../utils'
+import { classNames, getSitePathForNode } from '../utils'
 import { renderFormField } from '../formUtils'
 import { getDefaultTransactionGasOptions, getTaskPortalContractInstanceViaActiveWallet } from '../walletUtils'
 import { ethers } from 'ethers'
@@ -14,6 +14,7 @@ import { EditTaskState, TASK_ADVANCED_FORM_FIELDS, TASK_ALL_FORM_FIELDS } from '
 import { uploadTaskDataToIpfs } from '../storageUtils'
 // eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
+import { refreshVercelPage } from '../apiUtils'
 
 interface EditTaskStateType {
   name: EditTaskState;
@@ -52,6 +53,10 @@ export default function EditTaskModalComponent ({
 
   const onFormSubmit = async (formData) => {
     try {
+      setEditTaskState({
+        name: EditTaskState.Loading
+      })
+
       formData = omitBy(formData, isEmpty)
       const ipfsData = create(pick(taskObject, TASK_ALL_FORM_FIELDS), formData)
       const dataPath = await uploadTaskDataToIpfs(ipfsData)
@@ -69,13 +74,16 @@ export default function EditTaskModalComponent ({
       console.log('creating on-chain transaction')
       const updateTaskTransaction = await taskPortalContract.updateTaskData(taskObject.path, ethers.utils.toUtf8Bytes(dataPath), options)
 
-      setEditTaskState({
-        name: EditTaskState.Loading
-      })
-
       console.log('Waiting to edit the task on-chain...', updateTaskTransaction.hash)
       const res = await updateTaskTransaction.wait()
       console.log('Transaction successfully executed:', updateTaskTransaction, res)
+
+      const vercelRefreshResult = await refreshVercelPage(getSitePathForNode({
+        nodeType: 'task',
+        chainId: network.chainId,
+        path: taskObject.path
+      }))
+      console.log('vercelRefreshResult', vercelRefreshResult)
       setEditTaskState({
         name: EditTaskState.Success,
         data: { transactionHash: res }
@@ -93,7 +101,6 @@ export default function EditTaskModalComponent ({
     const hasAdvancedFieldInExistingTask = intersection(keys(taskObject), TASK_ADVANCED_FORM_FIELDS).length > 0
     switch (editTaskState.name) {
       case EditTaskState.Default:
-      case EditTaskState.Loading:
         return <div>
           <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6 max-w-sm">
             {renderFormField({
@@ -131,6 +138,10 @@ export default function EditTaskModalComponent ({
             </button>
           </form>
         </div>
+      case EditTaskState.Loading:
+        return <p className="text-sm font-semibold text-gray-700 animate-pulse flex max-w-lg">
+          Pending...
+        </p>
       case EditTaskState.Success:
         return <div>
           <p className="text-sm text-gray-700">

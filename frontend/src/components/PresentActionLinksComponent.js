@@ -1,7 +1,7 @@
 import { AppContext } from '../context'
 import { useContext } from 'react'
 import { getDeployedContractForChainId } from '../constDeployedContracts'
-import { getUrlForNode } from '../utils'
+import { getSitePathForNode, getSiteUrl } from '../utils'
 
 const PresentActionLinksComponent = ({
   data
@@ -14,16 +14,16 @@ const PresentActionLinksComponent = ({
   const blockExplorerForChain = getDeployedContractForChainId(network.chainId).blockExplorer
   const transactionLink = `${blockExplorerForChain}/tx/${data.transactionHash}`
 
-  const taskShareLink = getUrlForNode({
+  const taskShareLink = `${getSiteUrl()}/${getSitePathForNode({
     nodeType: 'share',
     chainId: network.chainId,
     path: data.sharePath
-  })
-  const userTasksLink = getUrlForNode({
+  })}`
+  const userTasksLink = `${getSiteUrl()}/${getSitePathForNode({
     nodeType: 'task',
     chainId: network.chainId,
     path: data.taskPath
-  })
+  })}`
 
   return (<>
     <div className="mt-6">

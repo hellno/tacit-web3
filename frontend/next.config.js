@@ -11,16 +11,10 @@ module.exports = {
     BICONOMY_GOERLI_API_KEY: process.env.BICONOMY_GOERLI_API_KEY,
     BICONOMY_GNOSIS_API_KEY: process.env.BICONOMY_GNOSIS_API_KEY,
     INFURA_RPC_ENDPOINT: process.env.INFURA_RPC_ENDPOINT,
-    INFURA_KEY: process.env.INFURA_KEY
+    INFURA_KEY: process.env.INFURA_KEY,
+    TACIT_SERVER_TOKEN: process.env.TACIT_SERVER_TOKEN
   },
   images: {
     domains: ['images.unsplash.com']
-  },
-  exclude:
-    [
-      'node_modules',
-      '**/__tests__',
-      '**/*.test.js',
-      '**/*.spec.js'
-    ]
+  }
 }

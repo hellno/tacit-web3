@@ -28,13 +28,13 @@ export const getBountyAmountWithCurrencyStringFromTaskObject = (bounty, chainId)
   return `${userTokenAmount} ${tokenCurrency}`
 }
 
-export const getUrlForNode = ({
+export const getSitePathForNode = ({
   nodeType,
   chainId,
   path
 }) => {
   const shortNameForChain = getDeployedContractForChainId(chainId).shortName
-  return `${getSiteUrl()}/${nodeType}/${shortNameForChain}:${path}`
+  return `${nodeType}/${shortNameForChain}:${path}`
 }
 
 export const getSiteUrl = () => process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://web3.tacit.so'

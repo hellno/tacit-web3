@@ -184,13 +184,10 @@ export default function TransferTaskModalComponent ({
               validateFunction: validateInput
             })}
             {loading
-              ? (
-                <p className="text-sm font-semibold text-gray-700 animate-pulse flex max-w-lg">
-                  Loading
-                </p>
-                )
-              : (
-                <div className="flex items-center">
+              ? (<p className="text-sm font-semibold text-gray-700 animate-pulse flex max-w-lg">
+                Loading
+              </p>)
+              : (<div className="flex items-center">
                   {ensAvatar && (<div className="mr-3">
                     <img
                       className="inline-block h-9 w-9 rounded-full"

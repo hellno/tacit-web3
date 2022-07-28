@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import { getSiteUrl } from './utils'
 
 export const getProviderForChainId = (chainId) => {
   let url
@@ -23,4 +24,10 @@ export const getProviderForChainId = (chainId) => {
       throw new Error(`No provider for chainId: ${chainId}`)
   }
   return new ethers.providers.JsonRpcProvider(url)
+}
+
+export const refreshVercelPage = async (pathToPage) => {
+  const apiEndpoint = getSiteUrl()
+  const apiUrl = `${apiEndpoint}/api/revalidate/${pathToPage}?secret=${process.env.TACIT_SERVER_TOKEN}`
+  return await fetch(apiUrl)
 }

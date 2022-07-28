@@ -28,8 +28,8 @@ import {
   classNames,
   flattenNodesRecursively,
   getBountyAmountWithCurrencyStringFromTaskObject,
-  getSiteUrl,
-  getUrlForNode
+  getSitePathForNode,
+  getSiteUrl
 } from '../../src/utils'
 // eslint-disable-next-line node/no-missing-import
 import { BountyPayoutState, IncreaseBountyState, NodeType } from '../../src/const'
@@ -360,11 +360,11 @@ export default function TaskPage ({ taskObject }) {
 
     const viewShareLink = () => {
       return (<a
-        href={getUrlForNode({
+        href={`${getSiteUrl()}/${getSitePathForNode({
           nodeType: 'share',
           chainId: taskObject.chainId,
           path: nodeObject.path
-        })}
+        })}`}
         target="_blank" rel="noopener noreferrer"
         type="button"
         className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
@@ -486,11 +486,11 @@ export default function TaskPage ({ taskObject }) {
                 <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
                   {isUserOnCorrectChain
                     ? <>
-                      <a href={getUrlForNode({
+                      <a href={`${getSiteUrl()}/${getSitePathForNode({
                         nodeType: 'share',
                         chainId: taskObject.chainId,
                         path: taskCreationNode.path
-                      })}
+                      })}`}
                          target="_blank" rel="noopener noreferrer"
                          type="button"
                          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
@@ -781,7 +781,7 @@ export async function getStaticProps ({ params }) {
     props: {
       taskObject
     },
-    revalidate: 60 // every 1 min
+    revalidate: 10 // every 10 secs
   }
 }
 
