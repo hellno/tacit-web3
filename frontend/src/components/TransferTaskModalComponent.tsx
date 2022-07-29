@@ -10,7 +10,7 @@ import { ethers } from 'ethers'
 // eslint-disable-next-line node/no-missing-import
 import { EditTaskState } from '../const'
 import ExclamationIcon from '@heroicons/react/outline/ExclamationIcon'
-import { getProviderForChainId } from '../apiUtils'
+import { getReadOnlyProviderForChainId } from '../apiUtils'
 import { getDeployedContractForChainId } from '../constDeployedContracts'
 
 interface EditTaskStateType {
@@ -35,7 +35,7 @@ export const useENS = (address: string) => {
       setENSName(null)
       setENSAvatar(null)
 
-      const provider = getProviderForChainId(1)
+      const provider = getReadOnlyProviderForChainId(1)
       if (ethers.utils.isAddress(address)) {
         try {
           const ensName = await provider.lookupAddress(address)

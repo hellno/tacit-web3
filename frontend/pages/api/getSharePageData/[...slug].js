@@ -8,7 +8,7 @@ import {
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
 import { split } from 'lodash'
-import { getProviderForChainId } from '../../../src/apiUtils'
+import { getReadOnlyProviderForChainId } from '../../../src/apiUtils'
 
 // eslint-disable-next-line no-unused-vars
 const exampleTaskObject = {
@@ -31,7 +31,7 @@ export default async function handler (req, res) {
   console.log('slug is', slug)
   const [chainShortName, shareId] = split(slug, ':')
   const chainId = getChainIdFromShortName(chainShortName)
-  const provider = getProviderForChainId(chainId)
+  const provider = getReadOnlyProviderForChainId(chainId)
 
   try {
     const { contractAddress } = getDeployedContractForChainId(chainId)

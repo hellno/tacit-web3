@@ -46,3 +46,4 @@ typechain
 cache
 artifacts
 /frontend/.next/
+/frontend/node_modules/

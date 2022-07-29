@@ -49,7 +49,7 @@ import PayoutBountyModalComponent from '../../src/components/PayoutBountyModalCo
 import EditTaskModalComponent from '../../src/components/EditTaskModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import TransferTaskModalComponent from '../../src/components/TransferTaskModalComponent'
-import { getProviderForChainId } from '../../src/apiUtils'
+import { getReadOnlyProviderForChainId } from '../../src/apiUtils'
 
 const unit = require('ethjs-unit')
 
@@ -106,7 +106,7 @@ export default function TaskPage ({ taskObject }) {
     if (network) {
       const nameToTokenAddr = getNameToTokenAddressObjectForChainId(network.chainId)
       setNameToTokenAddress(nameToTokenAddr)
-      const provider = getProviderForChainId(network.chainId)
+      const provider = getReadOnlyProviderForChainId(network.chainId)
       setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, account))
     }
   }, [network])

@@ -8,7 +8,7 @@ import {
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
 import { map, split } from 'lodash'
-import { getProviderForChainId } from '../../../src/apiUtils'
+import { getReadOnlyProviderForChainId } from '../../../src/apiUtils'
 
 export default async function handler (req, res) {
   const { slug } = req.query
@@ -16,7 +16,7 @@ export default async function handler (req, res) {
   console.log('slug is', slug)
   const [chainShortName, taskId] = split(slug, ':')
   const chainId = getChainIdFromShortName(chainShortName)
-  const provider = getProviderForChainId(chainId)
+  const provider = getReadOnlyProviderForChainId(chainId)
 
   try {
     const { contractAddress } = getDeployedContractForChainId(chainId)

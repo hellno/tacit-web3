@@ -24,8 +24,9 @@ import PresentActionLinksComponent from '../../src/components/PresentActionLinks
 import { MarkdownComponent } from '../../src/markdownUtils'
 import { addUserToDatabase } from '../../src/supabase'
 import { Biconomy } from '@biconomy/mexa'
-import { getDeployedContractForChainId } from '../../src/constDeployedContracts'
+import { chainIdToBiconomyApiKey, getDeployedContractForChainId } from '../../src/constDeployedContracts'
 import Head from 'next/head'
+import { getReadOnlyProviderForChainId } from '../../src/apiUtils'
 
 interface ShareSubmissionStateType {
   name: SharePageState;
@@ -78,17 +79,13 @@ function SharePage ({ shareObject }) {
 
     setBiconomyState({ name: BiconomyLoadingState.Init })
     const biconomyOptions = {
-      apiKey: network.chainId === 100 ? process.env.BICONOMY_GNOSIS_API_KEY : process.env.BICONOMY_GOERLI_API_KEY,
+      apiKey: get(chainIdToBiconomyApiKey, network.chainId),
       walletProvider: provider,
       debug: true
     }
-    // const gnosisRpcUrl = 'https://gnosis-mainnet.public.blastapi.io/'
-    const gnosisRpcUrl = 'https://rpc.ankr.com/gnosis'
-    // const gnosisRpcUrl = 'https://gnosischain-rpc.gateway.pokt.network/'
-    // const gnosisRpcUrl = 'https://rpc.gnosischain.com/'
-    console.log('gnosis rpc url', gnosisRpcUrl)
-    const rpcUrl = network.chainId === 100 ? gnosisRpcUrl : process.env.INFURA_RPC_ENDPOINT
-    const jsonRpcProvider = new ethers.providers.JsonRpcProvider(rpcUrl)
+
+    const jsonRpcProvider = getReadOnlyProviderForChainId(network.chainId)
+    console.log('log after getting rpc provider')
     const biconomy = new Biconomy(jsonRpcProvider, biconomyOptions)
 
     setBiconomyState({

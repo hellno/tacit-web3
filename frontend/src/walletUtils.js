@@ -10,7 +10,7 @@ import {
   taskPortalContractAbi
 } from './constDeployedContracts'
 import { toHex } from 'web3-utils'
-import { getProviderForChainId } from './apiUtils'
+import { getReadOnlyProviderForChainId } from './apiUtils'
 import { analyticsIdentify } from './analyticsUtils'
 import { formatEther } from 'ethers/lib/utils'
 
@@ -76,7 +76,7 @@ export const connectWallet = async (web3Modal, dispatch) => {
 }
 
 export const lookupEnsName = async (account) => {
-  const provider = getProviderForChainId(1)
+  const provider = getReadOnlyProviderForChainId(1)
   return await provider.lookupAddress(account)
 }
 

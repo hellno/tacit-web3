@@ -31,7 +31,7 @@ import TaskDescriptionInputField from './TaskDescriptionInputField'
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
 import Head from 'next/head'
 import { analyticsTrackEvent } from '../analyticsUtils'
-import { getProviderForChainId } from '../apiUtils'
+import { getReadOnlyProviderForChainId } from '../apiUtils'
 
 const unit = require('ethjs-unit')
 
@@ -61,7 +61,7 @@ export default function CreateTaskComponent ({
     if (network) {
       const nameToTokenAddr = getNameToTokenAddressObjectForChainId(network.chainId)
       setNameToTokenAddress(nameToTokenAddr)
-      const provider = getProviderForChainId(network.chainId)
+      const provider = getReadOnlyProviderForChainId(network.chainId)
       setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, account))
     }
   }, [network])
