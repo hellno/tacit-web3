@@ -1,6 +1,22 @@
 import { ethers } from 'ethers'
 import { getSiteUrl } from './utils'
 
+export const getRpcProviderUrlForChainId = (chainId) => {
+  switch (chainId) {
+    case 1:
+      return 'https://rpc.ankr.com/eth'
+    case 100:
+      return 'https://rpc.ankr.com/gnosis'
+    case 137:
+      return 'https://rpc.ankr.com/polygon'
+    case 1337:
+    case 1338:
+      return 'http://127.0.0.1:8545/'
+    default:
+      throw new Error(`No provider for chainId: ${chainId}`)
+  }
+}
+
 export const getReadOnlyProviderForChainId = (chainId) => {
   let url
 

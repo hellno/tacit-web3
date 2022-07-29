@@ -1,7 +1,7 @@
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk'
 import WalletConnect from '@walletconnect/web3-provider'
 import { ethers } from 'ethers'
-import { isEmpty, map, values, zipObject } from 'lodash'
+import { defaults, isEmpty, map, pick, values, zipObject } from 'lodash'
 import Web3Modal from 'web3modal'
 import {
   erc20ContractAbi,
@@ -10,7 +10,7 @@ import {
   taskPortalContractAbi
 } from './constDeployedContracts'
 import { toHex } from 'web3-utils'
-import { getReadOnlyProviderForChainId } from './apiUtils'
+import { getReadOnlyProviderForChainId, getRpcProviderUrlForChainId } from './apiUtils'
 import { analyticsIdentify } from './analyticsUtils'
 import { formatEther } from 'ethers/lib/utils'
 
@@ -164,12 +164,19 @@ export const switchNetwork = async (provider, chainId) => {
   } catch (switchError) {
     // error code = chain has not been added to MetaMask.
     if (switchError.code === 4902) {
+      const params = defaults(
+        { rpcUrls: [getRpcProviderUrlForChainId(chainId)] },
+        pick(
+          getDeployedContractForChainId(chainId),
+          ['chainId', 'name', 'nativeCurrency']
+        ))
+      params.chainId = `0x${Number(params.chainId).toString(16)}`
+      params.chainName = params.name
+      delete params.name
       try {
         await provider.request({
           method: 'wallet_addEthereumChain',
-          params: [
-            getDeployedContractForChainId(chainId)
-          ]
+          params: [params]
         })
       } catch (addError) {
         console.log(addError)
