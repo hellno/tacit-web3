@@ -159,7 +159,8 @@ export default function PayoutBountyModalComponent ({
             className="inline-flex rounded-sm bg-gray-200 hover:bg-gray-300 px-2 py-1 text-gray-700"
             onClick={() => append({
               address: taskObject.owner,
-              tokenAddress: bountyTokenAddresses[0]
+              tokenAddress: bountyTokenAddresses[0],
+              tokenAmount: '0'
             })}>
             <PlusCircleIcon className="h-5 w-5 mt-0.5 mr-1" />Add payout
           </button>
