@@ -4,6 +4,23 @@ import { AppContextProvider } from '../src/context'
 import BannerComponent from '../src/components/BannerComponent'
 // @ts-ignore
 import { isProdEnv } from '../src/utils'
+import * as Sentry from '@sentry/nextjs'
+
+const initSentryLogging = () => {
+  if (process.env.SENTRY_DSN) {
+    Sentry.init({
+      dsn: process.env.SENTRY_DSN,
+      // integrations: [new Integrations.BrowserTracing()],
+
+      // Set tracesSampleRate to 1.0 to capture 100%
+      // of transactions for performance monitoring.
+      // We recommend adjusting this value in production
+      tracesSampleRate: 1.0
+    })
+  }
+}
+
+initSentryLogging()
 
 function MyApp ({
   Component,

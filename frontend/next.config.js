@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
-module.exports = {
+const { withSentryConfig } = require('@sentry/nextjs')
+
+const moduleExports = {
   reactStrictMode: true,
   env: {
     WEB3STORAGE_TOKEN: process.env.WEB3STORAGE_TOKEN,
@@ -13,9 +14,26 @@ module.exports = {
     BICONOMY_POLYGON_API_KEY: process.env.BICONOMY_POLYGON_API_KEY,
     INFURA_RPC_ENDPOINT: process.env.INFURA_RPC_ENDPOINT,
     INFURA_KEY: process.env.INFURA_KEY,
-    TACIT_SERVER_TOKEN: process.env.TACIT_SERVER_TOKEN
+    TACIT_SERVER_TOKEN: process.env.TACIT_SERVER_TOKEN,
+    SENTRY_DSN: process.env.SENTRY_DSN
   },
   images: {
     domains: ['images.unsplash.com']
   }
 }
+
+const sentryWebpackPluginOptions = {
+  // Additional config options for the Sentry Webpack plugin. Keep in mind that
+  // the following options are set automatically, and overriding them is not
+  // recommended:
+  //   release, url, org, project, authToken, configFile, stripPrefix,
+  //   urlPrefix, include, ignore
+
+  silent: true // Suppresses all logs
+  // For all available options, see:
+  // https://github.com/getsentry/sentry-webpack-plugin#options.
+}
+
+// Make sure adding Sentry options is the last code to run before exporting, to
+// ensure that your source maps include changes from all other Webpack plugins
+module.exports = withSentryConfig(moduleExports, sentryWebpackPluginOptions)

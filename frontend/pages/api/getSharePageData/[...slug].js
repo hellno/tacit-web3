@@ -1,3 +1,4 @@
+import { withSentry } from '@sentry/nextjs'
 import { ethers } from 'ethers'
 import {
   getChainIdFromShortName,
@@ -25,7 +26,7 @@ Not showing this description 100% how I want to, but slowly getting there.
   createdAt: '2022-05-18'
 }
 
-export default async function handler (req, res) {
+async function handler (req, res) {
   const { slug } = req.query
 
   console.log('slug is', slug)
@@ -61,3 +62,5 @@ export default async function handler (req, res) {
     res.status(500).json({ error: 'failed to load data' })
   }
 }
+
+export default withSentry(handler)

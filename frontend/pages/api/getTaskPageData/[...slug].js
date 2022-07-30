@@ -9,8 +9,9 @@ import {
 import { getObjectInIPFS } from '../../../src/storageUtils'
 import { map, split } from 'lodash'
 import { getReadOnlyProviderForChainId } from '../../../src/apiUtils'
+import { withSentry } from '@sentry/nextjs'
 
-export default async function handler (req, res) {
+async function handler (req, res) {
   const { slug } = req.query
 
   console.log('slug is', slug)
@@ -50,3 +51,5 @@ const getRecursiveNodes = async (contract, nodePath) => {
   nodeObject.path = nodePath
   return nodeObject
 }
+
+export default withSentry(handler)

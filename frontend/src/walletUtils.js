@@ -162,7 +162,7 @@ export const switchNetwork = async (provider, chainId) => {
       params: [{ chainId: toHex(chainId) }]
     })
   } catch (switchError) {
-    // error code = chain has not been added to MetaMask.
+    // error code = chain has not been added to wallet provider
     if (switchError.code === 4902) {
       const params = defaults(
         { rpcUrls: [getRpcProviderUrlForChainId(chainId)] },
