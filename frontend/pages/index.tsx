@@ -260,12 +260,12 @@ export default function Home () {
                         <li className="ml-5 list-disc hover:underline">
                           <a
                             href="https://web3.tacit.so/share/matic:0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b"
-                            target="_blank" rel="noopener noreferrer">Task with 0.25 WETH bounty on Polygon</a>
+                          >Task with 0.25 WETH bounty on Polygon</a>
                         </li>
                         <li className="ml-5 list-disc hover:underline">
                           <a
                             href="https://web3.tacit.so/task/gor:0xe0871ae1a499b37fa23677d56f2803ea3e9884f64fde4ecf4d8fff0fcbb4d15b"
-                            target="_blank" rel="noopener noreferrer">Admin Dashboard for User Onboarding Task</a>
+                          >Admin Dashboard for User Onboarding Task</a>
                         </li>
                       </ol>
                     </p>
