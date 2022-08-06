@@ -74,10 +74,10 @@ export default function CreateTaskComponent ({
     formState: { errors }
   } = useForm({
     defaultValues: {
-      email: 'midnight-madman@proton.me',
-      title: 'Give feedback on my Buildspace Demo',
-      description: 'I would love to improve my demo and appreciate any feedback. \n &nbsp; \nAny constructive feedback will be rewarded with 1 ETH on Goerli',
-      ctaSolution: 'Provide Feedback',
+      email: '',
+      title: '',
+      description: '',
+      ctaSolution: '',
       tokenAmount: '1',
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
