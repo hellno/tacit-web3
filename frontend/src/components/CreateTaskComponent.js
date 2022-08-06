@@ -22,7 +22,7 @@ import {
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType, TASK_ALL_FORM_FIELDS } from '../const'
-import { classNames, getSiteUrl, isDevEnv, sleep } from '../utils'
+import { classNames, getSiteUrl, sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
 import { MarkdownComponent } from '../markdownUtils'
 import { addUserToDatabase } from '../supabase'
@@ -74,9 +74,10 @@ export default function CreateTaskComponent ({
     formState: { errors }
   } = useForm({
     defaultValues: {
-      email: isDevEnv() ? 'test@test.com' : '',
-      title: isDevEnv() ? 'this is a sweet title' : '',
-      description: isDevEnv() ? '# description 123' : '',
+      email: 'midnight-madman@proton.me',
+      title: 'Give feedback on my Buildspace Demo',
+      description: 'I would love to improve my demo and appreciate any feedback. \n &nbsp; \nAny constructive feedback will be rewarded with 1 ETH on Goerli',
+      ctaSolution: 'Provide Feedback',
       tokenAmount: '1',
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }

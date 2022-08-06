@@ -242,21 +242,41 @@ export default function Home () {
                       WAGMI
                     </span>
                       <span className="mx-2 text-sm">
-                      Find what you are looking for
+                      Welcome to Buildspace Demo Day 🤩
                     </span>
                     </div>
                     <h1
                       className="mt-4 text-4xl tracking-tight font-extrabold text-light sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
-                      <span className="md:block">On-chain referrals</span>{' '}
+                      <span className="md:block">On-chain tasks</span>{' '}
                       <span className="text-primary md:block">
-                      for Web3 communities
+                      for the orbit of your DAO
                     </span>
                     </h1>
                     <p className="mt-3 text-base text-light sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                      Create a search task, attach a token reward, and share it with your friends, who can share it
-                      again
-                      with their friends… ∞ Receive results and reward the contributors. Everyone who contributes to
-                      finding what you are looking for gets a share of the reward.
+                      DAOs are evolving towards small numbers of
+                      highly skilled teams that form a core surrounded by a big number of contributors <b>in the
+                      orbit</b>. Tacit helps you to engage and leverage the orbit.
+                      <ol>
+                        <li className="list-disc">
+                          <a href="" target="_blank" rel="noopener noreferrer">Example</a>
+                        </li>
+                      </ol>
+                    </p>
+                    <div className="pl-4 -mr-48 sm:pl-6 md:-mr-16 lg:px-0 lg:m-0 lg:relative lg:h-full">
+                      <img
+                        className="w-full ring-1 ring-black ring-opacity-5 lg:absolute lg:left-0 lg:h-auto lg:max-w-lg"
+                        src="/Tacit_DAO_Orbits.png"
+                        alt="Inbox user interface"
+                      />
+                    </div>
+                    <p className="mt-3 text-base text-light sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+                      Everyone who contributes gets a share of the reward.
+                      Today: Use cases are bounties for user referrals, talent referrals and community tasks (e.g.
+                      blog writing, video editing, social media engagement etc.).
+                      <br /><br />
+                      In the future: Tacit will be a full
+                      fledged solution to engage DAO orbits including P2P bounties, payout triggers based on on-chain
+                      and off-chain events and ContributorRelationshipManagement.
                     </p>
                   </div>
                   <a
