@@ -10,7 +10,7 @@ import {
   taskPortalContractAbi
 } from './constDeployedContracts'
 import { toHex } from 'web3-utils'
-import { getReadOnlyProviderForChainId, getRpcProviderUrlForChainId } from './apiUtils'
+import { chainIdToRpcUrl, getReadOnlyProviderForChainId, getRpcProviderUrlForChainId } from './apiUtils'
 import { analyticsIdentify } from './analyticsUtils'
 import { formatEther } from 'ethers/lib/utils'
 
@@ -28,7 +28,7 @@ export const providerOptions = {
   walletconnect: {
     package: WalletConnect,
     options: {
-      infuraId: process.env.INFURA_KEY
+      rpc: chainIdToRpcUrl
     }
   }
 }
@@ -118,7 +118,7 @@ export const renderWalletConnectComponent = ({
 
 export const loadWeb3Modal = (dispatch) => {
   const web3Modal = new Web3Modal({
-    cacheProvider: true,
+    cacheProvider: false,
     providerOptions, // required
     theme: 'dark'
   })

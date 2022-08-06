@@ -1,19 +1,22 @@
 import { ethers } from 'ethers'
 import { getSiteUrl } from './utils'
+import { get } from 'lodash'
 
+export const chainIdToRpcUrl = {
+  1: 'https://rpc.ankr.com/eth',
+  100: 'https://rpc.ankr.com/gnosis',
+  137: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+  1337: 'http://127.0.0.1:8545/',
+  1338: 'http://127.0.0.1:8545/',
+  80001: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
+}
 export const getRpcProviderUrlForChainId = (chainId) => {
-  switch (chainId) {
-    case 1:
-      return 'https://rpc.ankr.com/eth'
-    case 100:
-      return 'https://rpc.ankr.com/gnosis'
-    case 137:
-      return 'https://rpc.ankr.com/polygon'
-    case 1337:
-    case 1338:
-      return 'http://127.0.0.1:8545/'
-    default:
-      throw new Error(`No provider for chainId: ${chainId}`)
+  const rpcUrl = get(chainIdToRpcUrl, chainId)
+
+  if (rpcUrl) {
+    return rpcUrl
+  } else {
+    throw new Error(`No provider for chainId: ${chainId}`)
   }
 }
 
