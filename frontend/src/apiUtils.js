@@ -1,19 +1,20 @@
 import { ethers } from 'ethers'
-import { getSiteUrl } from './utils'
+import { get } from 'lodash'
 
+export const chainIdToRpcUrl = {
+  1: 'https://rpc.ankr.com/eth',
+  100: 'https://rpc.ankr.com/gnosis',
+  137: 'https://rpc.ankr.com/polygon',
+  1337: 'http://127.0.0.1:8545/',
+  1338: 'http://127.0.0.1:8545/'
+}
 export const getRpcProviderUrlForChainId = (chainId) => {
-  switch (chainId) {
-    case 1:
-      return 'https://rpc.ankr.com/eth'
-    case 100:
-      return 'https://rpc.ankr.com/gnosis'
-    case 137:
-      return 'https://rpc.ankr.com/polygon'
-    case 1337:
-    case 1338:
-      return 'http://127.0.0.1:8545/'
-    default:
-      throw new Error(`No provider for chainId: ${chainId}`)
+  const rpcUrl = get(chainIdToRpcUrl, chainId)
+
+  if (rpcUrl) {
+    return rpcUrl
+  } else {
+    throw new Error(`No provider for chainId: ${chainId}`)
   }
 }
 
@@ -42,10 +43,4 @@ export const getReadOnlyProviderForChainId = (chainId) => {
       throw new Error(`No provider for chainId: ${chainId}`)
   }
   return new ethers.providers.JsonRpcProvider(url)
-}
-
-export const refreshVercelPage = async (pathToPage) => {
-  const apiEndpoint = getSiteUrl()
-  const apiUrl = `${apiEndpoint}/api/revalidate/${pathToPage}?secret=${process.env.TACIT_SERVER_TOKEN}`
-  return await fetch(apiUrl)
 }

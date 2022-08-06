@@ -3,7 +3,7 @@ import { ArrowSmDownIcon, CheckCircleIcon } from '@heroicons/react/solid'
 import { loadWeb3Modal } from '../src/walletUtils'
 import Web3NavBar from '../src/components/Web3NavBar'
 import { AppContext } from '../src/context'
-import CreateTaskComponent from '../src/components/CreateTaskComponent'
+import CreateTaskFormComponent from '../src/components/CreateTaskFormComponent'
 import { get } from 'lodash'
 // eslint-disable-next-line node/no-missing-import
 import { CreateTaskState } from '../src/const'
@@ -73,7 +73,7 @@ export default function Home () {
     switch (stateName) {
       case CreateTaskState.Default:
       case CreateTaskState.PendingUserInputBounty:
-        return <CreateTaskComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
+        return <CreateTaskFormComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
       case CreateTaskState.PendingUploadToIpfs:
         return <div className="px-4 py-8 sm:px-10">
           <div className="mt-0">

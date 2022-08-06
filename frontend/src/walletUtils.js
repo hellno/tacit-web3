@@ -10,9 +10,10 @@ import {
   taskPortalContractAbi
 } from './constDeployedContracts'
 import { toHex } from 'web3-utils'
-import { getReadOnlyProviderForChainId, getRpcProviderUrlForChainId } from './apiUtils'
+import { chainIdToRpcUrl, getReadOnlyProviderForChainId, getRpcProviderUrlForChainId } from './apiUtils'
 import { analyticsIdentify } from './analyticsUtils'
 import { formatEther } from 'ethers/lib/utils'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export const providerOptions = {
   coinbasewallet: {
@@ -28,7 +29,8 @@ export const providerOptions = {
   walletconnect: {
     package: WalletConnect,
     options: {
-      infuraId: process.env.INFURA_KEY
+      infuraId: process.env.INFURA_KEY,
+      rpc: chainIdToRpcUrl
     }
   }
 }
@@ -93,27 +95,17 @@ export const handleChainInteractionError = (error) => {
   }
 }
 
-export const renderWalletConnectComponent = ({
-  web3Modal,
-  dispatch,
-  onSubmitFunc
-}) => {
-  const onButtonSubmit = () => {
-    if (onSubmitFunc) {
-      onSubmitFunc()
-    }
+export const renderWalletConnectComponent = () => {
+  return <ConnectButton label="Connect Your Wallet" showBalance={false} />
 
-    connectWallet(web3Modal, dispatch)
-  }
-
-  return <div className="">
-    <button
-      onClick={onButtonSubmit}
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
-    >
-      Connect Your Wallet
-    </button>
-  </div>
+  // return <div className="">
+  //   <button
+  //     onClick={onButtonSubmit}
+  //     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
+  //   >
+  //     Connect Your Wallet
+  //   </button>
+  // </div>
 }
 
 export const loadWeb3Modal = (dispatch) => {
@@ -156,12 +148,14 @@ export const getTaskPortalContractInstanceViaActiveWallet = (signer, chainId) =>
 }
 
 export const switchNetwork = async (provider, chainId) => {
+  console.log('trying to switch network to chainId', chainId, provider)
   try {
     await provider.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: toHex(chainId) }]
     })
   } catch (switchError) {
+    console.log('error when switching', switchError)
     // error code = chain has not been added to wallet provider
     if (switchError.code === 4902) {
       const params = defaults(
@@ -170,7 +164,7 @@ export const switchNetwork = async (provider, chainId) => {
           getDeployedContractForChainId(chainId),
           ['chainId', 'name', 'nativeCurrency']
         ))
-      params.chainId = `0x${Number(params.chainId).toString(16)}`
+      params.chainId = toHex(chainId)
       params.chainName = params.name
       delete params.name
       try {
@@ -182,6 +176,8 @@ export const switchNetwork = async (provider, chainId) => {
         console.log(addError)
         throw addError
       }
+    } else {
+      throw switchError
     }
   }
 }

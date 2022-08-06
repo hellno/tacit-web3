@@ -75,7 +75,7 @@ const Web3ChainSwitcher = () => {
                 <Menu.Item key={chain.chainId}>
                   {({ active }) => (
                     <button
-                      onClick={() => switchNetwork(provider, chain.chainId).then(() => window.location.reload())}
+                      onClick={() => switchNetwork(provider, chain.chainId).then(() => window.location.reload()).catch((e) => console.log(e))}
                       className={classNames(
                         active
                           ? 'bg-gray-100 text-gray-900'

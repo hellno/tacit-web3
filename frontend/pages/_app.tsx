@@ -1,8 +1,13 @@
 import '../styles/globals.css'
+import '@rainbow-me/rainbowkit/styles.css'
+
 import type { AppProps } from 'next/app'
 import { AppContextProvider } from '../src/context'
 import BannerComponent from '../src/components/BannerComponent'
 import { isProdEnv } from '../src/utils'
+import { chains, wagmiClient } from '../src/wagmiContext'
+import { chain, WagmiConfig } from 'wagmi'
+import { lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 
 function MyApp ({
   Component,
@@ -33,10 +38,26 @@ function MyApp ({
   }
 
   return <AppContextProvider>
-    <BannerComponent
-      title={'This is an alpha release → you are early '} />
-    <Component {...pageProps} />
-    {isProdEnv() && renderAnalyticsScripts()}
+    <WagmiConfig client={wagmiClient}>
+      <RainbowKitProvider
+        appInfo={{
+          appName: 'Tacit Web3',
+          learnMoreUrl: 'https://www.tacit.so'
+        }}
+        chains={chains}
+        initialChain={chain.polygon}
+        theme={lightTheme({
+          accentColor: '#FF8788',
+          accentColorForeground: 'white',
+          borderRadius: 'small',
+          fontStack: 'system'
+        })}>
+        <BannerComponent
+          title={'This is an alpha release → you are early '} />
+        <Component {...pageProps} />
+        {isProdEnv() && renderAnalyticsScripts()}
+      </RainbowKitProvider>
+    </WagmiConfig>
   </AppContextProvider>
 }
 

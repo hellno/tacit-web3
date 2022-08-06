@@ -78,20 +78,22 @@ function SharePage ({ shareObject }) {
     }
 
     setBiconomyState({ name: BiconomyLoadingState.Init })
-    const biconomyOptions = {
-      apiKey: get(chainIdToBiconomyApiKey, network.chainId),
-      walletProvider: provider,
-      debug: true
+    const apiKey = get(chainIdToBiconomyApiKey, network.chainId)
+    if (apiKey) {
+      const biconomyOptions = {
+        apiKey,
+        walletProvider: provider,
+        debug: true
+      }
+
+      const jsonRpcProvider = getReadOnlyProviderForChainId(network.chainId)
+      const biconomy = new Biconomy(jsonRpcProvider, biconomyOptions)
+
+      setBiconomyState({
+        name: BiconomyLoadingState.Loading,
+        biconomy
+      })
     }
-
-    const jsonRpcProvider = getReadOnlyProviderForChainId(network.chainId)
-    console.log('log after getting rpc provider')
-    const biconomy = new Biconomy(jsonRpcProvider, biconomyOptions)
-
-    setBiconomyState({
-      name: BiconomyLoadingState.Loading,
-      biconomy
-    })
   }
 
   useEffect(() => {

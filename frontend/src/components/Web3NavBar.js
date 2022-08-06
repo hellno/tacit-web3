@@ -1,7 +1,6 @@
 import { Fragment, useContext } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
-import Web3ChainSwitcher from './Web3ChainSwitcher'
 import { isEmpty, truncate } from 'lodash'
 import { renderWalletConnectComponent } from '../walletUtils'
 import { AppContext } from '../context'
@@ -25,11 +24,10 @@ const Web3NavBar = () => {
   const walletAddress = ensName || truncate(account, { length: 14 })
 
   const renderWalletAction = () => {
+    return renderWalletConnectComponent()
+
     return !isWalletConnected
-      ? renderWalletConnectComponent({
-        web3Modal,
-        dispatch
-      })
+      ? renderWalletConnectComponent()
       : <span
         className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-gray-700 bg-white">
           Wallet {walletAddress}
@@ -73,9 +71,6 @@ const Web3NavBar = () => {
       </div>
       <div className="hidden md:flex">
         {renderWalletAction()}
-        <div className="ml-2">
-          {isWalletConnected && <Web3ChainSwitcher />}
-        </div>
       </div>
     </nav>
 
@@ -105,12 +100,12 @@ const Web3NavBar = () => {
               </Popover.Button>
             </div>
           </div>
-          <div className="px-5 pt-2 pb-6 space-y-1">
-            {/* weird behaviour -> overflow-y-visible
-                                    this div has extra padding in the bottom so that
-                                    the chain switcher component has a layer to be rendered on */}
-            {isWalletConnected && <Web3ChainSwitcher />}
-          </div>
+          {/* <div className="px-5 pt-2 pb-6 space-y-1"> */}
+          {/*   /!* weird behaviour -> overflow-y-visible */}
+          {/*                           this div has extra padding in the bottom so that */}
+          {/*                           the chain switcher component has a layer to be rendered on *!/ */}
+          {/*   /!* {isWalletConnected && <Web3ChainSwitcher />} *!/ */}
+          {/* </div> */}
         </div>
       </Popover.Panel>
     </Transition>

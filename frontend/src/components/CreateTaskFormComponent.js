@@ -10,7 +10,7 @@ import {
 } from '../walletUtils'
 import { AppContext } from '../context'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
-import { get, isEmpty, pick } from 'lodash'
+import { get, pick } from 'lodash'
 import { uploadTaskDataToIpfs } from '../storageUtils'
 import {
   erc20ContractAbi,
@@ -18,7 +18,8 @@ import {
   getNameToTokenAddressObjectForChainId,
   isNativeChainCurrency,
   isSupportedNetwork,
-  NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
+  NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
+  taskPortalContractAbi
 } from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { NodeType, TASK_ALL_FORM_FIELDS } from '../const'
@@ -32,39 +33,55 @@ import TaskAdvancedInputFields from './TaskAdvancedInputFields'
 import Head from 'next/head'
 import { analyticsTrackEvent } from '../analyticsUtils'
 import { getReadOnlyProviderForChainId } from '../apiUtils'
+import { useAccount, useContractWrite, useEnsName, usePrepareContractWrite, useWaitForTransaction } from 'wagmi'
+// eslint-disable-next-line node/no-missing-import
+import { useChainId } from '../useChainId'
+
+function useMainnetEnsName (address) {
+  const { data: ensName } = useEnsName({
+    address,
+    chainId: 1
+  })
+
+  return ensName
+}
 
 const unit = require('ethjs-unit')
 
 const CreateTaskState = require('../const.ts').CreateTaskState
 
-export default function CreateTaskComponent ({
+export default function CreateTaskFormComponent ({
   state: localState,
   setState
 }) {
   const [globalState, dispatch] = useContext(AppContext)
   const {
-    web3Modal,
-    account,
     library,
-    network,
-    ensName
+    network
   } = globalState
+  const {
+    address,
+    isConnected
+  } = useAccount()
+  const chainId = useChainId()
 
   const [nameToTokenAddress, setNameToTokenAddress] = useState({})
   const [tokenAddressToMaxAmount, setTokenAddressToMaxAmount] = useState({})
   const [showUserMessage, setShowUserMessage] = useState(true)
-  const isWalletConnected = !isEmpty(account)
-  const isReadyToSubmit = isWalletConnected && isSupportedNetwork(network.chainId)
-  const walletAddress = ensName || account
+  const isReadyToSubmit = isConnected && isSupportedNetwork(chainId)
+  const ensName = useMainnetEnsName({
+    address
+  })
+  const walletAddress = ensName || address
 
   useEffect(async () => {
-    if (network) {
-      const nameToTokenAddr = getNameToTokenAddressObjectForChainId(network.chainId)
+    if (chainId) {
+      const nameToTokenAddr = getNameToTokenAddressObjectForChainId(chainId)
       setNameToTokenAddress(nameToTokenAddr)
-      const provider = getReadOnlyProviderForChainId(network.chainId)
-      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, account))
+      const provider = getReadOnlyProviderForChainId(chainId)
+      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, address))
     }
-  }, [network])
+  }, [chainId])
 
   const {
     register,
@@ -76,13 +93,33 @@ export default function CreateTaskComponent ({
     defaultValues: {
       email: isDevEnv() ? 'test@test.com' : '',
       title: isDevEnv() ? 'this is a sweet title' : '',
-      description: isDevEnv() ? '# description 123' : '',
+      description: isDevEnv() ? 'description 123' : '',
       tokenAmount: '1',
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
   })
 
   const formTaskDescription = watch('description')
+  const { contractAddress } = getDeployedContractForChainId(chainId)
+  const { addTaskTransactionConfig } = usePrepareContractWrite({
+    addressOrName: contractAddress,
+    contractInterface: taskPortalContractAbi,
+    functionName: 'addTask',
+    args: [],
+    overrides: {
+      value: ethers.utils.parseEther('0.01')
+    }
+  })
+  const {
+    write: addTaskTransactionWrite,
+    data: addTaskTransactionData
+  } = useContractWrite(addTaskTransactionConfig)
+  const {
+    isLoading,
+    isSuccess
+  } = useWaitForTransaction({
+    hash: addTaskTransactionData?.hash
+  })
 
   const addTask = async (formData) => {
     let {
@@ -108,7 +145,7 @@ export default function CreateTaskComponent ({
 
     if (email) {
       const userUploadStatus = await addUserToDatabase({
-        walletAddress: account,
+        walletAddress: address,
         email
       })
 
@@ -123,9 +160,8 @@ export default function CreateTaskComponent ({
 
     setState({ name: CreateTaskState.PendingUserApproval })
     try {
-      const { contractAddress } = getDeployedContractForChainId(network.chainId)
       const signer = library.getSigner()
-      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, chainId)
       console.log('create options payload for on-chain transaction')
       let options = {}
 
@@ -136,7 +172,7 @@ export default function CreateTaskComponent ({
         const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, signer)
         // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
         tokenAmount = ethers.utils.parseUnits(tokenAmount, 18)
-        const allowance = await (erc20TokenContract.allowance(account, contractAddress))
+        const allowance = await (erc20TokenContract.allowance(address, contractAddress))
 
         let approvalResponse
         if (allowance.isZero()) {
@@ -151,6 +187,8 @@ export default function CreateTaskComponent ({
         ...options, ...getDefaultTransactionGasOptions()
       }
       console.log('creating on-chain transaction')
+      addTaskTransactionWrite()
+
       const addTaskTransaction = await taskPortalContract.addTask(ethers.utils.toUtf8Bytes(dataPath), tokenAddress, tokenAmount, options)
       setState({
         name: CreateTaskState.PendingContractTransaction
@@ -168,7 +206,7 @@ export default function CreateTaskComponent ({
         sharePath: `${shareEvent.args.path}`
       }
 
-      analyticsTrackEvent('CreatedTask', { ...data, ...{ chainId: network.chainId } })
+      analyticsTrackEvent('CreatedTask', { ...data, ...{ chainId } })
       await sleep(1000) // just a random wait, so that the transaction actually shows up in etherscan and share link will work
       // todo: maybe we can trigger a render of the share page in the background, so it's cached already??!?
       setState({
@@ -226,7 +264,7 @@ export default function CreateTaskComponent ({
 
   const renderTaskDescriptionFormPart = () => {
     return <>
-      {isWalletConnected && !isSupportedNetwork(network.chainId) && renderWalletSwitchCta()}
+      {isConnected && !isSupportedNetwork(chainId) && renderWalletSwitchCta()}
       {isReadyToSubmit && renderWalletAddressInputField(walletAddress)}
       {renderFormField({
         register,
@@ -372,12 +410,8 @@ export default function CreateTaskComponent ({
           >
             Your Wallet Address
           </label>)}
-          {!isWalletConnected && (<div className="mt-1 mb-6">
-            {renderWalletConnectComponent({
-              account,
-              web3Modal,
-              dispatch
-            })}
+          {!isConnected && (<div className="mt-1 mb-6">
+            {renderWalletConnectComponent()}
           </div>)}
         </div>
         <form onSubmit={handleSubmit(addTask)} className="space-y-6">
