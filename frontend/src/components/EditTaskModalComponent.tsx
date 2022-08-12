@@ -1,12 +1,12 @@
 import ModalComponent from './ModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import { create, get, intersection, isEmpty, keys, omitBy, pick } from 'lodash'
-import { AppContext } from '../context'
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
 import { classNames, getSitePathForNode, refreshVercelPage } from '../utils'
 import { renderFormField } from '../formUtils'
+// eslint-disable-next-line node/no-missing-import
 import { getDefaultTransactionGasOptions, getTaskPortalContractInstanceViaActiveWallet } from '../walletUtils'
 import { ethers } from 'ethers'
 // eslint-disable-next-line node/no-missing-import
@@ -14,6 +14,9 @@ import { EditTaskState, TASK_ADVANCED_FORM_FIELDS, TASK_ALL_FORM_FIELDS } from '
 import { uploadTaskDataToIpfs } from '../storageUtils'
 // eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
+// eslint-disable-next-line node/no-missing-import
+import { useChainId } from '../useChainId'
+import { useSigner } from 'wagmi'
 
 interface EditTaskStateType {
   name: EditTaskState;
@@ -25,12 +28,8 @@ export default function EditTaskModalComponent ({
   onClose
 }) {
   taskObject = omitBy(taskObject, isEmpty)
-
-  const [globalState] = useContext(AppContext)
-  const {
-    library,
-    network
-  } = globalState
+  const chainId = useChainId()
+  const { data: signer } = useSigner()
 
   const [editTaskState, setEditTaskState] = useState<EditTaskStateType>({ name: EditTaskState.Default })
 
@@ -66,8 +65,7 @@ export default function EditTaskModalComponent ({
           data: { error: 'Failed to upload data to IPFS' }
         })
       }
-      const signer = library.getSigner()
-      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, chainId)
       console.log('create options payload for on-chain transaction')
       const options = getDefaultTransactionGasOptions()
       console.log('creating on-chain transaction')
@@ -79,7 +77,7 @@ export default function EditTaskModalComponent ({
 
       const vercelRefreshResult = await refreshVercelPage(getSitePathForNode({
         nodeType: 'task',
-        chainId: network.chainId,
+        chainId,
         path: taskObject.path
       }))
       console.log('vercelRefreshResult', vercelRefreshResult)

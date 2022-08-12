@@ -9,8 +9,7 @@ import {
 import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/outline'
 import { concat, filter, get, includes, invert, isEmpty, map, pickBy, sum, uniq, uniqBy, zipObject } from 'lodash'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { AppContext } from '../context'
-import { useContext } from 'react'
+import { useAccount } from 'wagmi'
 
 export default function PayoutBountyModalComponent ({
   state,
@@ -19,11 +18,9 @@ export default function PayoutBountyModalComponent ({
   onSubmit,
   onClose
 }) {
-  const [globalState] = useContext(AppContext)
   const {
-    account
-  } = globalState
-  const isWalletConnected = !isEmpty(account)
+    isConnected
+  } = useAccount()
 
   const defaultPayoutFields = isEmpty(allNodes)
     ? []
@@ -183,8 +180,8 @@ export default function PayoutBountyModalComponent ({
       <button
         type="submit"
         onClick={handleSubmit(onSubmit)}
-        disabled={!isWalletConnected}
-        className={classNames(isWalletConnected ? 'bg-secondary hover:bg-secondary-light' : 'bg-gray-300', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
+        disabled={!isConnected}
+        className={classNames(isConnected ? 'bg-secondary hover:bg-secondary-light' : 'bg-gray-300', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
       >
         Payout bounties
       </button>

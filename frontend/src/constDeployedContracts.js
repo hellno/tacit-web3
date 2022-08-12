@@ -1,4 +1,4 @@
-import { find, includes, map, startCase, union } from 'lodash'
+import { find, includes, map, union } from 'lodash'
 import taskPortalAbi from './abi/TaskPortal.json'
 import erc20Abi from './abi/IERC20.json'
 import { ethers } from 'ethers'
@@ -6,54 +6,51 @@ import { ethers } from 'ethers'
 export const taskPortalContractAbi = taskPortalAbi.abi
 export const erc20ContractAbi = erc20Abi.abi
 
-const _contracts = [
-  {
-    chainId: 5,
-    name: 'Görli Testnet',
-    shortName: 'gor',
-    // if changed, must update biconomy as well
-    contractAddress: '0x8ae3baa9452b2483c2c1bd43b2d89ee554c123e5',
-    blockExplorer: 'https://goerli.etherscan.io',
-    nativeCurrency: {
-      name: 'Görli Ether',
-      symbol: 'GOR',
-      decimals: 18
-    }
-  }, {
-    chainId: 100,
-    name: 'Gnosis Chain',
-    shortName: 'gno',
-    contractAddress: '0x77c508997cb35f566be4803865d22976374f63eb',
-    blockExplorer: 'https://blockscout.com/xdai/mainnet',
-    nativeCurrency: {
-      name: 'xDAI',
-      symbol: 'xDAI',
-      decimals: 18
-    }
-  }, {
-    chainId: 137,
-    name: 'Polygon Mainnet',
-    shortName: 'matic',
-    contractAddress: '0xab3160358410b2912f319c2ec61a6d88bf138520',
-    blockExplorer: 'https://polygonscan.com',
-    nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC',
-      decimals: 18
-    }
-  }, {
-    chainId: 80001,
-    name: 'Polygon Testnet Mumbai',
-    contractAddress: '0xAb3160358410B2912f319C2Ec61a6d88bF138520',
-    shortName: 'maticmum',
-    blockExplorer: 'https://mumbai.polygonscan.com',
-    nativeCurrency: {
-      name: 'MATIC',
-      symbol: 'MATIC',
-      decimals: 18
-    }
+const _contracts = [{
+  chainId: 5,
+  name: 'Görli Testnet',
+  shortName: 'gor', // if changed, must update biconomy as well
+  contractAddress: '0x8ae3baa9452b2483c2c1bd43b2d89ee554c123e5',
+  blockExplorer: 'https://goerli.etherscan.io',
+  nativeCurrency: {
+    name: 'Görli Ether',
+    symbol: 'GOR',
+    decimals: 18
   }
-]
+}, {
+  chainId: 100,
+  name: 'Gnosis Chain',
+  shortName: 'gno',
+  contractAddress: '0x77c508997cb35f566be4803865d22976374f63eb',
+  blockExplorer: 'https://blockscout.com/xdai/mainnet',
+  nativeCurrency: {
+    name: 'xDAI',
+    symbol: 'xDAI',
+    decimals: 18
+  }
+}, {
+  chainId: 137,
+  name: 'Polygon Mainnet',
+  shortName: 'matic',
+  contractAddress: '0xab3160358410b2912f319c2ec61a6d88bf138520',
+  blockExplorer: 'https://polygonscan.com',
+  nativeCurrency: {
+    name: 'MATIC',
+    symbol: 'MATIC',
+    decimals: 18
+  }
+}, {
+  chainId: 80001,
+  name: 'Polygon Testnet Mumbai',
+  contractAddress: '0xAb3160358410B2912f319C2Ec61a6d88bF138520',
+  shortName: 'maticmum',
+  blockExplorer: 'https://mumbai.polygonscan.com',
+  nativeCurrency: {
+    name: 'MATIC',
+    symbol: 'MATIC',
+    decimals: 18
+  }
+}]
 
 export const chainIdToBiconomyApiKey = {
   5: process.env.BICONOMY_GOERLI_API_KEY,
@@ -161,10 +158,4 @@ export const getTaskFromContractAsObject = async (contract, taskPath) => {
     nodes,
     bounties
   }
-}
-
-export const getUserFriendlyNameForNetwork = (network) => {
-  const contract = getDeployedContractForChainId(network.chainId)
-  const name = (contract && contract.name) || network.name
-  return startCase(name)
 }

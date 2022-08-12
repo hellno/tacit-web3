@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
 import { useForm } from 'react-hook-form'
+// eslint-disable-next-line node/no-missing-import
 import { getTokenAddressToMaxAmounts, useMainnetEnsName } from '../walletUtils'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
 import { get, pick } from 'lodash'
@@ -9,7 +10,6 @@ import {
   isSupportedNetwork,
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
-// eslint-disable-next-line node/no-missing-import
 import { classNames, getSiteUrl, isDevEnv, sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
@@ -40,9 +40,7 @@ export default function CreateTaskFormComponent ({
   const [tokenAddressToMaxAmount, setTokenAddressToMaxAmount] = useState({})
   const [showUserMessage, setShowUserMessage] = useState(true)
   const isReadyToSubmit = isConnected && isSupportedNetwork(chainId)
-  const ensName = useMainnetEnsName({
-    address
-  })
+  const ensName = useMainnetEnsName(address)
   const walletAddress = ensName || address
   const currState = localState.name
 

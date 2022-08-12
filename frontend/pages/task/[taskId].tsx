@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CashIcon, CheckCircleIcon } from '@heroicons/react/solid'
 import {
   BadgeCheckIcon,
@@ -16,11 +16,8 @@ import { constant, filter, findIndex, get, isEmpty, isNil, map, pullAt, times, t
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
-  getTokenAddressToMaxAmounts,
-  loadWeb3Modal,
-  switchNetwork
+  getTokenAddressToMaxAmounts
 } from '../../src/walletUtils'
-import { AppContext } from '../../src/context'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import BlockiesComponent from '../../src/components/BlockiesComponent'
@@ -50,6 +47,11 @@ import EditTaskModalComponent from '../../src/components/EditTaskModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import TransferTaskModalComponent from '../../src/components/TransferTaskModalComponent'
 import { getReadOnlyProviderForChainId } from '../../src/apiUtils'
+// eslint-disable-next-line node/no-missing-import
+import { useChainId } from '../../src/useChainId'
+import { useAccount, useSigner } from 'wagmi'
+// eslint-disable-next-line node/no-missing-import
+import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
 
 const unit = require('ethjs-unit')
 
@@ -75,14 +77,6 @@ interface IContractNode {
 }
 
 export default function TaskPage ({ taskObject }) {
-  const [globalState, dispatch] = useContext(AppContext)
-  const {
-    account,
-    library,
-    network,
-    provider
-  } = globalState
-
   const [bountyPayoutState, setBountyPayoutState] = useState<BountyPayoutStateType>({
     name: BountyPayoutState.Default
   })
@@ -94,6 +88,10 @@ export default function TaskPage ({ taskObject }) {
   const isLoading = isEmpty(taskObject)
   const isError = !isEmpty(get(taskObject, 'error'))
 
+  const { address } = useAccount()
+  const chainId = useChainId()
+  const { data: signer } = useSigner()
+
   const [nameToTokenAddress, setNameToTokenAddress] = useState({})
   const [tokenAddressToMaxAmount, setTokenAddressToMaxAmount] = useState({})
   const [renderPayoutModal, setRenderPayoutModal] = useState(false)
@@ -103,13 +101,13 @@ export default function TaskPage ({ taskObject }) {
 
   // @ts-ignore
   useEffect(async () => {
-    if (network) {
-      const nameToTokenAddr = getNameToTokenAddressObjectForChainId(network.chainId)
+    if (chainId) {
+      const nameToTokenAddr = getNameToTokenAddressObjectForChainId(chainId)
       setNameToTokenAddress(nameToTokenAddr)
-      const provider = getReadOnlyProviderForChainId(network.chainId)
-      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, account))
+      const provider = getReadOnlyProviderForChainId(chainId)
+      setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, address))
     }
-  }, [network])
+  }, [chainId])
 
   const onClosePayoutModal = () => {
     setRenderPayoutModal(false)
@@ -142,9 +140,9 @@ export default function TaskPage ({ taskObject }) {
     handleSubmit
   } = useForm()
 
-  useEffect(() => {
-    loadWeb3Modal(dispatch)
-  }, [])
+  // useEffect(() => {
+  //   loadWeb3Modal(dispatch)
+  // }, [])
 
   const renderLoadingScreen = () => (
     <LoadingScreenComponent subtitle={'Fetching on-chain data and task details from IPFS'} />
@@ -162,8 +160,8 @@ export default function TaskPage ({ taskObject }) {
     return renderErrorScreen()
   }
 
-  const isWalletConnected = !isEmpty(account)
-  const isUserOnCorrectChain = taskObject && network && taskObject.chainId === network.chainId
+  const isWalletConnected = !isEmpty(address)
+  const isUserOnCorrectChain = taskObject && address && taskObject.chainId === chainId
 
   const cards = [
     {
@@ -208,20 +206,20 @@ export default function TaskPage ({ taskObject }) {
     } = formData
     setIncreaseBountyState({ name: IncreaseBountyState.Init })
     try {
-      const { contractAddress } = getDeployedContractForChainId(network.chainId)
-      const signer = library.getSigner()
-      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
-      console.log('create options payload for on-chain transaction')
+      const { contractAddress } = getDeployedContractForChainId(chainId)
+      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, chainId)
+      console.log('create options payload for on-chain transaction', taskPortalContract)
       let options = {}
 
       if (isNativeChainCurrency(tokenAddress)) {
         tokenAmount = unit.toWei(tokenAmount * 10 ** 18, 'wei').toString()
         options = { value: tokenAmount }
       } else {
+        // @ts-ignore
         const erc20TokenContract = new ethers.Contract(tokenAddress, erc20ContractAbi, signer)
         // assumes all ERC20 tokens have 18 decimals, this is true for the majority, but not always
         tokenAmount = ethers.utils.parseUnits(tokenAmount, 18)
-        const allowance = await (erc20TokenContract.allowance(account, contractAddress))
+        const allowance = await (erc20TokenContract.allowance(address, contractAddress))
 
         let approvalResponse
         if (allowance.isZero()) {
@@ -247,6 +245,7 @@ export default function TaskPage ({ taskObject }) {
       console.log('Transaction successfully executed:', increaseBountyTransaction, res)
       setIncreaseBountyState({ name: IncreaseBountyState.Success })
     } catch (error) {
+      console.log('error when increasing bounty', error)
       setIncreaseBountyState({
         name: IncreaseBountyState.Error
       })
@@ -256,8 +255,7 @@ export default function TaskPage ({ taskObject }) {
   const handleTriggerPayoutButton = async (formData) => {
     setBountyPayoutState({ name: BountyPayoutState.Init })
 
-    const signer = library.getSigner()
-    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, chainId)
     const addresses = map(formData.payoutFields, (field) => field.address)
     // assumes all payouts are in same token that first bounty is given in
     const tokenAddresses = times(formData.payoutFields.length, constant(taskObject.bounties[0].tokenAddress))
@@ -324,7 +322,7 @@ export default function TaskPage ({ taskObject }) {
           </form>
         </div>
       case IncreaseBountyState.Error:
-        return <div>Error, this shouldn't happen =/</div>
+        return <div>Error, you should not see this 🥲</div>
       case IncreaseBountyState.Success:
         return <div>
           <p className="text-sm text-gray-700">
@@ -379,7 +377,7 @@ export default function TaskPage ({ taskObject }) {
           <div className="group inline-flex space-x-2 truncate text-sm">
             {renderIconBasedOnNodeType(nodeObject.nodeType, 'flex-shrink-0 h-5 w-5 text-gray-500')}
             <p className="text-gray-500 truncate ">
-              {NodeType[nodeObject.nodeType]} by {nodeObject.owner}
+              {NodeType[nodeObject.nodeType]} by <br />{nodeObject.owner}
             </p>
           </div>
         </div>
@@ -530,13 +528,15 @@ export default function TaskPage ({ taskObject }) {
                         Payout bounty
                       </button>
                     </>
-                    : isWalletConnected && <button
-                    onClick={() => switchNetwork(provider, taskObject.chainId).then(() => window.location.reload())}
-                    type="button"
-                    className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-secondary hover:bg-secondary-light"
-                  >
-                    Switch to {getDeployedContractForChainId(taskObject.chainId).name}
-                  </button>}
+                    : isWalletConnected && <WalletConnectButtonForForm requiredChainId={taskObject.chainId} />
+                    //   <button
+                    //   onClick={() => switchNetwork(provider, taskObject.chainId).then(() => window.location.reload())}
+                    //   type="button"
+                    //   className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-secondary hover:bg-secondary-light"
+                    // >
+                    //   Switch to {getDeployedContractForChainId(taskObject.chainId).name}
+                    // </button>
+                  }
                 </div>
               </div>
             </div>

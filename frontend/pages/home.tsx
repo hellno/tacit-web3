@@ -1,6 +1,5 @@
 import Image from 'next/image'
-import { Fragment, useContext, useEffect, useState } from 'react'
-import { AppContext } from '../src/context'
+import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import { ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/react/outline'
 import { ChevronRightIcon, SearchIcon } from '@heroicons/react/solid'
@@ -49,7 +48,6 @@ function Example () {
 }
 
 export default function Home () {
-  const [state, dispatch] = useContext(AppContext)
   const projects = [
     {
       id: 1,
@@ -91,18 +89,18 @@ export default function Home () {
   ]
   const pinnedProjects = projects.filter((project) => project.pinned)
 
-  useEffect(() => {
-    if (window.ethereum) {
-      // @ts-ignore
-      window.ethereum.on('chainChanged', () => {
-        window.location.reload()
-      })
-      // @ts-ignore
-      window.ethereum.on('accountsChanged', () => {
-        window.location.reload()
-      })
-    }
-  })
+  // useEffect(() => {
+  //   if (window.ethereum) {
+  //     // @ts-ignore
+  //     window.ethereum.on('chainChanged', () => {
+  //       window.location.reload()
+  //     })
+  //     // @ts-ignore
+  //     window.ethereum.on('accountsChanged', () => {
+  //       window.location.reload()
+  //     })
+  //   }
+  // })
 
   // useEffect(() => {
   //   loadWeb3Modal(dispatch)

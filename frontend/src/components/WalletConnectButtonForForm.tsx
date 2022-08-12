@@ -2,7 +2,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { getDeployedContractForChainId } from '../constDeployedContracts'
 import { classNames } from '../utils'
 
-export default function WalletConnectButtonForForm ({ requiredChainId }) {
+export default function WalletConnectButtonForForm ({ requiredChainId = undefined }) {
   const renderButton = (text, onClick, canHover = true) => {
     return <button
       onClick={onClick} type="button"

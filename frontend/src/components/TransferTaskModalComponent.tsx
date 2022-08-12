@@ -1,10 +1,10 @@
 import ModalComponent from './ModalComponent'
 import { debounce, get, truncate } from 'lodash'
-import { AppContext } from '../context'
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { classNames } from '../utils'
 import { renderFormField } from '../formUtils'
+// eslint-disable-next-line node/no-missing-import
 import { getDefaultTransactionGasOptions, getTaskPortalContractInstanceViaActiveWallet } from '../walletUtils'
 import { ethers } from 'ethers'
 // eslint-disable-next-line node/no-missing-import
@@ -12,6 +12,9 @@ import { EditTaskState } from '../const'
 import ExclamationIcon from '@heroicons/react/outline/ExclamationIcon'
 import { getReadOnlyProviderForChainId } from '../apiUtils'
 import { getDeployedContractForChainId } from '../constDeployedContracts'
+// eslint-disable-next-line node/no-missing-import
+import { useChainId } from '../useChainId'
+import { useSigner } from 'wagmi'
 
 interface EditTaskStateType {
   name: EditTaskState;
@@ -85,12 +88,14 @@ export default function TransferTaskModalComponent ({
   taskObject,
   onClose
 }) {
-  const [globalState] = useContext(AppContext)
-  const {
-    library,
-    network
-  } = globalState
-  const blockExplorerAddress = get(getDeployedContractForChainId(network.chainId), 'blockExplorer')
+  // const {
+  //   address,
+  //   isConnected
+  // } = useAccount()
+  const chainId = useChainId()
+  const blockExplorerAddress = get(getDeployedContractForChainId(chainId), 'blockExplorer')
+  const { data: signer } = useSigner()
+
   const [editTaskState, setEditTaskState] = useState<EditTaskStateType>({ name: EditTaskState.Default })
 
   const {
@@ -115,16 +120,10 @@ export default function TransferTaskModalComponent ({
     return /[a-zA-Z]+\.[a-zA-Z]/gm.test(ensName) || ethers.utils.isAddress(input)
   }
 
-  console.log(ensName,
-    ensAvatar,
-    ensResolvedAddress,
-    loading)
-
   const onFormSubmit = async (formData) => {
     try {
       const { newOwnerAddress } = formData
-      const signer = library.getSigner()
-      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+      const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, chainId)
       console.log('create options payload for on-chain transaction')
       const options = getDefaultTransactionGasOptions()
       console.log('creating on-chain transaction')

@@ -1,6 +1,7 @@
 import { Fragment } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
+// eslint-disable-next-line node/no-missing-import
 import { renderWalletConnectComponent } from '../walletUtils'
 import Image from 'next/image'
 

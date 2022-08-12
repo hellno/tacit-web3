@@ -35,7 +35,7 @@ import {
 import Head from 'next/head'
 // eslint-disable-next-line node/no-missing-import
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
-import { useAccount, useContractEvent } from 'wagmi'
+import { useAccount, useContractEvent, useSigner } from 'wagmi'
 // eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../../src/useChainId'
 
@@ -49,16 +49,6 @@ interface BiconomyLoadingStateType {
   biconomy?: Biconomy
 }
 
-type ExternalProvider = {
-  isMetaMask?: boolean;
-  isStatus?: boolean;
-  host?: string;
-  path?: string;
-  sendAsync?: (request: { method: string, params?: Array<any> }, callback: (error: any, response: any) => void) => void
-  send?: (request: { method: string, params?: Array<any> }, callback: (error: any, response: any) => void) => void
-  request?: (request: { method: string, params?: Array<any> }) => Promise<any>
-}
-
 function SharePage ({ shareObject }) {
   const isLoading = isEmpty(shareObject)
   const [biconomyState, setBiconomyState] = useState<BiconomyLoadingStateType>({
@@ -66,9 +56,13 @@ function SharePage ({ shareObject }) {
     biconomy: null
   })
 
-  const { address } = useAccount()
+  const {
+    address,
+    isConnected
+  } = useAccount()
   const chainId = useChainId()
-  const ensName = useMainnetEnsName()
+  const ensName = useMainnetEnsName(address)
+  const { data: signer } = useSigner()
 
   const [sharePageData, setSharePageData] = useState<ShareSubmissionStateType>({ name: SharePageState.Default })
 
@@ -82,7 +76,7 @@ function SharePage ({ shareObject }) {
   }, [shareObject, chainId])
 
   const setupBiconomy = async () => {
-    if (!shareObject && window.ethereum) {
+    if (!shareObject && signer) {
       return
     }
 
@@ -96,11 +90,11 @@ function SharePage ({ shareObject }) {
       setBiconomyState({ name: BiconomyLoadingState.Init })
       const biconomyOptions = {
         apiKey,
-        walletProvider: window.ethereum as ExternalProvider,
+        walletProvider: signer,
         debug: isDevEnv()
       }
 
-      const biconomy = new Biconomy(window.ethereum as ExternalProvider, biconomyOptions)
+      const biconomy = new Biconomy(signer, biconomyOptions)
 
       setBiconomyState({
         name: BiconomyLoadingState.Loading,
@@ -175,9 +169,8 @@ function SharePage ({ shareObject }) {
     return renderLoadingScreen()
   }
 
-  const isWalletConnected = !isEmpty(address)
   const isGaslessTransactionsReady = biconomyState.name === BiconomyLoadingState.Success
-  const isUserOnCorrectChain = isWalletConnected && shareObject && shareObject.chainId === chainId
+  const isUserOnCorrectChain = isConnected && shareObject && shareObject.chainId === chainId
   const canSubmitActions = isUserOnCorrectChain && isGaslessTransactionsReady
   const walletAddress = ensName || address
   const primaryColor = get(shareObject, 'primaryColorHex') || colors.primary.DEFAULT
@@ -424,7 +417,7 @@ function SharePage ({ shareObject }) {
                   Enter your email so that the poster can get in touch with you if needed. Is stored off-chain.
                 </p>
               </div>
-              {!isWalletConnected || !isUserOnCorrectChain
+              {!isConnected || !isUserOnCorrectChain
                 ? <WalletConnectButtonForForm requiredChainId={shareObject.chainId} />
                 : <div>
                   <button
@@ -479,7 +472,7 @@ function SharePage ({ shareObject }) {
             </label>
             <form onSubmit={handleSubmit(handleSolveFormSubmit)} className="space-y-4">
               <div>
-                {isWalletConnected && renderWalletAddressInputField(walletAddress)}
+                {renderWalletAddressInputField(walletAddress)}
               </div>
               <div>
                 {renderFormField({
@@ -514,7 +507,7 @@ function SharePage ({ shareObject }) {
                   {shareObject.subtitleSolutionModal || 'This could be your email address, your Discord / Twitter name or something else the poster requested.'}
                 </p>
               </div>
-              {!isWalletConnected || !isUserOnCorrectChain
+              {!isConnected || !isUserOnCorrectChain
                 ? <WalletConnectButtonForForm requiredChainId={shareObject.chainId} />
                 : <div>
                   <button
