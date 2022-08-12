@@ -35,7 +35,7 @@ import {
 import Head from 'next/head'
 // eslint-disable-next-line node/no-missing-import
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
-import { useAccount, useContractEvent, useProvider } from 'wagmi'
+import { useAccount, useContractEvent } from 'wagmi'
 // eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../../src/useChainId'
 
@@ -60,7 +60,6 @@ type ExternalProvider = {
 }
 
 function SharePage ({ shareObject }) {
-  // const [state, dispatch] = useContext(AppContext)
   const isLoading = isEmpty(shareObject)
   const [biconomyState, setBiconomyState] = useState<BiconomyLoadingStateType>({
     name: BiconomyLoadingState.Default,
@@ -68,7 +67,6 @@ function SharePage ({ shareObject }) {
   })
 
   const { address } = useAccount()
-  const provider = useProvider()
   const chainId = useChainId()
   const ensName = useMainnetEnsName()
 
@@ -134,7 +132,7 @@ function SharePage ({ shareObject }) {
 
   const NodeUpdatedEventListener = (event) => {
     console.log('received new on-chain event', event)
-    const [path, owner, nodeType, parent, eventData] = event
+    const [path, owner, nodeType, , eventData] = event
 
     if (owner !== address) {
       return
