@@ -33,8 +33,10 @@ import {
   taskPortalContractAbi
 } from '../../src/constDeployedContracts'
 import Head from 'next/head'
+// eslint-disable-next-line node/no-missing-import
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
 import { useAccount, useContractEvent, useProvider } from 'wagmi'
+// eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../../src/useChainId'
 
 interface ShareSubmissionStateType {

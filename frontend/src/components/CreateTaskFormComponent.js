@@ -18,6 +18,7 @@ import { useAccount } from 'wagmi'
 import { useChainId } from '../useChainId'
 // eslint-disable-next-line node/no-missing-import
 import { CreateTaskState, TASK_ALL_FORM_FIELDS } from '../const'
+import { uploadTaskDataToIpfs } from '../storageUtils'
 
 export default function CreateTaskFormComponent ({
   state: localState,
@@ -232,8 +233,8 @@ export default function CreateTaskFormComponent ({
     })
 
     const ipfsData = pick(formData, TASK_ALL_FORM_FIELDS)
-    // const ipfsDataPath = await uploadTaskDataToIpfs(ipfsData)
-    const ipfsDataPath = 'bafybeibqz6l4ecvpra6wej4v2keh7piz2d3jnzscfoitfmzuwetqcev6yu/15f546c50814d66380f7c89e9d2704f0'
+    const ipfsDataPath = await uploadTaskDataToIpfs(ipfsData)
+    // const ipfsDataPath = 'bafybeibqz6l4ecvpra6wej4v2keh7piz2d3jnzscfoitfmzuwetqcev6yu/15f546c50814d66380f7c89e9d2704f0'
     await sleep(1000)
 
     setState({

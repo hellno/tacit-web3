@@ -86,10 +86,10 @@ export default function SubmitTaskOnChainComponent ({
     })
 
     const {
-      data: approveERC20ContractAllowanceData,
-      error: approveERC20ContractAllowanceError,
-      write: approveERC20ContractAllowanceWrite,
-      status: approveERC20ContractAllowanceStatus
+      // data: approveERC20ContractAllowanceData,
+      // error: approveERC20ContractAllowanceError,
+      write: approveERC20ContractAllowanceWrite
+      // status: approveERC20ContractAllowanceStatus
     } = useContractWrite({
       ...approveERC20ContractAllowanceConfig,
       onSuccess (data) {
@@ -180,7 +180,7 @@ export default function SubmitTaskOnChainComponent ({
   }
 
   const {
-    data: addTaskTransactionData,
+    // data: addTaskTransactionData,
     error: addTaskTransactionError,
     write: executeAddTaskTransaction,
     status: addTaskTransactionStatus

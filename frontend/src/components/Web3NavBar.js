@@ -1,9 +1,7 @@
-import { Fragment, useContext } from 'react'
+import { Fragment } from 'react'
 import { Popover, Transition } from '@headlessui/react'
 import { MenuIcon, XIcon } from '@heroicons/react/outline'
-import { isEmpty, truncate } from 'lodash'
 import { renderWalletConnectComponent } from '../walletUtils'
-import { AppContext } from '../context'
 import Image from 'next/image'
 
 const navigation = [// {name: 'Product', href: '#'},
@@ -13,25 +11,8 @@ const navigation = [// {name: 'Product', href: '#'},
 ]
 
 const Web3NavBar = () => {
-  const [state, dispatch] = useContext(AppContext)
-  const {
-    web3Modal,
-    account,
-    ensName
-  } = state
-
-  const isWalletConnected = !isEmpty(account)
-  const walletAddress = ensName || truncate(account, { length: 14 })
-
   const renderWalletAction = () => {
     return renderWalletConnectComponent()
-
-    return !isWalletConnected
-      ? renderWalletConnectComponent()
-      : <span
-        className="inline-flex items-center px-4 py-2 shadow-sm shadow-gray-600 text-sm font-medium rounded-sm text-gray-700 bg-white">
-          Wallet {walletAddress}
-        </span>
   }
 
   return <Popover>
