@@ -30,7 +30,6 @@ export const providerOptions = {
   walletconnect: {
     package: WalletConnect,
     options: {
-      infuraId: process.env.INFURA_KEY,
       rpc: chainIdToRpcUrl
     }
   }
@@ -98,7 +97,7 @@ export const renderWalletConnectComponent = () => {
 
 export const loadWeb3Modal = (dispatch) => {
   const web3Modal = new Web3Modal({
-    cacheProvider: true,
+    cacheProvider: false,
     providerOptions, // required
     theme: 'dark'
   })
@@ -135,14 +134,12 @@ export const getTaskPortalContractInstanceViaActiveWallet = (signer, chainId) =>
 }
 
 export const switchNetwork = async (provider, chainId) => {
-  console.log('trying to switch network to chainId', chainId, provider)
   try {
     await provider.request({
       method: 'wallet_switchEthereumChain',
       params: [{ chainId: toHex(chainId) }]
     })
   } catch (switchError) {
-    console.log('error when switching', switchError)
     // error code = chain has not been added to wallet provider
     if (switchError.code === 4902) {
       const params = defaults(

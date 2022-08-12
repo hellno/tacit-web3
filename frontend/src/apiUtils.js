@@ -1,11 +1,12 @@
 import { ethers } from 'ethers'
+import { getSiteUrl } from './utils'
 import { get } from 'lodash'
 
 export const chainIdToRpcUrl = {
   1: 'https://rpc.ankr.com/eth',
   5: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
   100: 'https://rpc.ankr.com/gnosis',
-  137: 'https://rpc.ankr.com/polygon',
+  137: `https://polygon-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
   1337: 'http://127.0.0.1:8545/',
   1338: 'http://127.0.0.1:8545/',
   80001: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
@@ -62,4 +63,10 @@ export const getIpfsPathFromOnChainTaskData = (taskData) => {
     ipfsPath = ipfsPath.split('\\')[1].split('\x00')[0]
   }
   return ipfsPath
+}
+
+export const refreshVercelPage = async (pathToPage) => {
+  const apiEndpoint = getSiteUrl()
+  const apiUrl = `${apiEndpoint}/api/revalidate/${pathToPage}?secret=${process.env.TACIT_SERVER_TOKEN}`
+  return await fetch(apiUrl)
 }
