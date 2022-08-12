@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
 import { useForm } from 'react-hook-form'
-import { getTokenAddressToMaxAmounts, renderWalletConnectComponent, useMainnetEnsName } from '../walletUtils'
+import { getTokenAddressToMaxAmounts, useMainnetEnsName } from '../walletUtils'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
 import { get, pick } from 'lodash'
-import { getNameToTokenAddressObjectForChainId, isSupportedNetwork } from '../constDeployedContracts'
+import {
+  getNameToTokenAddressObjectForChainId,
+  isSupportedNetwork,
+  NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
+} from '../constDeployedContracts'
 // eslint-disable-next-line node/no-missing-import
 import { classNames, getSiteUrl, isDevEnv, sleep } from '../utils'
 import { XIcon } from '@heroicons/react/outline'
@@ -19,6 +23,8 @@ import { useChainId } from '../useChainId'
 // eslint-disable-next-line node/no-missing-import
 import { CreateTaskState, TASK_ALL_FORM_FIELDS } from '../const'
 import { uploadTaskDataToIpfs } from '../storageUtils'
+// eslint-disable-next-line node/no-missing-import
+import WalletConnectButtonForForm from './WalletConnectButtonForForm'
 
 export default function CreateTaskFormComponent ({
   state: localState,
@@ -61,33 +67,31 @@ export default function CreateTaskFormComponent ({
       title: isDevEnv() ? 'this is a sweet title' : '',
       description: isDevEnv() ? 'description 123' : '',
       tokenAmount: 0.001,
-      tokenAddress: '0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1'
-      // tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
+      tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
     }
   })
 
   function renderUseInfoMessage () {
-    return showUserMessage && (
-      <div className="rounded-md bg-blue-50 p-3 mb-4">
-        <div className="flex">
-          <div className="flex-shrink-0 p-1">
-            <InformationCircleIcon className="h-5 w-5 text-blue-400" aria-hidden="true" />
-          </div>
-          <div className="ml-2 flex-1 md:flex md:justify-between items-center">
-            <p className="text-sm text-blue-700">
-              {localState.message}
-            </p>
-            <p className="mt-3 text-sm md:mt-0 md:ml-6">
-              <button
-                onClick={() => setShowUserMessage(false)}
-                className="bg-white rounded-md p-1 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
-                <span className="sr-only">Close menu</span>
-                <XIcon className="h-4 w-4" aria-hidden="true" />
-              </button>
-            </p>
-          </div>
+    return showUserMessage && (<div className="rounded-md bg-blue-50 p-3 mb-4">
+      <div className="flex">
+        <div className="flex-shrink-0 p-1">
+          <InformationCircleIcon className="h-5 w-5 text-blue-400" aria-hidden="true" />
         </div>
-      </div>)
+        <div className="ml-2 flex-1 md:flex md:justify-between items-center">
+          <p className="text-sm text-blue-700">
+            {localState.message}
+          </p>
+          <p className="mt-3 text-sm md:mt-0 md:ml-6">
+            <button
+              onClick={() => setShowUserMessage(false)}
+              className="bg-white rounded-md p-1 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
+              <span className="sr-only">Close menu</span>
+              <XIcon className="h-4 w-4" aria-hidden="true" />
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>)
   }
 
   const renderWalletSwitchCta = () => <button
@@ -176,20 +180,20 @@ export default function CreateTaskFormComponent ({
   }
 
   const renderFormSubmitButton = () => {
-    return currState === CreateTaskState.PendingUserBountyInput
-      ? <button
-        type="submit"
-        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
-      >
-        Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
-        {/* Submit Task & Bounty */}
-      </button>
-      : <button
-        onClick={(event) => onNextStepSubmit(event)}
-        className={classNames(isReadyToSubmit ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
-      >
-        Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
-      </button>
+    return currState === CreateTaskState.PendingUserBountyInput ? <button
+      disabled={!isConnected}
+      type="submit"
+      className={classNames(isConnected && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
+    >
+      Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
+      {/* Submit Task & Bounty */}
+    </button> : <button
+      onClick={(event) => onNextStepSubmit(event)}
+      disabled={!isConnected}
+      className={classNames(isReadyToSubmit ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
+    >
+      Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
+    </button>
   }
 
   const renderBackButton = () => {
@@ -261,15 +265,12 @@ export default function CreateTaskFormComponent ({
           Your Wallet Address
         </label>)}
         {!isConnected && (<div className="mt-1 mb-6">
-          {renderWalletConnectComponent()}
+          <WalletConnectButtonForForm />
         </div>)}
         <form
           className="space-y-6"
           onSubmit={handleSubmit((formData) => handleFormSubmit(formData))}
         >
-          {/* debug just to go faster through this shit */}
-          {currState !== CreateTaskState.PendingUploadToIpfs && renderFormSubmitButton()}
-
           {currState === CreateTaskState.PendingUserTaskInput && renderTaskDescriptionFormPart()}
           {currState === CreateTaskState.PendingUserBountyInput && renderTaskBountyFormPart()}
           {currState !== CreateTaskState.PendingUploadToIpfs && renderFormSubmitButton()}

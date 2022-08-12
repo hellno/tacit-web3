@@ -20,7 +20,7 @@ import { analyticsTrackEvent } from '../analyticsUtils'
 import { useState } from 'react'
 import { makeIpfsPathForOnChainTask } from '../apiUtils'
 import { ethers } from 'ethers'
-import { classNames, getBountyAmount, getBountyCurrency } from '../utils'
+import { classNames, getBountyAmount, getBountyCurrency, isDevEnv } from '../utils'
 
 const unit = require('ethjs-unit')
 
@@ -434,7 +434,7 @@ export default function SubmitTaskOnChainComponent ({
   return <div className="mt-2">
     {renderContent()}
     <div className="mt-5 sm:mt-2 sm:flex-shrink-0 sm:flex sm:items-center">
-      <button
+      {isDevEnv() && <button
         onClick={() => setState({
           name: CreateTaskState.PendingUserOnChainApproval,
           data: formData
@@ -444,6 +444,7 @@ export default function SubmitTaskOnChainComponent ({
       >
         Go back
       </button>
+      }
     </div>
   </div>
 }
