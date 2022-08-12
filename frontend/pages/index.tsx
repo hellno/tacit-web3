@@ -1,14 +1,13 @@
-import { useCallback, useContext, useEffect, useState } from 'react'
-import { ArrowSmDownIcon, CheckCircleIcon } from '@heroicons/react/solid'
-import { loadWeb3Modal } from '../src/walletUtils'
+import { useCallback, useEffect, useState } from 'react'
+import { ArrowSmDownIcon } from '@heroicons/react/solid'
 import Web3NavBar from '../src/components/Web3NavBar'
-import { AppContext } from '../src/context'
-import CreateTaskComponent from '../src/components/CreateTaskComponent'
+import CreateTaskFormComponent from '../src/components/CreateTaskFormComponent'
+import CreateTaskOnChainComponent from '../src/components/SubmitTaskOnChainComponent'
 import { get } from 'lodash'
 // eslint-disable-next-line node/no-missing-import
 import { CreateTaskState } from '../src/const'
-import PresentActionLinksComponent from '../src/components/PresentActionLinksComponent'
 import dynamic from 'next/dynamic'
+import { isProdEnv } from '../src/utils'
 
 // eslint-disable-next-line node/no-unsupported-features/es-syntax
 const HowToExplainerComponent = dynamic(() => import('../src/components/HowToExplainerComponent'))
@@ -27,27 +26,26 @@ interface TaskSubmissionStateType {
   data?: object;
 }
 
-export default function Home () {
-  const [, dispatch] = useContext(AppContext)
-  const [taskSubmissionState, setTaskSubmissionState] = useState<TaskSubmissionStateType>({ name: CreateTaskState.Default })
+export default function Index () {
+  const [taskSubmissionState, setTaskSubmissionState] = useState<TaskSubmissionStateType>({ name: CreateTaskState.PendingUserTaskInput })
   const [didScroll, setDidScroll] = useState(false)
 
-  useEffect(() => {
-    if (window.ethereum) {
-      // @ts-ignore
-      window.ethereum.on('chainChanged', () => {
-        window.location.reload()
-      })
-      // @ts-ignore
-      window.ethereum.on('accountsChanged', () => {
-        window.location.reload()
-      })
-    }
-  })
+  // useEffect(() => {
+  //   if (window.ethereum) {
+  //     // @ts-ignore
+  //     window.ethereum.on('chainChanged', () => {
+  //       window.location.reload()
+  //     })
+  //     // @ts-ignore
+  //     window.ethereum.on('accountsChanged', () => {
+  //       window.location.reload()
+  //     })
+  //   }
+  // })
 
-  useEffect(() => {
-    loadWeb3Modal(dispatch)
-  }, [])
+  // useEffect(() => {
+  //   loadWeb3Modal(dispatch)
+  // }, [])
 
   const onScroll = useCallback(event => {
     setDidScroll(true)
@@ -71,45 +69,23 @@ export default function Home () {
   function getTaskComponentDependingOnState () {
     const stateName = get(taskSubmissionState, 'name')
     switch (stateName) {
-      case CreateTaskState.Default:
-      case CreateTaskState.PendingUserInputBounty:
-        return <CreateTaskComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
+      case CreateTaskState.PendingUserTaskInput:
+      case CreateTaskState.PendingUserBountyInput:
       case CreateTaskState.PendingUploadToIpfs:
-        return <div className="px-4 py-8 sm:px-10">
-          <div className="mt-0">
-            {renderStepIndicator(1)}
-          </div>
-        </div>
+        return <CreateTaskFormComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
+      case CreateTaskState.PendingERC20ContractApproval:
+      case CreateTaskState.PendingUserOnChainApproval:
       case CreateTaskState.PendingUserApproval:
-        return <div className="px-4 py-8 sm:px-10">
-          <div className="mt-0">
-            {renderStepIndicator(2)}
-          </div>
-        </div>
-      case CreateTaskState.PendingContractTransaction:
-        return <div className="px-4 py-8 sm:px-10">
-          <div className="mt-0">
-            {renderStepIndicator(3)}
-          </div>
-        </div>
+      case CreateTaskState.PendingTaskCreationTransactionApproval:
       case CreateTaskState.DoneCreatingTask:
-        return <>
-          <div className="px-4 py-8 sm:px-10">
-            <PresentActionLinksComponent data={taskSubmissionState.data} />
-          </div>
-          <div className="px-4 py-6 bg-gray-50 border-t-2 border-gray-200 sm:px-10">
-            <p className="text-xs leading-5 text-gray-500">
-              Thank you for being early (🤩, 🤩)
-            </p>
-          </div>
-        </>
+        return <CreateTaskOnChainComponent state={taskSubmissionState} setState={setTaskSubmissionState} />
       default:
         return <div className="px-4 py-8 sm:px-10">
           <div className="mt-0">
-            Error - you should not see this 😅👋🏼
+            Error - you should not see this 🥲
             <div className="mt-5 sm:mt-2 sm:flex-shrink-0 sm:flex sm:items-center">
               <button
-                onClick={() => setTaskSubmissionState({ name: CreateTaskState.Default })}
+                onClick={() => setTaskSubmissionState({ name: CreateTaskState.PendingUserTaskInput })}
                 type="button"
                 className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-sm text-white bg-primary hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
               >
@@ -118,108 +94,13 @@ export default function Home () {
             </div>
             {process.env.NODE_ENV === 'development' && (
               <div className="bg-red-100 p-2 px-4 mt-4 rounded-sm">
-                error (shows only in dev-mode)<br />
-                {JSON.stringify(get(taskSubmissionState, 'error'))}
+                error (only in dev-mode)<br />
+                {get(taskSubmissionState, 'error', '')}
               </div>)
             }
           </div>
         </div>
     }
-  }
-
-  const renderStepIndicator = (currStepId) => {
-    const steps = [
-      {
-        name: 'Step 1 - Submit task details',
-        href: '#',
-        status: 'complete'
-      },
-      {
-        name: 'Step 2 - Upload public data to IPFS',
-        href: '#',
-        status: 'current'
-      },
-      {
-        name: 'Step 3 - Approve transaction(s)',
-        href: '#',
-        status: 'upcoming'
-      },
-      {
-        name: 'Step 4 - Wait for on-chain transaction',
-        href: '#',
-        status: 'upcoming'
-      }
-    ]
-    return <div className="py-12 px-4 sm:px-6 lg:px-8">
-      <nav className="flex justify-center" aria-label="Progress">
-        <ol role="list" className="space-y-6">
-          {steps.map((step, idx) => (
-            <li key={step.name}>
-              {idx < currStepId ? (
-                <div className="group">
-                  <span className="flex items-start">
-                    <span className="flex-shrink-0 relative h-5 w-5 flex items-center justify-center">
-                      <CheckCircleIcon
-                        className="h-full w-full text-indigo-600 group-hover:text-indigo-800"
-                        aria-hidden="true"
-                      />
-                    </span>
-                    <span className="ml-3 text-sm font-medium text-gray-500 group-hover:text-gray-900">
-                      {step.name}
-                    </span>
-                  </span>
-                </div>
-              ) : idx === currStepId ? (
-                <div className="flex items-start" aria-current="step">
-                  <span className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center" aria-hidden="true">
-                    <span className="absolute h-4 w-4 rounded-full bg-indigo-200" />
-                    <span className="relative block w-2 h-2 bg-indigo-600 rounded-full" />
-                  </span>
-                  <span className="ml-3 text-sm font-medium text-indigo-600">{step.name}</span>
-                </div>
-              ) : (
-                <div className="group">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center" aria-hidden="true">
-                      <div className="h-2 w-2 bg-gray-300 rounded-full group-hover:bg-gray-400" />
-                    </div>
-                    <p className="ml-3 text-sm font-medium text-gray-500 group-hover:text-gray-900">{step.name}</p>
-                  </div>
-                </div>
-              )}
-            </li>
-          ))}
-        </ol>
-      </nav>
-    </div>
-    // <nav className="flex items-center justify-center" aria-label="Progress">
-    //   <p className="text-sm font-medium">
-    //     Step {currStepId + 1} of {steps.length}
-    //   </p>
-    //   <ol role="list" className="ml-8 flex items-center space-x-5">
-    //     {steps.map((step, idx) => (
-    //       <li key={step.name}>
-    //         {idx < currStepId ? (
-    //           <div className="block w-2.5 h-2.5 bg-indigo-600 rounded-full hover:bg-indigo-900">
-    //             <span className="sr-only">{step.name}</span>
-    //           </div>
-    //         ) : idx === currStepId ? (
-    //           <div className="relative flex items-center justify-center" aria-current="step">
-    //             <span className="absolute w-5 h-5 p-px flex" aria-hidden="true">
-    //               <span className="w-full h-full rounded-full bg-indigo-200" />
-    //             </span>
-    //             <span className="relative block w-2.5 h-2.5 bg-indigo-600 rounded-full" aria-hidden="true" />
-    //             <span className="sr-only">{step.name}</span>
-    //           </div>
-    //         ) : (
-    //           <div className="block w-2.5 h-2.5 bg-gray-200 rounded-full hover:bg-gray-400">
-    //             <span className="sr-only">{step.name}</span>
-    //           </div>
-    //         )}
-    //       </li>
-    //     ))}
-    //   </ol>
-    // </nav>
   }
 
   // @ts-ignore
@@ -242,48 +123,20 @@ export default function Home () {
                       WAGMI
                     </span>
                       <span className="mx-2 text-sm">
-                      Welcome to Buildspace Demo Day 🤩
+                      Welcome to Tacit 🤩
                     </span>
                     </div>
                     <h1
                       className="mt-4 text-4xl tracking-tight font-extrabold text-light sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                       <span className="md:block">On-chain tasks</span>{' '}
                       <span className="text-primary md:block">
-                      for the orbit of your DAO
+                      for your DAO's orbit
                     </span>
                     </h1>
                     <p className="mt-3 text-base text-light sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                       DAOs are evolving towards small numbers of
                       highly skilled teams that form a core surrounded by a big number of contributors <b>in the
                       orbit</b>. Tacit helps you to engage and leverage the orbit.
-                      <ol className="mt-4 mb-8">
-                        <li className="ml-5 list-disc hover:underline">
-                          <a
-                            href="https://web3.tacit.so/share/matic:0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b"
-                            target="_blank" rel="noopener noreferrer">Task with 0.25 WETH bounty on Polygon</a>
-                        </li>
-                        <li className="ml-5 list-disc hover:underline">
-                          <a
-                            href="https://web3.tacit.so/task/gor:0xe0871ae1a499b37fa23677d56f2803ea3e9884f64fde4ecf4d8fff0fcbb4d15b"
-                            target="_blank" rel="noopener noreferrer">Admin Dashboard for User Onboarding Task</a>
-                        </li>
-                      </ol>
-                    </p>
-                    <div className="pl-4 -mr-48 sm:pl-6 md:-mr-16 lg:px-0 lg:m-0 lg:relative lg:h-full">
-                      <img
-                        className="w-full ring-1 ring-black ring-opacity-5 lg:absolute lg:left-0 lg:h-auto lg:max-w-lg"
-                        src="/Tacit_DAO_Orbits.png"
-                        alt="Inbox user interface"
-                      />
-                    </div>
-                    <p className="mt-3 text-base text-light sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                      Everyone who contributes gets a share of the reward.
-                      Today: Use cases are bounties for user referrals, talent referrals and community tasks (e.g.
-                      blog writing, video editing, social media engagement etc.).
-                      <br /><br />
-                      In the future: Tacit will be a full
-                      fledged solution to engage DAO orbits including P2P bounties, payout triggers based on on-chain
-                      and off-chain events and ContributorRelationshipManagement.
                     </p>
                   </div>
                   <a
@@ -331,7 +184,7 @@ export default function Home () {
                     <span className="block">How to leverage Tacit</span>
                     <span className="block text-secondary">for your community</span>
                   </h1>
-                  {didScroll && <LoomExplainerVideoComponent />}
+                  {didScroll && isProdEnv() && <LoomExplainerVideoComponent />}
                 </div>
               </div>
             </div>

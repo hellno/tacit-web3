@@ -97,6 +97,7 @@ export const NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT = '0x0000000000
 export const isNativeChainCurrency = (tokenAddress) => tokenAddress === NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 
 export const getNameToTokenAddressObjectForChainId = (chainId) => {
+  // WATCH OUT ->> these addresses are case-sensitive
   switch (chainId) {
     case 5:
     case 1337:
@@ -126,7 +127,8 @@ export const getNameToTokenAddressObjectForChainId = (chainId) => {
     case 80001:
       return {
         MATIC: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT,
-        DUMMY_ERC20: '0xfe4f5145f6e09952a5ba9e956ed0c25e3fa4c7f1'
+        'DUMMY ERC20': '0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1',
+        'MINTABLE USDC': '0x8f7116CA03AEB48547d0E2EdD3Faa73bfB232538'
       }
   }
 }

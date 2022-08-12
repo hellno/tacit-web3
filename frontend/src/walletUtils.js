@@ -13,6 +13,8 @@ import { toHex } from 'web3-utils'
 import { chainIdToRpcUrl, getReadOnlyProviderForChainId, getRpcProviderUrlForChainId } from './apiUtils'
 import { analyticsIdentify } from './analyticsUtils'
 import { formatEther } from 'ethers/lib/utils'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useEnsName } from 'wagmi'
 
 export const providerOptions = {
   coinbasewallet: {
@@ -80,40 +82,17 @@ export const lookupEnsName = async (account) => {
   return await provider.lookupAddress(account)
 }
 
-export const handleChainInteractionError = (error) => {
-  switch (error.code) {
-    case -32602:
-      // User Rejected OR Error processing the transaction
-      break
-    case -32003:
-      // out of gas
-      break
-    default:
-      break
-  }
-}
+export const renderWalletConnectComponent = () => {
+  return <ConnectButton label="Connect Your Wallet" showBalance={false} />
 
-export const renderWalletConnectComponent = ({
-  web3Modal,
-  dispatch,
-  onSubmitFunc
-}) => {
-  const onButtonSubmit = () => {
-    if (onSubmitFunc) {
-      onSubmitFunc()
-    }
-
-    connectWallet(web3Modal, dispatch)
-  }
-
-  return <div className="">
-    <button
-      onClick={onButtonSubmit}
-      className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
-    >
-      Connect Your Wallet
-    </button>
-  </div>
+  // return <div className="">
+  //   <button
+  //     onClick={onButtonSubmit}
+  //     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
+  //   >
+  //     Connect Your Wallet
+  //   </button>
+  // </div>
 }
 
 export const loadWeb3Modal = (dispatch) => {
@@ -147,7 +126,6 @@ export const getDefaultTransactionGasOptions = () => {
 export const getBaseBiconomyGaslessTransactionParams = () => ({
   gasLimit: 8000000,
   signatureType: 'EIP712_SIGN'
-  // signatureType: 'PERSONAL_SIGN'
 })
 
 export const getTaskPortalContractInstanceViaActiveWallet = (signer, chainId) => {
@@ -170,7 +148,7 @@ export const switchNetwork = async (provider, chainId) => {
           getDeployedContractForChainId(chainId),
           ['chainId', 'name', 'nativeCurrency']
         ))
-      params.chainId = `0x${Number(params.chainId).toString(16)}`
+      params.chainId = toHex(chainId)
       params.chainName = params.name
       delete params.name
       try {
@@ -182,6 +160,8 @@ export const switchNetwork = async (provider, chainId) => {
         console.log(addError)
         throw addError
       }
+    } else {
+      throw switchError
     }
   }
 }
@@ -206,4 +186,13 @@ export const getTokenAddressToMaxAmounts = async (nameToTokenAddress, provider, 
   const tokenAddresses = values(nameToTokenAddress)
   const maxAmounts = await Promise.all(map(tokenAddresses, async (tokenAddress) => await getTokenBalance(provider, account, tokenAddress)))
   return zipObject(tokenAddresses, maxAmounts)
+}
+
+export function useMainnetEnsName (address) {
+  const { data: ensName } = useEnsName({
+    address,
+    chainId: 1
+  })
+
+  return ensName
 }

@@ -13,17 +13,17 @@ export function flattenNodesRecursively (obj) {
   return obj.flatMap(item => item.nodes ? [item, ...flattenNodesRecursively(item.nodes)] : item)
 }
 
-export const getBountyCurrency = (bounty, chainId) => {
-  return get(invert(getNameToTokenAddressObjectForChainId(chainId)), bounty.tokenAddress)
+export const getBountyCurrency = (tokenAddress, chainId) => {
+  return get(invert(getNameToTokenAddressObjectForChainId(chainId)), tokenAddress)
 }
 
-export const getBountyAmount = (bounty) => {
-  return Math.round((parseFloat(bounty.amount) + Number.EPSILON) * 1000000) / 1000000
+export const getBountyAmount = (amount) => {
+  return Math.round((parseFloat(amount) + Number.EPSILON) * 1000000) / 1000000
 }
 
 export const getBountyAmountWithCurrencyStringFromTaskObject = (bounty, chainId) => {
-  const tokenCurrency = getBountyCurrency(bounty, chainId)
-  const userTokenAmount = getBountyAmount(bounty)
+  const tokenCurrency = getBountyCurrency(bounty.tokenAddress, chainId)
+  const userTokenAmount = getBountyAmount(bounty.amount)
 
   return `${userTokenAmount} ${tokenCurrency}`
 }
@@ -42,3 +42,8 @@ export const getSiteUrl = () => process.env.NODE_ENV === 'development' ? 'http:/
 export const isProdEnv = () => process.env.NODE_ENV === 'production'
 
 export const isDevEnv = () => process.env.NODE_ENV === 'development'
+export const refreshVercelPage = async (pathToPage) => {
+  const apiEndpoint = getSiteUrl()
+  const apiUrl = `${apiEndpoint}/api/revalidate/${pathToPage}?secret=${process.env.TACIT_SERVER_TOKEN}`
+  return await fetch(apiUrl)
+}

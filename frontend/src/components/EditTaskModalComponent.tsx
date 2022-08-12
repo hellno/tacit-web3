@@ -5,7 +5,7 @@ import { AppContext } from '../context'
 import { useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
-import { classNames, getSitePathForNode } from '../utils'
+import { classNames, getSitePathForNode, refreshVercelPage } from '../utils'
 import { renderFormField } from '../formUtils'
 import { getDefaultTransactionGasOptions, getTaskPortalContractInstanceViaActiveWallet } from '../walletUtils'
 import { ethers } from 'ethers'
@@ -14,7 +14,6 @@ import { EditTaskState, TASK_ADVANCED_FORM_FIELDS, TASK_ALL_FORM_FIELDS } from '
 import { uploadTaskDataToIpfs } from '../storageUtils'
 // eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
-import { refreshVercelPage } from '../apiUtils'
 
 interface EditTaskStateType {
   name: EditTaskState;

@@ -91,7 +91,7 @@ export const renderAmountAndCurrencyFormFields = ({
   return (<div>
     <div className="relative rounded-sm shadow-sm">
       <input
-        {...register('tokenAmount')}
+        {...register('tokenAmount', { valueAsNumber: true })}
         required
         type="text"
         name="tokenAmount"
