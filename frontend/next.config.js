@@ -13,6 +13,7 @@ const moduleExports = {
     BICONOMY_GNOSIS_API_KEY: process.env.BICONOMY_GNOSIS_API_KEY,
     BICONOMY_POLYGON_API_KEY: process.env.BICONOMY_POLYGON_API_KEY,
     INFURA_KEY: process.env.INFURA_KEY,
+    ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
     TACIT_SERVER_TOKEN: process.env.TACIT_SERVER_TOKEN,
     SENTRY_DSN: process.env.SENTRY_DSN
   },

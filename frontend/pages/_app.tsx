@@ -6,7 +6,7 @@ import { AppContextProvider } from '../src/context'
 import BannerComponent from '../src/components/BannerComponent'
 import { isProdEnv } from '../src/utils'
 import { chains, wagmiClient } from '../src/wagmiContext'
-import { chain, WagmiConfig } from 'wagmi'
+import { WagmiConfig } from 'wagmi'
 import { lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 
 function MyApp ({
@@ -45,7 +45,6 @@ function MyApp ({
           learnMoreUrl: 'https://www.tacit.so'
         }}
         chains={chains}
-        initialChain={chain.polygon}
         theme={lightTheme({
           accentColor: '#FF8788',
           accentColorForeground: 'white',

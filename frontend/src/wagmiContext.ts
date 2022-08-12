@@ -1,8 +1,6 @@
 import { getDefaultWallets } from '@rainbow-me/rainbowkit'
 import { Chain, chain, configureChains, createClient } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
-import { infuraProvider } from 'wagmi/providers/infura'
-import { publicProvider } from 'wagmi/providers/public'
 
 export const gnosisChain: Chain = {
   id: 100,
@@ -29,12 +27,12 @@ export const {
   chains,
   provider
 } = configureChains(
-  [chain.polygon, gnosisChain,
+  [chain.polygon, // gnosisChain,
     chain.goerli, chain.polygonMumbai, chain.mainnet],
   [
-    alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY }),
-    infuraProvider({ apiKey: process.env.INFURA_KEY }),
-    publicProvider()
+    // infuraProvider({ apiKey: process.env.INFURA_KEY })
+    alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY })
+    // publicProvider()
   ]
 )
 const { connectors } = getDefaultWallets({

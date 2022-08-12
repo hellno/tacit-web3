@@ -1,6 +1,5 @@
 import Image from 'next/image'
 import { Fragment, useContext, useEffect, useState } from 'react'
-import { loadWeb3Modal } from '../src/walletUtils'
 import { AppContext } from '../src/context'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import { ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/react/outline'
@@ -105,9 +104,9 @@ export default function Home () {
     }
   })
 
-  useEffect(() => {
-    loadWeb3Modal(dispatch)
-  }, [])
+  // useEffect(() => {
+  //   loadWeb3Modal(dispatch)
+  // }, [])
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
 

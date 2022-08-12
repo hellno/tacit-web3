@@ -39,13 +39,15 @@ export const solveStates = [
 ]
 
 export enum CreateTaskState {
-  Default,
-  PendingUserInputBounty,
-  DoneCreatingTask,
+  PendingUserTaskInput,
+  PendingUserBountyInput,
   PendingUploadToIpfs,
-  PendingContractTransaction,
+  PendingUserOnChainApproval, // this name isn't good
   PendingUserApproval,
-  ErrorWalletConnect,
+  PendingERC20ContractApproval,
+  PendingTaskCreationTransactionApproval,
+  PendingOnChainTaskCreation,
+  DoneCreatingTask,
   ErrorCreatingTask,
 }
 

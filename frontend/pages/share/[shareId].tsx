@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/solid'
 import { escape, get, includes, isEmpty, map } from 'lodash'
 import { useForm } from 'react-hook-form'
@@ -7,12 +7,15 @@ import tinycolor from 'tinycolor2'
 import {
   getBaseBiconomyGaslessTransactionParams,
   getTaskPortalContractInstanceViaActiveWallet,
-  loadWeb3Modal,
-  renderWalletConnectComponent,
-  switchNetwork
+  useMainnetEnsName
 } from '../../src/walletUtils'
-import { classNames, getBountyAmountWithCurrencyStringFromTaskObject, getSiteUrl, isProdEnv } from '../../src/utils'
-import { AppContext } from '../../src/context'
+import {
+  classNames,
+  getBountyAmountWithCurrencyStringFromTaskObject,
+  getSiteUrl,
+  isDevEnv,
+  isProdEnv
+} from '../../src/utils'
 import ModalComponent from '../../src/components/ModalComponent'
 // eslint-disable-next-line node/no-missing-import
 import { BiconomyLoadingState, NodeType, SharePageState, shareStates, solveStates } from '../../src/const'
@@ -24,9 +27,15 @@ import PresentActionLinksComponent from '../../src/components/PresentActionLinks
 import { MarkdownComponent } from '../../src/markdownUtils'
 import { addUserToDatabase } from '../../src/supabase'
 import { Biconomy } from '@biconomy/mexa'
-import { chainIdToBiconomyApiKey, getDeployedContractForChainId } from '../../src/constDeployedContracts'
+import {
+  chainIdToBiconomyApiKey,
+  getDeployedContractForChainId,
+  taskPortalContractAbi
+} from '../../src/constDeployedContracts'
 import Head from 'next/head'
-import { getReadOnlyProviderForChainId } from '../../src/apiUtils'
+import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
+import { useAccount, useContractEvent, useProvider } from 'wagmi'
+import { useChainId } from '../../src/useChainId'
 
 interface ShareSubmissionStateType {
   name: SharePageState;
@@ -38,21 +47,29 @@ interface BiconomyLoadingStateType {
   biconomy?: Biconomy
 }
 
+type ExternalProvider = {
+  isMetaMask?: boolean;
+  isStatus?: boolean;
+  host?: string;
+  path?: string;
+  sendAsync?: (request: { method: string, params?: Array<any> }, callback: (error: any, response: any) => void) => void
+  send?: (request: { method: string, params?: Array<any> }, callback: (error: any, response: any) => void) => void
+  request?: (request: { method: string, params?: Array<any> }) => Promise<any>
+}
+
 function SharePage ({ shareObject }) {
-  const [state, dispatch] = useContext(AppContext)
+  // const [state, dispatch] = useContext(AppContext)
   const isLoading = isEmpty(shareObject)
   const [biconomyState, setBiconomyState] = useState<BiconomyLoadingStateType>({
     name: BiconomyLoadingState.Default,
     biconomy: null
   })
 
-  const {
-    web3Modal,
-    network,
-    provider,
-    account,
-    ensName
-  } = state
+  const { address } = useAccount()
+  const provider = useProvider()
+  const chainId = useChainId()
+  const ensName = useMainnetEnsName()
+
   const [sharePageData, setSharePageData] = useState<ShareSubmissionStateType>({ name: SharePageState.Default })
 
   const {
@@ -61,52 +78,47 @@ function SharePage ({ shareObject }) {
   } = useForm()
 
   useEffect(() => {
-    loadWeb3Modal(dispatch)
-  }, [])
-
-  useEffect(() => {
     setupBiconomy()
-  }, [provider])
+  }, [shareObject, chainId])
 
   const setupBiconomy = async () => {
-    if (!provider) {
+    if (!shareObject && window.ethereum) {
       return
     }
 
     if (biconomyState.name === BiconomyLoadingState.Success) {
       return
     }
+    console.log('run biconomy setup')
 
-    setBiconomyState({ name: BiconomyLoadingState.Init })
-    const apiKey = get(chainIdToBiconomyApiKey, network.chainId)
+    const apiKey = get(chainIdToBiconomyApiKey, chainId) // should be shareObject.chainId
     if (apiKey) {
+      setBiconomyState({ name: BiconomyLoadingState.Init })
       const biconomyOptions = {
         apiKey,
-        walletProvider: provider,
-        debug: true
+        walletProvider: window.ethereum as ExternalProvider,
+        debug: isDevEnv()
       }
 
-      const jsonRpcProvider = getReadOnlyProviderForChainId(network.chainId)
-      const biconomy = new Biconomy(jsonRpcProvider, biconomyOptions)
+      const biconomy = new Biconomy(window.ethereum as ExternalProvider, biconomyOptions)
 
       setBiconomyState({
         name: BiconomyLoadingState.Loading,
         biconomy
       })
-    }
-  }
 
-  useEffect(() => {
-    if (biconomyState.name === BiconomyLoadingState.Loading) {
-      biconomyState.biconomy.onEvent(biconomyState.biconomy.READY, () => {
-        if (biconomyState.name !== BiconomyLoadingState.Success) {
-          console.log('biconomy is ready')
-          setBiconomyState({
-            name: BiconomyLoadingState.Success,
-            biconomy: biconomyState.biconomy
-          })
-        }
-      }).onEvent(biconomyState.biconomy.ERROR, (error, message) => {
+      console.log('biconomy right after steup', biconomy.status, biconomy.isConnected())
+      if (!biconomy.onEvent) {
+        return
+      }
+      console.log('has biconomy.onEvent')
+      biconomy.onEvent(biconomy.READY, () => {
+        console.log('biconomy is ready')
+        setBiconomyState({
+          name: BiconomyLoadingState.Success,
+          biconomy: biconomyState.biconomy
+        })
+      }).onEvent(biconomy.ERROR, (error, message) => {
         console.log('biconomy has an error', error, message)
         setBiconomyState({
           name: BiconomyLoadingState.Error,
@@ -114,7 +126,46 @@ function SharePage ({ shareObject }) {
         })
       })
     }
-  }, [biconomyState.name])
+  }
+
+  const contractAddress = shareObject ? getDeployedContractForChainId(shareObject.chainId).contractAddress : ''
+
+  const NodeUpdatedEventListener = (event) => {
+    console.log('received new on-chain event', event)
+    const [path, owner, nodeType, parent, eventData] = event
+
+    if (owner !== address) {
+      return
+    }
+
+    if (nodeType === NodeType.Share && sharePageData.name === SharePageState.SuccessSubmitSolve) {
+      console.log('processing share event', eventData)
+      setSharePageData({
+        name: SharePageState.SuccessSubmitShare,
+        data: {
+          sharePath: path
+        }
+      })
+    }
+  }
+
+  useContractEvent({
+    addressOrName: contractAddress,
+    contractInterface: taskPortalContractAbi,
+    eventName: 'NodeUpdated',
+    listener: NodeUpdatedEventListener
+  })
+
+  useEffect(() => {
+    console.log('yo update in bic status', biconomyState.biconomy, biconomyState.biconomy && biconomyState.biconomy.isConnected())
+    if (biconomyState.name === BiconomyLoadingState.Loading && biconomyState.biconomy.status === 'biconomy_ready') {
+      console.log('biconomy is ready')
+      setBiconomyState({
+        name: BiconomyLoadingState.Success,
+        biconomy: biconomyState.biconomy
+      })
+    }
+  }, [biconomyState.biconomy, get(biconomyState.biconomy, 'status')])
 
   const renderLoadingScreen = () => (
     <LoadingScreenComponent subtitle={'Fetching on-chain data and task details from IPFS'} />
@@ -124,11 +175,11 @@ function SharePage ({ shareObject }) {
     return renderLoadingScreen()
   }
 
-  const isWalletConnected = !isEmpty(account)
+  const isWalletConnected = !isEmpty(address)
   const isGaslessTransactionsReady = biconomyState.name === BiconomyLoadingState.Success
-  const isUserOnCorrectChain = isWalletConnected && shareObject && shareObject.chainId === network.chainId
+  const isUserOnCorrectChain = isWalletConnected && shareObject && shareObject.chainId === chainId
   const canSubmitActions = isUserOnCorrectChain && isGaslessTransactionsReady
-  const walletAddress = ensName || account
+  const walletAddress = ensName || address
   const primaryColor = get(shareObject, 'primaryColorHex') || colors.primary.DEFAULT
   const primaryColorHover = tinycolor(primaryColor).lighten(10)
 
@@ -146,9 +197,10 @@ function SharePage ({ shareObject }) {
     setSharePageData({ name: SharePageState.PendingSolve })
 
     const solutionData = ethers.utils.toUtf8Bytes(JSON.stringify(formData.solution))
-    const signer = biconomyState.biconomy.getSignerByAddress(account)
-    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
-    const { contractAddress } = getDeployedContractForChainId(network.chainId)
+    // const signer = biconomyState.biconomy.getSignerByAddress(address)
+    const signer = biconomyState.biconomy.ethersProvider
+    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, shareObject.chainId)
+    const { contractAddress } = getDeployedContractForChainId(shareObject.chainId)
     const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addSolution(shareObject.path, solutionData)
 
     const txParams = {
@@ -158,13 +210,14 @@ function SharePage ({ shareObject }) {
       ...{
         data: populateTransactionData,
         to: contractAddress,
-        from: account
+        from: address
       }
     }
     const biconomyProvider = new ethers.providers.Web3Provider(biconomyState.biconomy)
     let res
     try {
       res = await biconomyProvider.send('eth_sendTransaction', [txParams])
+      console.log('RES', res)
     } catch (e) {
       console.log('caught error ', e)
       const errorMessage = get(e, 'message') || JSON.parse(e.error.body).error.message
@@ -184,7 +237,7 @@ function SharePage ({ shareObject }) {
     const { email } = formData
     if (email) {
       await addUserToDatabase({
-        walletAddress: account,
+        walletAddress: address,
         email
       })
     }
@@ -195,34 +248,16 @@ function SharePage ({ shareObject }) {
     })
   }
 
-  // eslint-disable-next-line no-unused-vars
-  const submitTransactionWithUserPaysForGas = () => {
-    // const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(library.getSigner(), network.chainId)
-    // const options = getDefaultTransactionGasOptions()
-    // const addShareTransaction = await taskPortalContract.addShare(shareObject.path, transactionData, options)
-    // const res = await addShareTransaction.wait()
-  }
-
   const handleShareFormSubmit = async (formData) => {
     setSharePageData({ name: SharePageState.PendingShare })
 
     const transactionData = ethers.utils.toUtf8Bytes(' ')
+    const signer = biconomyState.biconomy.getSignerByAddress
 
-    const signer = biconomyState.biconomy.getSignerByAddress(account)
-    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, network.chainId)
+    const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, shareObject.chainId)
 
-    taskPortalContract.on('NodeUpdated', (path, owner, nodeType, parent) => {
-      if (owner === account && nodeType === NodeType.Share) {
-        setSharePageData({
-          name: SharePageState.SuccessSubmitShare,
-          data: {
-            sharePath: path
-          }
-        })
-      }
-    })
+    const { contractAddress } = getDeployedContractForChainId(shareObject.chainId)
 
-    const { contractAddress } = getDeployedContractForChainId(network.chainId)
     const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addShare(shareObject.path, transactionData)
 
     const txParams = {
@@ -232,7 +267,7 @@ function SharePage ({ shareObject }) {
       ...{
         data: populateTransactionData,
         to: contractAddress,
-        from: account
+        from: address
       }
     }
 
@@ -262,23 +297,10 @@ function SharePage ({ shareObject }) {
     const { email } = formData
     if (email) {
       await addUserToDatabase({
-        walletAddress: account,
+        walletAddress: address,
         email
       })
     }
-  }
-
-  const renderWalletSwitchIfNeeded = () => {
-    return !isUserOnCorrectChain &&
-      <div className="mb-6">
-        <button
-          onClick={() => switchNetwork(provider, shareObject.chainId).then(() => window.location.reload())}
-          type="button"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
-        >
-          Switch to {getDeployedContractForChainId(shareObject.chainId).name}
-        </button>
-      </div>
   }
 
   const renderGaslessTransactionSetupProgress = () => {
@@ -380,23 +402,15 @@ function SharePage ({ shareObject }) {
       case SharePageState.ShareIntent:
         return <div>
           <div className="mt-6 mr-8">
-            {renderWalletSwitchIfNeeded()}
             <label
               htmlFor="walletAddress"
               className="block text-sm font-medium text-gray-700"
             >
               Wallet Address
             </label>
-            <div className="mt-1">
-              {!isWalletConnected && renderWalletConnectComponent({
-                web3Modal,
-                dispatch,
-                onSubmitFunc: resetToDefaultState
-              })}
-            </div>
             <form onSubmit={handleSubmit(handleShareFormSubmit)} className="space-y-4">
               <div>
-                {isWalletConnected && renderWalletAddressInputField(walletAddress)}
+                {renderWalletAddressInputField(walletAddress)}
               </div>
               <div>
                 {renderFormField({
@@ -410,19 +424,21 @@ function SharePage ({ shareObject }) {
                   Enter your email so that the poster can get in touch with you if needed. Is stored off-chain.
                 </p>
               </div>
-              <div>
-                <button
-                  type="submit"
-                  style={{ backgroundColor: primaryColor }}
-                  onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
-                  onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-                  disabled={!canSubmitActions}
-                  className={classNames(
-                    'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
-                >
-                  Create my share link
-                </button>
-              </div>
+              {!isWalletConnected || !isUserOnCorrectChain
+                ? <WalletConnectButtonForForm requiredChainId={shareObject.chainId} />
+                : <div>
+                  <button
+                    type="submit"
+                    style={{ backgroundColor: primaryColor }}
+                    onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+                    onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+                    // disabled={!canSubmitActions}
+                    className={classNames(
+                      'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
+                  >
+                    Create my share link
+                  </button>
+                </div>}
               {renderGaslessTransactionSetupProgress()}
             </form>
           </div>
@@ -455,20 +471,12 @@ function SharePage ({ shareObject }) {
       case SharePageState.SolveIntent:
         return <div>
           <div className="mt-6 mr-8">
-            {renderWalletSwitchIfNeeded()}
             <label
               htmlFor="walletAddress"
               className="block text-sm font-medium text-gray-700"
             >
               Wallet Address
             </label>
-            <div className="mt-1">
-              {!isWalletConnected && renderWalletConnectComponent({
-                web3Modal,
-                dispatch,
-                onSubmitFunc: resetToDefaultState
-              })}
-            </div>
             <form onSubmit={handleSubmit(handleSolveFormSubmit)} className="space-y-4">
               <div>
                 {isWalletConnected && renderWalletAddressInputField(walletAddress)}
@@ -506,18 +514,20 @@ function SharePage ({ shareObject }) {
                   {shareObject.subtitleSolutionModal || 'This could be your email address, your Discord / Twitter name or something else the poster requested.'}
                 </p>
               </div>
-              <div>
-                <button
-                  type="submit"
-                  style={{ backgroundColor: primaryColor }}
-                  onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
-                  onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-                  disabled={!canSubmitActions}
-                  className={classNames('w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
-                >
-                  Submit
-                </button>
-              </div>
+              {!isWalletConnected || !isUserOnCorrectChain
+                ? <WalletConnectButtonForForm requiredChainId={shareObject.chainId} />
+                : <div>
+                  <button
+                    type="submit"
+                    style={{ backgroundColor: primaryColor }}
+                    onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+                    onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+                    disabled={!canSubmitActions}
+                    className={classNames('w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
+                  >
+                    Submit
+                  </button>
+                </div>}
               {renderGaslessTransactionSetupProgress()}
             </form>
           </div>
@@ -541,7 +551,7 @@ function SharePage ({ shareObject }) {
   const renderShareModal = includes(shareStates, sharePageData.name)
   const renderSolveModal = includes(solveStates, sharePageData.name)
 
-  const getBountyDescription = () => shareObject.subtitle ? shareObject.subtitle : `Bounty: ${getBountyAmountWithCurrencyStringFromTaskObject(shareObject.bounties[0], shareObject.chainId)}`
+  const getBountyDescription = () => shareObject.subtitle ? shareObject.subtitle : `Bounty: ${getBountyAmountWithCurrencyStringFromTaskObject(shareObject?.bounties[0], shareObject.chainId)}`
 
   function renderPageContent () {
     if (isEmpty(shareObject)) {

@@ -3,10 +3,12 @@ import { get } from 'lodash'
 
 export const chainIdToRpcUrl = {
   1: 'https://rpc.ankr.com/eth',
+  5: `https://eth-goerli.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
   100: 'https://rpc.ankr.com/gnosis',
   137: 'https://rpc.ankr.com/polygon',
   1337: 'http://127.0.0.1:8545/',
-  1338: 'http://127.0.0.1:8545/'
+  1338: 'http://127.0.0.1:8545/',
+  80001: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`
 }
 export const getRpcProviderUrlForChainId = (chainId) => {
   const rpcUrl = get(chainIdToRpcUrl, chainId)
@@ -43,4 +45,21 @@ export const getReadOnlyProviderForChainId = (chainId) => {
       throw new Error(`No provider for chainId: ${chainId}`)
   }
   return new ethers.providers.JsonRpcProvider(url)
+}
+
+export const makeIpfsPathForOnChainTask = (ipfsPath) => {
+  return ethers.utils.defaultAbiCoder.encode(
+    ['bytes'], // encode as bytes array
+    [ethers.utils.toUtf8Bytes(ipfsPath)
+    ])
+}
+
+export const getIpfsPathFromOnChainTaskData = (taskData) => {
+  let ipfsPath
+  ipfsPath = ethers.utils.toUtf8String(taskData)
+
+  if (ipfsPath.startsWith('\x00')) {
+    ipfsPath = ipfsPath.split('\\')[1].split('\x00')[0]
+  }
+  return ipfsPath
 }

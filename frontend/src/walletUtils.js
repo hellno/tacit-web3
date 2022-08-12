@@ -14,6 +14,7 @@ import { chainIdToRpcUrl, getReadOnlyProviderForChainId, getRpcProviderUrlForCha
 import { analyticsIdentify } from './analyticsUtils'
 import { formatEther } from 'ethers/lib/utils'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useEnsName } from 'wagmi'
 
 export const providerOptions = {
   coinbasewallet: {
@@ -82,19 +83,6 @@ export const lookupEnsName = async (account) => {
   return await provider.lookupAddress(account)
 }
 
-export const handleChainInteractionError = (error) => {
-  switch (error.code) {
-    case -32602:
-      // User Rejected OR Error processing the transaction
-      break
-    case -32003:
-      // out of gas
-      break
-    default:
-      break
-  }
-}
-
 export const renderWalletConnectComponent = () => {
   return <ConnectButton label="Connect Your Wallet" showBalance={false} />
 
@@ -139,7 +127,6 @@ export const getDefaultTransactionGasOptions = () => {
 export const getBaseBiconomyGaslessTransactionParams = () => ({
   gasLimit: 8000000,
   signatureType: 'EIP712_SIGN'
-  // signatureType: 'PERSONAL_SIGN'
 })
 
 export const getTaskPortalContractInstanceViaActiveWallet = (signer, chainId) => {
@@ -202,4 +189,13 @@ export const getTokenAddressToMaxAmounts = async (nameToTokenAddress, provider, 
   const tokenAddresses = values(nameToTokenAddress)
   const maxAmounts = await Promise.all(map(tokenAddresses, async (tokenAddress) => await getTokenBalance(provider, account, tokenAddress)))
   return zipObject(tokenAddresses, maxAmounts)
+}
+
+export function useMainnetEnsName (address) {
+  const { data: ensName } = useEnsName({
+    address,
+    chainId: 1
+  })
+
+  return ensName
 }
