@@ -4,15 +4,12 @@ import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { classNames } from '../utils'
 import { renderFormField } from '../formUtils'
-// eslint-disable-next-line node/no-missing-import
 import { getDefaultTransactionGasOptions, getTaskPortalContractInstanceViaActiveWallet } from '../walletUtils'
 import { ethers } from 'ethers'
-// eslint-disable-next-line node/no-missing-import
 import { EditTaskState } from '../const'
 import ExclamationIcon from '@heroicons/react/outline/ExclamationIcon'
 import { getReadOnlyProviderForChainId } from '../apiUtils'
 import { getDeployedContractForChainId } from '../constDeployedContracts'
-// eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../useChainId'
 import { useSigner } from 'wagmi'
 

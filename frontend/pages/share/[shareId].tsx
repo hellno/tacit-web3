@@ -17,7 +17,6 @@ import {
   isProdEnv
 } from '../../src/utils'
 import ModalComponent from '../../src/components/ModalComponent'
-// eslint-disable-next-line node/no-missing-import
 import { BiconomyLoadingState, NodeType, SharePageState, shareStates, solveStates } from '../../src/const'
 import { renderFormField, renderWalletAddressInputField } from '../../src/formUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
@@ -33,10 +32,8 @@ import {
   taskPortalContractAbi
 } from '../../src/constDeployedContracts'
 import Head from 'next/head'
-// eslint-disable-next-line node/no-missing-import
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
 import { useAccount, useContractEvent, useSigner } from 'wagmi'
-// eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../../src/useChainId'
 
 interface ShareSubmissionStateType {

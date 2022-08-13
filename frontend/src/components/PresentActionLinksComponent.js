@@ -1,6 +1,5 @@
 import { getDeployedContractForChainId } from '../constDeployedContracts'
 import { getSitePathForNode, getSiteUrl } from '../utils'
-// eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../useChainId'
 
 const PresentActionLinksComponent = ({

@@ -28,7 +28,6 @@ import {
   getSitePathForNode,
   getSiteUrl
 } from '../../src/utils'
-// eslint-disable-next-line node/no-missing-import
 import { BountyPayoutState, IncreaseBountyState, NodeType } from '../../src/const'
 import { ethers } from 'ethers'
 import ModalComponent from '../../src/components/ModalComponent'
@@ -40,17 +39,12 @@ import {
   isNativeChainCurrency
 } from '../../src/constDeployedContracts'
 import { useForm } from 'react-hook-form'
-// eslint-disable-next-line node/no-missing-import
 import PayoutBountyModalComponent from '../../src/components/PayoutBountyModalComponent'
-// eslint-disable-next-line node/no-missing-import
 import EditTaskModalComponent from '../../src/components/EditTaskModalComponent'
-// eslint-disable-next-line node/no-missing-import
 import TransferTaskModalComponent from '../../src/components/TransferTaskModalComponent'
 import { getReadOnlyProviderForChainId } from '../../src/apiUtils'
-// eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../../src/useChainId'
 import { useAccount, useSigner } from 'wagmi'
-// eslint-disable-next-line node/no-missing-import
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
 
 const unit = require('ethjs-unit')

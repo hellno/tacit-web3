@@ -4,7 +4,6 @@ import Web3NavBar from '../src/components/Web3NavBar'
 import CreateTaskFormComponent from '../src/components/CreateTaskFormComponent'
 import CreateTaskOnChainComponent from '../src/components/SubmitTaskOnChainComponent'
 import { get } from 'lodash'
-// eslint-disable-next-line node/no-missing-import
 import { CreateTaskState } from '../src/const'
 import dynamic from 'next/dynamic'
 import { isProdEnv } from '../src/utils'

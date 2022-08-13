@@ -19,7 +19,8 @@ module.exports = {
     'node/no-unsupported-features/es-syntax': [
       'error',
       { ignores: ['modules'] }
-    ]
+    ],
+    'node/no-missing-import': 'off'
   },
   overrides: [{
     files: ['pages/*.tsx'],

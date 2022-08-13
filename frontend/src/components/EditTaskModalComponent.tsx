@@ -1,20 +1,15 @@
 import ModalComponent from './ModalComponent'
-// eslint-disable-next-line node/no-missing-import
 import { create, get, intersection, isEmpty, keys, omitBy, pick } from 'lodash'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
 import { classNames, getSitePathForNode, refreshVercelPage } from '../utils'
 import { renderFormField } from '../formUtils'
-// eslint-disable-next-line node/no-missing-import
 import { getDefaultTransactionGasOptions, getTaskPortalContractInstanceViaActiveWallet } from '../walletUtils'
 import { ethers } from 'ethers'
-// eslint-disable-next-line node/no-missing-import
 import { EditTaskState, TASK_ADVANCED_FORM_FIELDS, TASK_ALL_FORM_FIELDS } from '../const'
 import { uploadTaskDataToIpfs } from '../storageUtils'
-// eslint-disable-next-line node/no-missing-import
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
-// eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../useChainId'
 import { useSigner } from 'wagmi'
 

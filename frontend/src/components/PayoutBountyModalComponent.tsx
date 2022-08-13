@@ -1,5 +1,4 @@
 import ModalComponent from './ModalComponent'
-// eslint-disable-next-line node/no-missing-import
 import { BountyPayoutState } from '../const'
 import { classNames } from '../utils'
 import {

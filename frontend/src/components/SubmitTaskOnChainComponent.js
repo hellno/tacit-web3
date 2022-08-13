@@ -1,7 +1,5 @@
 import { getDeployedContractForChainId, isNativeChainCurrency, taskPortalContractAbi } from '../constDeployedContracts'
-// eslint-disable-next-line node/no-missing-import
 import { useChainId } from '../useChainId'
-// eslint-disable-next-line node/no-missing-import
 import { CreateTaskState, NodeType } from '../const'
 import { addUserToDatabase } from '../supabase'
 import PresentActionLinksComponent from './PresentActionLinksComponent'
