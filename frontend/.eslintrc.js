@@ -20,7 +20,8 @@ module.exports = {
       'error',
       { ignores: ['modules'] }
     ],
-    'node/no-missing-import': 'off'
+    'node/no-missing-import': 'off',
+    '@next/next/no-img-element': 'off'
   },
   overrides: [{
     files: ['pages/*.tsx'],
