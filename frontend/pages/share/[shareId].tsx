@@ -73,7 +73,7 @@ function SharePage ({ shareObject }) {
   }, [shareObject, chainId])
 
   const setupBiconomy = async () => {
-    if (!shareObject && signer) {
+    if (!shareObject || !signer) {
       return
     }
 
@@ -148,7 +148,6 @@ function SharePage ({ shareObject }) {
   })
 
   useEffect(() => {
-    console.log('yo update in bic status', biconomyState.biconomy, biconomyState.biconomy && biconomyState.biconomy.isConnected())
     if (biconomyState.name === BiconomyLoadingState.Loading && biconomyState.biconomy.status === 'biconomy_ready') {
       console.log('biconomy is ready')
       setBiconomyState({
