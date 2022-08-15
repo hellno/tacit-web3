@@ -386,7 +386,7 @@ export default function TaskPage ({ taskObject }) {
         <div className="flex">
           <div className="group relative space-x-2 flex-col items-center">
             <p className="text-gray-500 truncate ">
-              {NodeType[nodeObject.nodeType]} by {get(walletAddressToUserInfo, nodeObject.owner)}
+              {NodeType[nodeObject.nodeType]} by {get(walletAddressToUserInfo, nodeObject.owner, nodeObject.owner)}
             </p>
             <div className="absolute bottom-0 flex flex-col items-center hidden mb-6 group-hover:flex">
                 <span
@@ -936,11 +936,11 @@ const exampleTaskPageObject = {
 
 export async function getStaticProps ({ params }) {
   const { taskId } = params
-  // const apiEndpoint = getSiteUrl()
-  // const apiUrl = `${apiEndpoint}/api/getTaskPageData/${taskId}/`
-  // const res = await fetch(apiUrl)
-  // const taskObject = await res.json()
-  const taskObject = exampleTaskPageObject
+  const apiEndpoint = getSiteUrl()
+  const apiUrl = `${apiEndpoint}/api/getTaskPageData/${taskId}/`
+  const res = await fetch(apiUrl)
+  const taskObject = await res.json()
+  // const taskObject = exampleTaskPageObject
   return {
     props: {
       taskObject
