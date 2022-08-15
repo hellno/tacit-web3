@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { isEmpty, keyBy, mapValues, uniq } from 'lodash'
 
 export const getSupabaseClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -32,4 +33,42 @@ export const addUserToDatabase = async ({
     }
   }
   return { success: true }
+}
+
+type SupabaseWeb3User = {
+  id: number
+  created_at: string
+  wallet_address: string
+  email: string
+}
+
+export const getUserInfoFromDatabase = async (walletAddresses: string[]) => {
+  if (isEmpty(walletAddresses)) {
+    return {
+      success: false,
+      data: []
+    }
+  }
+  const supabase = getSupabaseClient()
+
+  const {
+    data,
+    error
+  } = await supabase
+    .from <SupabaseWeb3User>('Web3User')
+    .select('wallet_address, email')
+    .in('wallet_address', walletAddresses)
+
+  if (error) {
+    console.log(error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+
+  return {
+    success: true,
+    data: mapValues(keyBy(uniq(data), 'wallet_address'), 'email')
+  }
 }

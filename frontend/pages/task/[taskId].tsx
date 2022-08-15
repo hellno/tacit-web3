@@ -12,7 +12,7 @@ import {
   ShareIcon,
   SwitchHorizontalIcon
 } from '@heroicons/react/outline'
-import { constant, filter, findIndex, get, isEmpty, isNil, map, pullAt, times, trim } from 'lodash'
+import { constant, filter, findIndex, get, isEmpty, isNil, map, pullAt, times, trim, uniq } from 'lodash'
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
@@ -46,6 +46,7 @@ import { getReadOnlyProviderForChainId } from '../../src/apiUtils'
 import { useChainId } from '../../src/useChainId'
 import { useAccount, useSigner } from 'wagmi'
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
+import { getUserInfoFromDatabase } from '../../src/supabase'
 
 const unit = require('ethjs-unit')
 
@@ -79,10 +80,15 @@ export default function TaskPage ({ taskObject }) {
     name: IncreaseBountyState.Default
   })
 
+  const [walletAddressToUserInfo, setWalletAddressToUserInfo] = useState<any>({})
+
   const isLoading = isEmpty(taskObject)
   const isError = !isEmpty(get(taskObject, 'error'))
 
-  const { address } = useAccount()
+  const {
+    address,
+    isConnected
+  } = useAccount()
   const chainId = useChainId()
   const { data: signer } = useSigner()
 
@@ -127,16 +133,26 @@ export default function TaskPage ({ taskObject }) {
   const taskCreationShareIndex = findIndex(allNodes, ({ data }) => data === 'TaskCreatorShare')
   const [taskCreationNode]: Array<IContractNode> = pullAt(allNodes, taskCreationShareIndex)
   const hasContentForTable = !isEmpty(allNodes)
+  const walletAddresses = uniq(map(allNodes, 'owner'))
+
+  // @ts-ignore
+  useEffect(async () => {
+    if (!isEmpty(walletAddresses) && isEmpty(walletAddressToUserInfo)) {
+      const {
+        success,
+        data
+      } = await getUserInfoFromDatabase(walletAddresses)
+      if (success && data) {
+        setWalletAddressToUserInfo(data)
+      }
+    }
+  }, [isLoading])
 
   const {
     register,
     watch,
     handleSubmit
   } = useForm()
-
-  // useEffect(() => {
-  //   loadWeb3Modal(dispatch)
-  // }, [])
 
   const renderLoadingScreen = () => (
     <LoadingScreenComponent subtitle={'Fetching on-chain data and task details from IPFS'} />
@@ -154,7 +170,6 @@ export default function TaskPage ({ taskObject }) {
     return renderErrorScreen()
   }
 
-  const isWalletConnected = !isEmpty(address)
   const isUserOnCorrectChain = taskObject && address && taskObject.chainId === chainId
 
   const cards = [
@@ -182,6 +197,7 @@ export default function TaskPage ({ taskObject }) {
     }
   ]
 
+  // eslint-disable-next-line no-unused-vars
   const renderIconBasedOnNodeType = (nodeType, className) => {
     switch (nodeType) {
       case NodeType.Task:
@@ -306,9 +322,9 @@ export default function TaskPage ({ taskObject }) {
             })}
             <button
               type="submit"
-              disabled={!isWalletConnected}
+              disabled={!isConnected}
               className={classNames(
-                isWalletConnected ? 'bg-primary hover:bg-primary-light' : 'bg-gray-300',
+                isConnected ? 'bg-primary hover:bg-primary-light' : 'bg-gray-300',
                 'mt-4 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
             >
               Increase bounty
@@ -368,16 +384,28 @@ export default function TaskPage ({ taskObject }) {
     return <tr key={`${nodeObject.owner}-${nodeObject.path}`} className="bg-white">
       <td className="max-w-sm px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
         <div className="flex">
-          <div className="group inline-flex space-x-2 truncate text-sm">
-            {renderIconBasedOnNodeType(nodeObject.nodeType, 'flex-shrink-0 h-5 w-5 text-gray-500')}
+          <div className="group relative space-x-2 flex-col items-center">
             <p className="text-gray-500 truncate ">
-              {NodeType[nodeObject.nodeType]} by <br />{nodeObject.owner}
+              {NodeType[nodeObject.nodeType]} by {get(walletAddressToUserInfo, nodeObject.owner)}
             </p>
+            <div className="absolute bottom-0 flex flex-col items-center hidden mb-6 group-hover:flex">
+                <span
+                  className="relative z-10 p-3 text-sm leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-sm">
+                  {nodeObject.owner}
+                </span>
+            </div>
           </div>
+          {/* <div className="group inline-flex space-x-2 truncate text-sm"> */}
+          {/*   {renderIconBasedOnNodeType(nodeObject.nodeType, 'flex-shrink-0 h-5 w-5 text-gray-500')} */}
+
+          {/*   <p className="text-gray-500 truncate "> */}
+          {/*     {NodeType[nodeObject.nodeType]} by {get(walletAddressToUserInfo, nodeObject.owner)} */}
+          {/*   </p> */}
+          {/* </div> */}
         </div>
       </td>
       <td className="max-w-sm px-6 py-4 text-right text-sm text-gray-500">
-        <div className="text-gray-900 font-medium text-left">
+        <div className="text-gray-900 font-medium text-left break-words ">
           {map(rowData.split('\\n'), (item, idx) => (
             <span key={`row-data-${idx}`}>
                 {item}
@@ -422,9 +450,9 @@ export default function TaskPage ({ taskObject }) {
         <div className="mt-8 flex flex-col flex-1">
           <main className="flex-1 pb-8">
             {/* Page header */}
-            <div className="px-4 mx-auto max-w-6xl sm:px-6 lg:px-8">
+            <div className="px-4 mx-auto max-w-screen-xl sm:px-6 lg:px-8">
               <div
-                className="bg-white max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:flex md:items-center md:justify-between shadow rounded-sm">
+                className="bg-white max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:flex md:items-center md:justify-between shadow rounded-sm">
                 <div className="flex-1 min-w-0">
                   {/* Profile */}
                   <div className="flex items-center ">
@@ -522,7 +550,7 @@ export default function TaskPage ({ taskObject }) {
                         Payout bounty
                       </button>
                     </>
-                    : isWalletConnected && <WalletConnectButtonForForm requiredChainId={taskObject.chainId} />
+                    : isConnected && <WalletConnectButtonForForm requiredChainId={taskObject.chainId} />
                     //   <button
                     //   onClick={() => switchNetwork(provider, taskObject.chainId).then(() => window.location.reload())}
                     //   type="button"
@@ -536,7 +564,7 @@ export default function TaskPage ({ taskObject }) {
             </div>
 
             <div className="mt-8">
-              <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-lg leading-6 font-medium text-gray-100">Overview</h2>
                 <div className="mt-2 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                   {/* Card */}
@@ -569,13 +597,15 @@ export default function TaskPage ({ taskObject }) {
                 </div>
               </div>
 
-              <h2 className="max-w-6xl mx-auto mt-8 px-4 text-lg leading-6 font-medium text-gray-100 sm:px-6 lg:px-8">
+              <h2
+                className="max-w-screen-xl mx-auto mt-8 px-4 text-lg leading-6 font-medium text-gray-100 sm:px-6 lg:px-8">
                 Recent activity
               </h2>
               {/* Activity list (smallest breakpoint only) */}
               <div className="shadow sm:hidden">
-                <p className="text-sm font-medium rounded-sm text-gray-700 bg-white">Cannot show actions on mobile
-                  yet</p>
+                <p className="text-sm font-medium rounded-sm text-gray-700 bg-white">
+                  Cannot show actions on mobile yet
+                </p>
                 {/* <ul role="list" className="mt-2 divide-y divide-gray-200 overflow-hidden shadow sm:hidden"> */}
                 {/*   {transactions.map(renderRow)} */}
                 {/* </ul> */}
@@ -602,7 +632,7 @@ export default function TaskPage ({ taskObject }) {
 
               {/* Activity table (small breakpoint and up) */}
               <div className="hidden sm:block">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div className="flex flex-col mt-2">
                     <div className="align-middle min-w-full overflow-x-auto shadow overflow-hidden sm:rounded-sm">
                       <table className="min-w-full divide-y divide-gray-200">
@@ -616,7 +646,7 @@ export default function TaskPage ({ taskObject }) {
                           </th>
                           {hasContentForTable && (<>
                               <th
-                                className="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                 scope="col"
                               >
                                 Data
@@ -628,7 +658,7 @@ export default function TaskPage ({ taskObject }) {
                                 Status
                               </th>
                               <th
-                                className="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                className="px-6 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
                                 scope="col"
                               >
                                 Actions
@@ -684,7 +714,7 @@ export default function TaskPage ({ taskObject }) {
       return <></>
     }
     return <main className="mt-16 sm:mt-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
         <div
           className="sm:text-center md:max-w-6xl md:mx-auto md:text-left lg:col-span-6 lg:flex lg:items-center">
           <div>
@@ -737,45 +767,185 @@ export default function TaskPage ({ taskObject }) {
 
 // eslint-disable-next-line no-unused-vars
 const exampleTaskPageObject = {
-  title: 'LOOKING FOR MONOSPACE DESIGN AGENCY 👀',
-  description: 'amazing test description',
-  ownerAddress: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-  taskData: '0x6261667962656964357872786374326674636435703564776969366a3777766c68786271336c6c34776a77376b6b75637073796f737764326673342f3630393236663165356339313465623936373934616632666665623030353733',
+  title: 'Looking for a DevOps/Backend engineer for Cent.co!',
+  subtitle: 'We\'ll pay 0.25 ETH for finding a DevOps/Backend engineer',
+  description: 'We\'re looking for a DevOps/Backend engineer who can help us scale up Cent and support our Products and Services with the Infrastructure it needs to support billions of people.\n&nbsp;\n**You can earn 0.25 ETH for referring that special someone.**\n&nbsp;\nIf you don’t know anyone personally, but do know someone that might, you can share your own referral link with them and can both get rewarded.\n&nbsp;\nQualified candidates will have held Senior Engineering roles at other tech companies. They will have the ability to plan changes in coordination with product + engineering teams and execute those projects. As we scale the team, individual contributor responsibilities will expand to include coordinating / delegating engineering work to other engineers as well.\n&nbsp;\nRequired:\n- Experience working with Terraform, NodeJS, SQL,  AWS CodePipeline / Lambda / ECS / RDS / CloudFront / Route53\n- Interest in blockchain-based applications\nBonus:\n- Familiarity with Solidity / Smart Contracts / Digital Assets (NFTs)',
+  ctaSolution: 'Refer someone!',
+  subtitleSolutionModal: 'Refer someone',
+  ownerAddress: '0x4133c79E575591b6c380c233FFFB47a13348DE86',
+  taskData: '0x6261667962656965753572786a6962747077366967767079346834776e7476793776376368766d693666357679696d64636a36356c7867687767342f6435333636643661343733376331396439616565333432633936303034633162',
   taskIsOpen: true,
-  nodes: [
-    {
-      parent: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8',
-      owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  nodes: [{
+    parent: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+    owner: '0x4133c79E575591b6c380c233FFFB47a13348DE86',
+    nodeType: 2,
+    data: '0x5461736b43726561746f725368617265',
+    nodes: [{
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0x4133c79E575591b6c380c233FFFB47a13348DE86',
       nodeType: 2,
-      data: '0x5461736b43726561746f725368617265',
+      data: '0x20',
       nodes: [],
       isOpen: true,
-      taskPath: '0xcf5094f5d190baae290bd265adc17816f0559e948b8396208c7fa61d7c7f43e8'
-    }
-  ],
-  bountyTokenAddress: '0x0000000000000000000000000000000000000000',
-  bountyAmount: '1.0',
-  parent: '0xc4088680d754cec005e20dff634159c9ed9804d4cf8f50f410466d1b60be8c4a',
-  owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x0a467975e497fcaf5ce214d0ddd3a363a57c7a38b9c9ae52ab7cf205fb0f862a'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0xce9D0fCe9560D8ee4B3fD9A2291635AE9843aEA5',
+      nodeType: 2,
+      data: '0x20',
+      nodes: [{
+        parent: '0x06b29f5f6be18dc0fe2f64d436f342501413fa860a826ea50e17bf247436b42a',
+        owner: '0xce9D0fCe9560D8ee4B3fD9A2291635AE9843aEA5',
+        nodeType: 2,
+        data: '0x20',
+        nodes: [{
+          parent: '0x66c03f1a623cf22fdd6bb64ad21f73168a0b12c8cf098a351a049634fe2f5b13',
+          owner: '0xce9D0fCe9560D8ee4B3fD9A2291635AE9843aEA5',
+          nodeType: 2,
+          data: '0x20',
+          nodes: [],
+          isOpen: true,
+          taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+          path: '0xcc0398571cda7e96c1eb0453e2af0aa1250f119a38070f5d27af9720d929535b'
+        }],
+        isOpen: true,
+        taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+        path: '0x66c03f1a623cf22fdd6bb64ad21f73168a0b12c8cf098a351a049634fe2f5b13'
+      }],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x06b29f5f6be18dc0fe2f64d436f342501413fa860a826ea50e17bf247436b42a'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0xedD5254b5708c35109763ED41dD1E308e234e363',
+      nodeType: 1,
+      data: '0x224920616d2061207665727920637572696f7573205370616e69736820776f6d616e2077686f207365656b7320636f6e7374616e7420706572736f6e616c2067726f7774682e2043656e742069732061207061676520746861742062657473206f6e2061727420616e642077686572652065766572796f6e6520686173206120706c6163652e20497420697320776f7274682073746f7070696e6720616e6420646973636f766572696e672065766572797468696e67206974206272696e67732e22',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x81ffb2521247fc6bb6ad656f82b6f7f089bf67a13c13a3137a2647f9a70085ad'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0xedD5254b5708c35109763ED41dD1E308e234e363',
+      nodeType: 2,
+      data: '0x20',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x7264501b25e4efb07c8ad8e2c95d38be3c5a90351e00d3671d6b884684dff13d'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0x4b642761A9047b17570E2E66C9Ff335C806cF8a4',
+      nodeType: 1,
+      data: '0x22526566657220736f6d656f6e6522',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0xce5ad1bad90548334e8c9ca0771444daf2e88379084fbde707dbaf24145b126a'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0x4b642761A9047b17570E2E66C9Ff335C806cF8a4',
+      nodeType: 1,
+      data: '0x22526566657220736f6d656f6e6522',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x5ad79eba665767235b6f85eeb53f777e5834bc922ab07f085f9a173dd1e094ba'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0x4b642761A9047b17570E2E66C9Ff335C806cF8a4',
+      nodeType: 2,
+      data: '0x20',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0xbaa07096b1782015cf5250bccc381c716ef7c4afe1e87cc8d716b7e559fbf918'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0x4b642761A9047b17570E2E66C9Ff335C806cF8a4',
+      nodeType: 1,
+      data: '0x2268747470733a2f2f776562332e74616369742e736f2f73686172652f6d617469633a30786261613037303936623137383230313563663532353062636363333831633731366566376334616665316538376363386437313662376535353966626639313822',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x8720cfc791c8a2bf3a367bba8efb60736bc2bf06bb3cb874dc4ce4c886e2bc48'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0x4b642761A9047b17570E2E66C9Ff335C806cF8a4',
+      nodeType: 2,
+      data: '0x20',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0xca4235d4a7c21bd941db196d4b30695e03c7c802e8529c0827212954bcd27181'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0xde1ceE777E5bB1d0e1eBb0146D9D34d6adB764Fa',
+      nodeType: 2,
+      data: '0x20',
+      nodes: [{
+        parent: '0x88974cf138af7a6acb8bbe3f03a68e474c1a8718f652816df8dcd11127980436',
+        owner: '0xde1ceE777E5bB1d0e1eBb0146D9D34d6adB764Fa',
+        nodeType: 2,
+        data: '0x20',
+        nodes: [],
+        isOpen: true,
+        taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+        path: '0x95f1847d7411e9fe0652496ca31dec9945f5354ab083457593a1581ff6f58802'
+      }],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x88974cf138af7a6acb8bbe3f03a68e474c1a8718f652816df8dcd11127980436'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0xe119897408616938a0dc7B1f3596beeDD34e0869',
+      nodeType: 2,
+      data: '0x20',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0x11540953757877d805c4d3d6a0a6c710c4721cc86b5cfad494da97fe184b480b'
+    }, {
+      parent: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b',
+      owner: '0xe119897408616938a0dc7B1f3596beeDD34e0869',
+      nodeType: 1,
+      data: '0x224d6f6e696b20706174656c2c206261636b656e6420646576656c6f70657220696e20707974686f6e206c616e67756167652e22',
+      nodes: [],
+      isOpen: true,
+      taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+      path: '0xa0159726f317010a4ba82ba2a859beba8b5d6a8db5abe896b01023fdc4f16699'
+    }],
+    isOpen: true,
+    taskPath: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+    path: '0x7df8a4249d2f846b1172de7ecaf0a14d5a292ea8243ec3a90f50c433835a309b'
+  }],
+  bounties: [{
+    tokenAddress: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619',
+    amount: '0.25'
+  }],
+  parent: '0x7f984977d43a0ef4f27491baf2e474e5aff55e5f73adb569a75e43a517fcb5e3',
+  owner: '0x4133c79E575591b6c380c233FFFB47a13348DE86',
   nodeType: 0,
-  data: '0x6261667962656964357872786374326674636435703564776969366a3777766c68786271336c6c34776a77376b6b75637073796f737764326673342f3630393236663165356339313465623936373934616632666665623030353733',
+  data: '0x6261667962656965753572786a6962747077366967767079346834776e7476793776376368766d693666357679696d64636a36356c7867687767342f6435333636643661343733376331396439616565333432633936303034633162',
   isOpen: true,
-  taskPath: '0x0000000000000000000000000000000000000000000000000000000000000000'
+  taskPath: '0x0000000000000000000000000000000000000000000000000000000000000000',
+  path: '0xe92c904c58932105d9002a1a521355e4fa8204a7d922720bfef10ec53eb099c6',
+  chainId: 137
 }
 
 export async function getStaticProps ({ params }) {
   const { taskId } = params
-  const apiEndpoint = getSiteUrl()
-  const apiUrl = `${apiEndpoint}/api/getTaskPageData/${taskId}/`
-  const res = await fetch(apiUrl)
-  const taskObject = await res.json()
-  // const taskObject = exampleTaskPageObject
-
+  // const apiEndpoint = getSiteUrl()
+  // const apiUrl = `${apiEndpoint}/api/getTaskPageData/${taskId}/`
+  // const res = await fetch(apiUrl)
+  // const taskObject = await res.json()
+  const taskObject = exampleTaskPageObject
   return {
     props: {
       taskObject
-    },
-    revalidate: 10 // every 10 secs
+    }
+    // revalidate: 10 // every 10 secs
   }
 }
 
