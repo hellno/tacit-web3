@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react'
 import { CashIcon, CheckCircleIcon } from '@heroicons/react/solid'
 import {
   BadgeCheckIcon,
-  ClipboardCheckIcon,
-  ClipboardIcon,
   ExternalLinkIcon,
   HomeIcon,
   LightBulbIcon,
@@ -47,6 +45,7 @@ import { useChainId } from '../../src/useChainId'
 import { useAccount, useSigner } from 'wagmi'
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
 import { getUserInfoFromDatabase } from '../../src/supabase'
+import Head from 'next/head'
 
 const unit = require('ethjs-unit')
 
@@ -197,17 +196,10 @@ export default function TaskPage ({ taskObject }) {
     }
   ]
 
-  // eslint-disable-next-line no-unused-vars
-  const renderIconBasedOnNodeType = (nodeType, className) => {
-    switch (nodeType) {
-      case NodeType.Task:
-        return <ClipboardIcon className={className} />
-      case NodeType.Share:
-        return <ShareIcon className={className} />
-      case NodeType.Solution:
-        return <ClipboardCheckIcon className={className} />
-    }
-  }
+  const {
+    contractAddress,
+    blockExplorer
+  } = getDeployedContractForChainId(taskObject.chainId)
 
   const handleTriggerIncreaseBountyButton = async (formData) => {
     let {
@@ -216,7 +208,6 @@ export default function TaskPage ({ taskObject }) {
     } = formData
     setIncreaseBountyState({ name: IncreaseBountyState.Init })
     try {
-      const { contractAddress } = getDeployedContractForChainId(chainId)
       const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, chainId)
       console.log('create options payload for on-chain transaction', taskPortalContract)
       let options = {}
@@ -362,6 +353,15 @@ export default function TaskPage ({ taskObject }) {
     )
   }
 
+  const nodeTypeToStringDescription = (nodeType) => {
+    switch (nodeType) {
+      case NodeType.Share:
+        return 'Shared by'
+      case NodeType.Solution:
+        return 'Submitted by'
+    }
+  }
+
   function renderRow (nodeObject) {
     const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
     const rowData = nodeObject.data
@@ -384,24 +384,14 @@ export default function TaskPage ({ taskObject }) {
     return <tr key={`${nodeObject.owner}-${nodeObject.path}`} className="bg-white">
       <td className="max-w-sm px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
         <div className="flex">
-          <div className="group relative space-x-2 flex-col items-center">
-            <p className="text-gray-500 truncate ">
-              {NodeType[nodeObject.nodeType]} by {get(walletAddressToUserInfo, nodeObject.owner, nodeObject.owner)}
+          <div className="group relative flex-col">
+            <p className="text-gray-600">
+              <a target="_blank" rel="noopener noreferrer"
+                 href={`${blockExplorer}/address/${nodeObject.owner}`}>
+                {nodeTypeToStringDescription(nodeObject.nodeType)} by {get(walletAddressToUserInfo, nodeObject.owner, nodeObject.owner)}
+              </a>
             </p>
-            <div className="absolute bottom-0 flex flex-col items-center hidden mb-6 group-hover:flex">
-                <span
-                  className="relative z-10 p-3 text-sm leading-none text-white whitespace-no-wrap bg-gray-800 shadow-lg rounded-sm">
-                  {nodeObject.owner}
-                </span>
-            </div>
           </div>
-          {/* <div className="group inline-flex space-x-2 truncate text-sm"> */}
-          {/*   {renderIconBasedOnNodeType(nodeObject.nodeType, 'flex-shrink-0 h-5 w-5 text-gray-500')} */}
-
-          {/*   <p className="text-gray-500 truncate "> */}
-          {/*     {NodeType[nodeObject.nodeType]} by {get(walletAddressToUserInfo, nodeObject.owner)} */}
-          {/*   </p> */}
-          {/* </div> */}
         </div>
       </td>
       <td className="max-w-sm px-6 py-4 text-right text-sm text-gray-500">
@@ -730,38 +720,58 @@ export default function TaskPage ({ taskObject }) {
     </main>
   }
 
+  const renderPageMetaProperties = () => {
+    const title = 'Tacit Dashboard - ' + taskObject.title
+    const url = getSiteUrl()
+
+    return (
+      <Head>
+        <title>{title}</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        // base properties
+        <meta property="og:site_name" content="Tacit" />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={url} />
+        <meta property="og:title" key="ogtitle" content={title} />
+      </Head>
+    )
+  }
+
   return (
-    <div className="relative bg-background overflow-hidden min-h-screen">
-      <div className="relative pt-6 pb-16 sm:pb-24">
-        <Web3NavBar />
-        {renderPayoutModal &&
-          <PayoutBountyModalComponent
-            state={bountyPayoutState}
-            taskObject={taskObject}
-            allNodes={allNodes}
-            onSubmit={handleTriggerPayoutButton}
-            onClose={onClosePayoutModal}
-          />}
-        {renderIncreaseBountyModal &&
-          <ModalComponent
-            renderContent={renderIncreaseBountyModalContent}
-            titleText="Increase the bounty for this task"
-            onClose={onCloseIncreaseBountyModal}
-          />}
-        {renderEditTaskModal &&
-          <EditTaskModalComponent
-            taskObject={taskObject}
-            onClose={onCloseEditTaskModal}
-          />}
-        {renderTransferTaskModal &&
-          <TransferTaskModalComponent
-            taskObject={taskObject}
-            onClose={onCloseEditTaskModal}
-          />}
-        {renderTaskPageHeader()}
-        {renderPageContent()}
+    <>
+      {renderPageMetaProperties()}
+      <div className="relative bg-background overflow-hidden min-h-screen">
+        <div className="relative pt-6 pb-16 sm:pb-24">
+          <Web3NavBar />
+          {renderPayoutModal &&
+            <PayoutBountyModalComponent
+              state={bountyPayoutState}
+              taskObject={taskObject}
+              allNodes={allNodes}
+              onSubmit={handleTriggerPayoutButton}
+              onClose={onClosePayoutModal}
+            />}
+          {renderIncreaseBountyModal &&
+            <ModalComponent
+              renderContent={renderIncreaseBountyModalContent}
+              titleText="Increase the bounty for this task"
+              onClose={onCloseIncreaseBountyModal}
+            />}
+          {renderEditTaskModal &&
+            <EditTaskModalComponent
+              taskObject={taskObject}
+              onClose={onCloseEditTaskModal}
+            />}
+          {renderTransferTaskModal &&
+            <TransferTaskModalComponent
+              taskObject={taskObject}
+              onClose={onCloseEditTaskModal}
+            />}
+          {renderTaskPageHeader()}
+          {renderPageContent()}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
