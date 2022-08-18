@@ -296,7 +296,7 @@ function SharePage ({ shareObject }) {
   const renderGaslessTransactionSetupProgress = () => {
     switch (biconomyState.name) {
       case BiconomyLoadingState.Success:
-        return <div className="rounded-md bg-green-50 p-4">
+        return <div className="rounded-sm bg-green-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <CheckCircleIcon className="h-5 w-5 text-green-400" aria-hidden="true" />
@@ -307,7 +307,7 @@ function SharePage ({ shareObject }) {
           </div>
         </div>
       case BiconomyLoadingState.Error:
-        return <div className="rounded-md bg-red-50 p-4">
+        return <div className="rounded-sm bg-red-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
@@ -322,7 +322,7 @@ function SharePage ({ shareObject }) {
           </div>
         </div>
       case BiconomyLoadingState.Loading:
-        return <div className="rounded-md bg-blue-50 p-4">
+        return <div className="rounded-sm bg-blue-50 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
               <InformationCircleIcon className="h-5 w-5 text-blue-400" aria-hidden="true" />
@@ -348,42 +348,73 @@ function SharePage ({ shareObject }) {
     event.target.style.backgroundColor = primaryColor
   }
 
-  const renderActionButtonCard = () => {
+  const renderActionButtons = () => {
     return (
-      <div className="mx-auto py-12">
-        <div className="mt-4 flex grid grid-cols-2 gap-x-2">
-          <div>
-            <div className="inline-flex">
-              <button
-                onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
-                style={{ color: primaryColor }}
-                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm bg-gray-100 hover:bg-light"
-              >
-                {shareObject.ctaSolution || 'Solve task and earn'}
-              </button>
-            </div>
-            <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
+      <div className="mx-auto py-12 md:mx-6">
+        <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mx-0 md:mt-8">
+          <div className="rounded-sm shadow">
+            <button
+              onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
+              style={{ color: primaryColor }}
+              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-white bg-gray-100 hover:bg-gray-200 md:py-4 md:text-lg md:px-10"
+            >
+              {shareObject.ctaSolution || 'Solve task and earn'}
+            </button>
+            <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-100">
               {shareObject.subtitleSolution || 'Enter requested results to become eligible for a reward'}
             </span>
           </div>
-          <div>
-            <div className="inline-flex">
-              <button
-                style={{ backgroundColor: primaryColor }}
-                onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
-                onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-                onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
-                className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm text-light bg-primary hover:bg-primary-light"
-              >
-                {shareObject.ctaReferral || 'Get referral link'}
-              </button>
-            </div>
+          <div className="mt-3 rounded-sm shadow sm:mt-0 sm:ml-3">
+            <button
+              style={{ backgroundColor: primaryColor }}
+              onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+              onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+              onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
+              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-gray-100 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+            >
+              {shareObject.ctaReferral || 'Get referral link'}
+
+            </button>
             <span
-              className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100">
+              className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-100">
               {shareObject.subtitleReferral || 'Invite others to earn and get a share of their reward'}
             </span>
           </div>
         </div>
+
+        {/* <div className="mt-4 flex grid grid-cols-2 gap-x-2"> */}
+        {/*   <div> */}
+        {/*     <div className="inline-flex"> */}
+        {/*       <button */}
+        {/*         onClick={() => setSharePageData({ name: SharePageState.SolveIntent })} */}
+        {/*         style={{ color: primaryColor }} */}
+        {/*         className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm bg-gray-100 hover:bg-light" */}
+        {/*       > */}
+        {/*         {shareObject.ctaSolution || 'Solve task and earn'} */}
+        {/*       </button> */}
+        {/*     </div> */}
+        {/*     <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100"> */}
+        {/*       {shareObject.subtitleSolution || 'Enter requested results to become eligible for a reward'} */}
+        {/*     </span> */}
+        {/*   </div> */}
+        {/*   <div> */}
+        {/*     <div className="inline-flex"> */}
+        {/*       <button */}
+        {/*         style={{ backgroundColor: primaryColor }} */}
+        {/*         onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler} */}
+        {/*         onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler} */}
+        {/*         onClick={() => setSharePageData({ name: SharePageState.ShareIntent })} */}
+        {/*         className="min-w-fit md:w-60 inline-flex items-center justify-center px-5 py-3 border border-transparent shadow-md shadow-gray-500 text-base font-semibold rounded-sm text-light bg-primary hover:bg-primary-light" */}
+        {/*       > */}
+        {/*         {shareObject.ctaReferral || 'Get referral link'} */}
+        {/*       </button> */}
+        {/*     </div> */}
+        {/*     <span */}
+        {/*       className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 text-base font-normal text-gray-100"> */}
+        {/*       {shareObject.subtitleReferral || 'Invite others to earn and get a share of their reward'} */}
+        {/*     </span> */}
+        {/*   </div> */}
+        {/* </div> */}
       </div>)
   }
 
@@ -538,6 +569,8 @@ function SharePage ({ shareObject }) {
     }
   }
 
+  console.log('isProdEnv', isProdEnv())
+
   const renderShareModal = includes(shareStates, sharePageData.name)
   const renderSolveModal = includes(solveStates, sharePageData.name)
 
@@ -552,7 +585,7 @@ function SharePage ({ shareObject }) {
       <div className="mx-auto max-w-7xl">
         <div className="lg:grid lg:grid-cols-6 lg:gap-8">
           <div
-            className="px-4 sm:px-6 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
+            className="mx-4 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
             <div>
               <div
                 className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base"
@@ -577,8 +610,8 @@ function SharePage ({ shareObject }) {
                 {getBountyDescription()}
               </h1>
               <div
-                className="px-4 sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6 lg:text-left ">
-                {renderActionButtonCard()}
+                className="sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6 lg:text-left ">
+                {renderActionButtons()}
               </div>
               <div className="mt-5 text-base text-gray-100 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
                 <MarkdownComponent content={shareObject.description} />
