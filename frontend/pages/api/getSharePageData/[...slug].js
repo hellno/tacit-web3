@@ -40,7 +40,6 @@ async function handler (req, res) {
         chainId
       }
     }
-    console.log(returnPayload)
     res.status(200).json(returnPayload)
   } catch (err) {
     console.log('err when getting share data for id', shareId, err)

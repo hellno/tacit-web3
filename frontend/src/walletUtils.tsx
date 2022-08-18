@@ -124,7 +124,7 @@ export const getDefaultTransactionGasOptions = () => {
 }
 
 export const getBaseBiconomyGaslessTransactionParams = () => ({
-  gasLimit: 8000000,
+  gasLimit: 2000000,
   signatureType: 'EIP712_SIGN'
 })
 

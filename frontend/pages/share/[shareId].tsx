@@ -85,20 +85,22 @@ function SharePage ({ shareObject }) {
     const apiKey = get(chainIdToBiconomyApiKey, chainId) // should be shareObject.chainId
     if (apiKey) {
       setBiconomyState({ name: BiconomyLoadingState.Init })
+      // const providerWindowEthereum = new ethers.providers.Web3Provider(window.ethereum)
+
       const biconomyOptions = {
         apiKey,
-        walletProvider: signer,
+        // walletProvider: providerWindowEthereum.signer,
         debug: isDevEnv()
       }
 
-      const biconomy = new Biconomy(signer, biconomyOptions)
+      const biconomy = new Biconomy(window.ethereum, biconomyOptions)
 
       setBiconomyState({
         name: BiconomyLoadingState.Loading,
         biconomy
       })
 
-      console.log('biconomy right after steup', biconomy.status, biconomy.isConnected())
+      console.log('biconomy right after setup', biconomy.status, biconomy)
       if (!biconomy.onEvent) {
         return
       }
@@ -186,7 +188,6 @@ function SharePage ({ shareObject }) {
     setSharePageData({ name: SharePageState.PendingSolve })
 
     const solutionData = ethers.utils.toUtf8Bytes(JSON.stringify(formData.solution))
-    // const signer = biconomyState.biconomy.getSignerByAddress(address)
     const signer = biconomyState.biconomy.ethersProvider
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, shareObject.chainId)
     const { contractAddress } = getDeployedContractForChainId(shareObject.chainId)
@@ -241,7 +242,7 @@ function SharePage ({ shareObject }) {
     setSharePageData({ name: SharePageState.PendingShare })
 
     const transactionData = ethers.utils.toUtf8Bytes(' ')
-    const signer = biconomyState.biconomy.getSignerByAddress
+    const signer = biconomyState.biconomy.ethersProvider
 
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, shareObject.chainId)
 
