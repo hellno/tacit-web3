@@ -1,7 +1,7 @@
 import { ceil, get, invert, isEmpty, map, startCase } from 'lodash'
 import { classNames } from './utils'
 
-export const renderWalletAddressInputField = (account) => {
+export const renderWalletAddressInputField = (account, errors = {}) => {
   return <input
     type="text"
     name="walletAddress"
@@ -9,7 +9,12 @@ export const renderWalletAddressInputField = (account) => {
     placeholder="Wallet Address"
     value={account}
     disabled={true}
-    className="select-none text-gray-600 mt-1 block w-full shadow-sm focus:ring-gray-500 focus:border-gray-500 sm:text-sm border-gray-300 rounded-sm"
+    className={classNames(
+      get(errors, 'walletAddress')
+        ? 'border-red-300 text-red-800 placeholder-red-400 focus:outline-none focus:ring-red-500 focus:border-red-500'
+        : 'text-gray-600  focus:ring-gray-500 focus:border-gray-500 sm:text-sm border-gray-300',
+      '"select-none mt-1 block w-full shadow-sm rounded-sm"'
+    )}
   />
 }
 

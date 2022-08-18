@@ -3,7 +3,7 @@ import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon
 import { useForm } from 'react-hook-form'
 import { getTokenAddressToMaxAmounts, useMainnetEnsName } from '../walletUtils'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
-import { get, pick } from 'lodash'
+import { get, isEmpty, pick } from 'lodash'
 import {
   getNameToTokenAddressObjectForChainId,
   isSupportedNetwork,
@@ -53,6 +53,8 @@ export default function CreateTaskFormComponent ({
     handleSubmit,
     watch,
     trigger,
+    setError,
+    clearErrors,
     formState: { errors }
   } = useForm({
     defaultValues: {
@@ -171,11 +173,24 @@ export default function CreateTaskFormComponent ({
       setState({ name: CreateTaskState.PendingUserBountyInput })
     }
   }
+  useEffect(() => {
+    if (isConnected) {
+      clearErrors('walletAddress')
+    } else {
+      setError('walletAddress', {
+        type: 'custom',
+        message: 'Connect your wallet'
+      })
+    }
+  }, [isConnected])
 
   const renderFormSubmitButton = () => {
+    console.log('isConnected in renderFormSubmitButton', isConnected)
+
     return currState === CreateTaskState.PendingUserBountyInput
       ? <button
-        disabled={!isConnected}
+        disabled={!isEmpty(errors)}
+        onClick={handleSubmit(handleFormSubmit)}
         type="submit"
         className={classNames(isConnected && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
       >
@@ -184,7 +199,7 @@ export default function CreateTaskFormComponent ({
       </button>
       : <button
         onClick={(event) => onNextStepSubmit(event)}
-        disabled={!isConnected}
+        disabled={!isEmpty(errors)}
         className={classNames(isReadyToSubmit ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
       >
         Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
@@ -264,7 +279,6 @@ export default function CreateTaskFormComponent ({
         </div>)}
         <form
           className="space-y-6"
-          onSubmit={handleSubmit((formData) => handleFormSubmit(formData))}
         >
           {currState === CreateTaskState.PendingUserTaskInput && renderTaskDescriptionFormPart()}
           {currState === CreateTaskState.PendingUserBountyInput && renderTaskBountyFormPart()}
