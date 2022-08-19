@@ -8,7 +8,7 @@ import {
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
 import { map, split } from 'lodash'
-import { getReadOnlyProviderForChainId } from '../../../src/apiUtils'
+import { getIpfsPathFromOnChainTaskData, getReadOnlyProviderForChainId } from '../../../src/apiUtils'
 import { withSentry } from '@sentry/nextjs'
 
 async function handler (req, res) {
@@ -24,7 +24,7 @@ async function handler (req, res) {
     const taskPortalContract = new ethers.Contract(contractAddress, taskPortalContractAbi, provider)
 
     const taskNodeData = await getTaskFromContractAsObject(taskPortalContract, taskId)
-    const ipfsPath = ethers.utils.toUtf8String(taskNodeData.taskData)
+    const ipfsPath = getIpfsPathFromOnChainTaskData(taskNodeData.taskData)
     const [cid, fname] = ipfsPath.split('/')
 
     const taskObject = await getObjectInIPFS(cid, fname)
