@@ -33,7 +33,7 @@ import {
 } from '../../src/constDeployedContracts'
 import Head from 'next/head'
 import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
-import { useAccount, useContractEvent, useSigner } from 'wagmi'
+import { useAccount, useContractEvent } from 'wagmi'
 import { useChainId } from '../../src/useChainId'
 
 interface ShareSubmissionStateType {
@@ -59,7 +59,6 @@ function SharePage ({ shareObject }) {
   } = useAccount()
   const chainId = useChainId()
   const ensName = useMainnetEnsName(address)
-  const { data: signer } = useSigner()
 
   const [sharePageData, setSharePageData] = useState<ShareSubmissionStateType>({ name: SharePageState.Default })
 
@@ -70,10 +69,18 @@ function SharePage ({ shareObject }) {
 
   useEffect(() => {
     setupBiconomy()
-  }, [shareObject, chainId])
+  }, [shareObject, chainId, isConnected])
 
   const setupBiconomy = async () => {
-    if (!shareObject || !signer) {
+    if (!isConnected) {
+      setBiconomyState({
+        name: BiconomyLoadingState.Default,
+        biconomy: null
+      })
+      return
+    }
+
+    if (!shareObject) {
       return
     }
 
@@ -82,35 +89,33 @@ function SharePage ({ shareObject }) {
     }
     console.log('run biconomy setup')
 
-    const apiKey = get(chainIdToBiconomyApiKey, chainId) // should be shareObject.chainId
+    const apiKey = get(chainIdToBiconomyApiKey, shareObject.chainId)
     if (apiKey) {
       setBiconomyState({ name: BiconomyLoadingState.Init })
-      // const providerWindowEthereum = new ethers.providers.Web3Provider(window.ethereum)
 
       const biconomyOptions = {
         apiKey,
-        // walletProvider: providerWindowEthereum.signer,
         debug: isDevEnv()
       }
 
       const biconomy = new Biconomy(window.ethereum, biconomyOptions)
 
       setBiconomyState({
-        name: BiconomyLoadingState.Loading,
+        name: BiconomyLoadingState.Success,
         biconomy
       })
+      // setBiconomyState({
+      //   name: BiconomyLoadingState.Loading,
+      //   biconomy
+      // })
 
-      console.log('biconomy right after setup', biconomy.status, biconomy)
       if (!biconomy.onEvent) {
         return
       }
+
       console.log('has biconomy.onEvent')
       biconomy.onEvent(biconomy.READY, () => {
         console.log('biconomy is ready')
-        setBiconomyState({
-          name: BiconomyLoadingState.Success,
-          biconomy: biconomyState.biconomy
-        })
       }).onEvent(biconomy.ERROR, (error, message) => {
         console.log('biconomy has an error', error, message)
         setBiconomyState({
@@ -210,7 +215,7 @@ function SharePage ({ shareObject }) {
       console.log('RES', res)
     } catch (e) {
       console.log('caught error ', e)
-      const errorMessage = get(e, 'message') || JSON.parse(e.error.body).error.message
+      const errorMessage = get(e, 'message') || e.error.message || (e.error && e.error.body && JSON.parse(e.error.body).error.message)
       console.log('got error message when interacting with contract', errorMessage)
       setSharePageData({
         name: SharePageState.FailSubmitSolve,
@@ -267,7 +272,7 @@ function SharePage ({ shareObject }) {
       res = await biconomyProvider.send('eth_sendTransaction', [txParams])
     } catch (e) {
       console.log('caught error ', e)
-      const errorMessage = get(e, 'message') || JSON.parse(e.error.body).error.message
+      const errorMessage = get(e, 'message') || e.error.message || (e.error && e.error.body && JSON.parse(e.error.body).error.message)
       console.log('got error message when interacting with contract', errorMessage)
       setSharePageData({
         name: SharePageState.FailSubmitShare,
@@ -446,7 +451,9 @@ function SharePage ({ shareObject }) {
                 </p>
               </div>
               {!isConnected || !isUserOnCorrectChain
-                ? <WalletConnectButtonForForm requiredChainId={shareObject.chainId} />
+                ? <WalletConnectButtonForForm
+                  requiredChainId={shareObject.chainId}
+                />
                 : <div>
                   <button
                     type="submit"
@@ -536,7 +543,9 @@ function SharePage ({ shareObject }) {
                 </p>
               </div>
               {!isConnected || !isUserOnCorrectChain
-                ? <WalletConnectButtonForForm requiredChainId={shareObject.chainId} />
+                ? <WalletConnectButtonForForm
+                  requiredChainId={shareObject.chainId}
+                />
                 : <div>
                   <button
                     type="submit"
@@ -568,8 +577,6 @@ function SharePage ({ shareObject }) {
         return <div>something went wrong here :(</div>
     }
   }
-
-  console.log('isProdEnv', isProdEnv())
 
   const renderShareModal = includes(shareStates, sharePageData.name)
   const renderSolveModal = includes(solveStates, sharePageData.name)
