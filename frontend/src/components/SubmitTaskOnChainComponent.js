@@ -26,12 +26,6 @@ export default function SubmitTaskOnChainComponent ({
   state: localState,
   setState
 }) {
-  const [canSubmitButton, setCanSubmitButton] = useState(false)
-
-  // const renderCounter = useRef(0)
-  // renderCounter.current = renderCounter.current + 1
-  // console.log('renderCount', renderCounter.current)
-
   const {
     address
   } = useAccount()
@@ -48,6 +42,7 @@ export default function SubmitTaskOnChainComponent ({
   const { contractAddress } = getDeployedContractForChainId(chainId)
   const isERC20TokenTask = !isNativeChainCurrency(tokenAddress)
   const tokenAmountBigNumber = ethers.utils.parseUnits(tokenAmount.toString(), 18)
+  const [canSubmitButton, setCanSubmitButton] = useState(!isERC20TokenTask)
 
   let transactionValue = '0'
   let executeERC20ContractSpending

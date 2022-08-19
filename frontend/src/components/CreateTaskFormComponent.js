@@ -59,7 +59,7 @@ export default function CreateTaskFormComponent ({
   } = useForm({
     defaultValues: {
       email: isDevEnv() ? 'test@test.com' : '',
-      title: isDevEnv() ? 'this is a sweet title' : '',
+      title: isDevEnv() ? 'Share educational content with the community' : '',
       description: isDevEnv() ? 'description 123' : '',
       tokenAmount: 0.001,
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
