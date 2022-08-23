@@ -1,6 +1,6 @@
 import { classNames } from '../utils'
-import { MarkdownComponent } from '../markdownUtils'
 import { Tab } from '@headlessui/react'
+import MarkdownComponent from './MarkdownComponent'
 
 export default function TaskDescriptionInputField ({
   register,
