@@ -59,7 +59,7 @@ export default function CreateTaskFormComponent ({
   } = useForm({
     defaultValues: {
       email: isDevEnv() ? 'test@test.com' : '',
-      title: isDevEnv() ? 'Share educational content with the community' : '',
+      title: isDevEnv() ? 'Create content for the community' : '',
       description: isDevEnv() ? 'description 123' : '',
       tokenAmount: 0.001,
       tokenAddress: NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
@@ -185,8 +185,6 @@ export default function CreateTaskFormComponent ({
   }, [isConnected])
 
   const renderFormSubmitButton = () => {
-    console.log('isConnected in renderFormSubmitButton', isConnected)
-
     return currState === CreateTaskState.PendingUserBountyInput
       ? <button
         disabled={!isEmpty(errors)}

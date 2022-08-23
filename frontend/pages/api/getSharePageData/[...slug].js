@@ -8,7 +8,7 @@ import {
   taskPortalContractAbi
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
-import { split } from 'lodash'
+import { merge, split } from 'lodash'
 import { getIpfsPathFromOnChainTaskData, getReadOnlyProviderForChainId } from '../../../src/apiUtils'
 
 async function handler (req, res) {
@@ -29,17 +29,14 @@ async function handler (req, res) {
     const ipfsPath = getIpfsPathFromOnChainTaskData(taskNodeData.taskData)
     const [cid, fname] = ipfsPath.split('/')
     const taskObject = await getObjectInIPFS(cid, fname)
-    const returnPayload = {
-      // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...taskObject,
-      // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...taskNodeData,
-      // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...{
+    const returnPayload = merge(
+      taskObject,
+      taskNodeData,
+      {
         path: shareId,
         chainId
       }
-    }
+    )
     res.status(200).json(returnPayload)
   } catch (err) {
     console.log('err when getting share data for id', shareId, err)

@@ -1,6 +1,8 @@
 import { getDefaultWallets } from '@rainbow-me/rainbowkit'
 import { Chain, chain, configureChains, createClient } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { publicProvider } from 'wagmi/providers/public'
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
 
 export const gnosisChain: Chain = {
   id: 100,
@@ -24,15 +26,20 @@ export const gnosisChain: Chain = {
 }
 
 export const {
-  chains,
+  chains: [, ...chains], // Omit first chain (mainnet), get the rest
   provider
 } = configureChains(
-  [chain.polygon, // gnosisChain,
-    chain.goerli, chain.polygonMumbai, chain.mainnet],
+  [chain.mainnet, chain.polygon, gnosisChain, chain.goerli, chain.polygonMumbai],
   [
     // infuraProvider({ apiKey: process.env.INFURA_KEY })
-    alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY })
-    // publicProvider()
+    alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY }),
+    publicProvider(),
+    jsonRpcProvider({
+      rpc: (chain) => {
+        if (chain.id !== gnosisChain.id) return null
+        return { http: chain.rpcUrls.default }
+      }
+    })
   ]
 )
 const { connectors } = getDefaultWallets({

@@ -13,12 +13,12 @@ import {
 } from 'wagmi'
 import { defaultsDeep, filter, get, isEmpty } from 'lodash'
 import { CheckCircleIcon } from '@heroicons/react/solid'
-import { MarkdownComponent } from '../markdownUtils'
 import { analyticsTrackEvent } from '../analyticsUtils'
 import { useState } from 'react'
 import { makeIpfsPathForOnChainTask } from '../apiUtils'
 import { ethers } from 'ethers'
 import { classNames, getBountyAmount, getBountyCurrency, isDevEnv } from '../utils'
+import MarkdownComponent from './MarkdownComponent'
 
 const unit = require('ethjs-unit')
 

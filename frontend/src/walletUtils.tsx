@@ -1,8 +1,5 @@
-import CoinbaseWalletSDK from '@coinbase/wallet-sdk'
-import WalletConnect from '@walletconnect/web3-provider'
 import { ethers } from 'ethers'
-import { defaults, isEmpty, map, pick, values, zipObject } from 'lodash'
-import Web3Modal from 'web3modal'
+import { defaults, map, pick, values, zipObject } from 'lodash'
 import {
   erc20ContractAbi,
   getDeployedContractForChainId,
@@ -10,108 +7,56 @@ import {
   taskPortalContractAbi
 } from './constDeployedContracts'
 import { toHex } from 'web3-utils'
-import { chainIdToRpcUrl, getReadOnlyProviderForChainId, getRpcProviderUrlForChainId } from './apiUtils'
-import { analyticsIdentify } from './analyticsUtils'
+import { getRpcProviderUrlForChainId } from './apiUtils'
 import { formatEther } from 'ethers/lib/utils'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useEnsName } from 'wagmi'
-
-export const providerOptions = {
-  coinbasewallet: {
-    package: CoinbaseWalletSDK, // Required
-    options: {
-      appName: 'Tacit', // Required
-      infuraId: process.env.INFURA_KEY, // Required
-      // rpc: '', // Optional if `infuraId` is provided; otherwise it's required
-      // chainId: 1, // Optional. It defaults to 1 if not provided
-      darkMode: true // Optional. Use dark theme, defaults to false
-    }
-  },
-  walletconnect: {
-    package: WalletConnect,
-    options: {
-      rpc: chainIdToRpcUrl
-    }
-  }
-}
-
-export const connectWallet = async (web3Modal, dispatch) => {
-  try {
-    const provider = await web3Modal.connect()
-    const library = new ethers.providers.Web3Provider(provider)
-    const accounts = await library.listAccounts()
-
-    let network = null
-    try {
-      network = await library.getNetwork()
-    } catch (e) {
-      console.log('failed to get network', e)
-    }
-    let account = null
-    if (!isEmpty(accounts)) {
-      account = accounts[0]
-    }
-    dispatch({
-      type: 'SET_STATE',
-      state: {
-        provider,
-        library,
-        account,
-        network
-      }
-    })
-
-    analyticsIdentify(account)
-
-    const ensName = await lookupEnsName(account)
-    if (ensName) {
-      dispatch({
-        type: 'SET_ENS_NAME',
-        state: {
-          ensName
-        }
-      })
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
-export const lookupEnsName = async (account) => {
-  const provider = getReadOnlyProviderForChainId(1)
-  return await provider.lookupAddress(account)
-}
+//
+//
+// export const connectWallet = async (web3Modal, dispatch) => {
+//   try {
+//     const provider = await web3Modal.connect()
+//     const library = new ethers.providers.Web3Provider(provider)
+//     const accounts = await library.listAccounts()
+//
+//     let network = null
+//     try {
+//       network = await library.getNetwork()
+//     } catch (e) {
+//       console.log('failed to get network', e)
+//     }
+//     let account = null
+//     if (!isEmpty(accounts)) {
+//       account = accounts[0]
+//     }
+//     dispatch({
+//       type: 'SET_STATE',
+//       state: {
+//         provider,
+//         library,
+//         account,
+//         network
+//       }
+//     })
+//
+//     analyticsIdentify(account)
+//
+//     const ensName = await lookupEnsName(account)
+//     if (ensName) {
+//       dispatch({
+//         type: 'SET_ENS_NAME',
+//         state: {
+//           ensName
+//         }
+//       })
+//     }
+//   } catch (error) {
+//     console.error(error)
+//   }
+// }
 
 export const renderWalletConnectComponent = () => {
   return <ConnectButton label="Connect Your Wallet" showBalance={false} />
-
-  // return <div className="">
-  //   <button
-  //     onClick={onButtonSubmit}
-  //     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary-light focus:outline-none"
-  //   >
-  //     Connect Your Wallet
-  //   </button>
-  // </div>
-}
-
-export const loadWeb3Modal = (dispatch) => {
-  const web3Modal = new Web3Modal({
-    cacheProvider: false,
-    providerOptions, // required
-    theme: 'dark'
-  })
-
-  dispatch({
-    type: 'SET_WEB3_MODAL',
-    state: {
-      web3Modal
-    }
-  })
-
-  if (web3Modal.cachedProvider) {
-    connectWallet(web3Modal, dispatch)
-  }
 }
 
 export const getDefaultTransactionGasOptions = () => {

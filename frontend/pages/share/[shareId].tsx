@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/solid'
-import { escape, get, includes, isEmpty, map } from 'lodash'
+import { escape, get, includes, isEmpty, map, merge } from 'lodash'
 import { useForm } from 'react-hook-form'
 import { colors } from '../../colors'
 import tinycolor from 'tinycolor2'
@@ -16,14 +16,11 @@ import {
   isDevEnv,
   isProdEnv
 } from '../../src/utils'
-import ModalComponent from '../../src/components/ModalComponent'
 import { BiconomyLoadingState, NodeType, SharePageState, shareStates, solveStates } from '../../src/const'
 import { renderFormField, renderWalletAddressInputField } from '../../src/formUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import { ethers } from 'ethers'
-import PresentActionLinksComponent from '../../src/components/PresentActionLinksComponent'
-import { MarkdownComponent } from '../../src/markdownUtils'
 import { addUserToDatabase } from '../../src/supabase'
 import { Biconomy } from '@biconomy/mexa'
 import {
@@ -32,9 +29,18 @@ import {
   taskPortalContractAbi
 } from '../../src/constDeployedContracts'
 import Head from 'next/head'
-import WalletConnectButtonForForm from '../../src/components/WalletConnectButtonForForm'
-import { useAccount, useContractEvent } from 'wagmi'
+import { useAccount, useContractEvent, useSigner } from 'wagmi'
 import { useChainId } from '../../src/useChainId'
+import dynamic from 'next/dynamic'
+
+// eslint-disable-next-line node/no-unsupported-features/es-syntax
+const WalletConnectButtonForForm = dynamic(() => import('../../src/components/WalletConnectButtonForForm'))
+// eslint-disable-next-line node/no-unsupported-features/es-syntax
+const PresentActionLinksComponent = dynamic(() => import('../../src/components/PresentActionLinksComponent'))
+// eslint-disable-next-line node/no-unsupported-features/es-syntax
+const ModalComponent = dynamic(() => import('../../src/components/ModalComponent'))
+// eslint-disable-next-line node/no-unsupported-features/es-syntax
+const MarkdownComponent = dynamic(() => import('../../src/components/MarkdownComponent'))
 
 interface ShareSubmissionStateType {
   name: SharePageState;
@@ -59,6 +65,7 @@ function SharePage ({ shareObject }) {
   } = useAccount()
   const chainId = useChainId()
   const ensName = useMainnetEnsName(address)
+  const { data: walletSigner } = useSigner()
 
   const [sharePageData, setSharePageData] = useState<ShareSubmissionStateType>({ name: SharePageState.Default })
 
@@ -71,8 +78,15 @@ function SharePage ({ shareObject }) {
     setupBiconomy()
   }, [shareObject, chainId, isConnected])
 
+  const biconomyApiKey = get(chainIdToBiconomyApiKey, get(shareObject, 'chainId'))
+
   const setupBiconomy = async () => {
+    if (!biconomyApiKey || !shareObject) {
+      return
+    }
+
     if (!isConnected) {
+      // reset when disconnecting
       setBiconomyState({
         name: BiconomyLoadingState.Default,
         biconomy: null
@@ -80,69 +94,64 @@ function SharePage ({ shareObject }) {
       return
     }
 
-    if (!shareObject) {
-      return
-    }
-
     if (biconomyState.name === BiconomyLoadingState.Success) {
       return
     }
+
     console.log('run biconomy setup')
+    setBiconomyState({ name: BiconomyLoadingState.Init })
 
-    const apiKey = get(chainIdToBiconomyApiKey, shareObject.chainId)
-    if (apiKey) {
-      setBiconomyState({ name: BiconomyLoadingState.Init })
-
-      const biconomyOptions = {
-        apiKey,
-        debug: isDevEnv()
-      }
-
-      const biconomy = new Biconomy(window.ethereum, biconomyOptions)
-
-      setBiconomyState({
-        name: BiconomyLoadingState.Success,
-        biconomy
-      })
-      // setBiconomyState({
-      //   name: BiconomyLoadingState.Loading,
-      //   biconomy
-      // })
-
-      if (!biconomy.onEvent) {
-        return
-      }
-
-      console.log('has biconomy.onEvent')
-      biconomy.onEvent(biconomy.READY, () => {
-        console.log('biconomy is ready')
-      }).onEvent(biconomy.ERROR, (error, message) => {
-        console.log('biconomy has an error', error, message)
-        setBiconomyState({
-          name: BiconomyLoadingState.Error,
-          biconomy: error
-        })
-      })
+    const biconomyOptions = {
+      apiKey: biconomyApiKey,
+      debug: isDevEnv()
     }
+
+    const biconomy = new Biconomy(window.ethereum, biconomyOptions)
+
+    setBiconomyState({
+      name: BiconomyLoadingState.Success,
+      biconomy
+    })
+    // setBiconomyState({
+    //   name: BiconomyLoadingState.Loading,
+    //   biconomy
+    // })
+
+    if (!biconomy.onEvent) {
+      return
+    }
+
+    console.log('has biconomy.onEvent')
+    biconomy.onEvent(biconomy.READY, () => {
+      console.log('biconomy is ready')
+    }).onEvent(biconomy.ERROR, (error, message) => {
+      console.log('biconomy has an error', error, message)
+      setBiconomyState({
+        name: BiconomyLoadingState.Error,
+        biconomy: error
+      })
+    })
   }
 
   const contractAddress = shareObject ? getDeployedContractForChainId(shareObject.chainId).contractAddress : ''
 
   const NodeUpdatedEventListener = (event) => {
-    console.log('received new on-chain event', event)
     const [path, owner, nodeType, , eventData] = event
+    console.log('received new on-chain event', eventData)
 
     if (owner !== address) {
       return
     }
 
-    if (nodeType === NodeType.Share && sharePageData.name === SharePageState.SuccessSubmitSolve) {
-      console.log('processing share event', eventData)
+    const acceptableStateNames = [SharePageState.PendingSolve, SharePageState.PendingShare]
+
+    if (includes(acceptableStateNames, sharePageData.name)) {
+      console.log('processing event', eventData)
+      const newStateName = nodeType === NodeType.Solution ? SharePageState.SuccessSubmitSolve : SharePageState.SuccessSubmitShare
+
       setSharePageData({
-        name: SharePageState.SuccessSubmitShare,
-        data: {
-          sharePath: path
-        }
+        name: newStateName,
+        data: merge(sharePageData.data, { sharePath: path })
       })
     }
   }
@@ -172,9 +181,10 @@ function SharePage ({ shareObject }) {
     return renderLoadingScreen()
   }
 
-  const isGaslessTransactionsReady = biconomyState.name === BiconomyLoadingState.Success
+  const isBiconomyTransaction = !isEmpty(biconomyApiKey)
+  const isBiconomyTransactionReady = biconomyState.name === BiconomyLoadingState.Success
   const isUserOnCorrectChain = isConnected && shareObject && shareObject.chainId === chainId
-  const canSubmitActions = isUserOnCorrectChain && isGaslessTransactionsReady
+  const canSubmitActions = isUserOnCorrectChain && (isBiconomyTransaction ? isBiconomyTransactionReady : true)
   const walletAddress = ensName || address
   const primaryColor = get(shareObject, 'primaryColorHex') || colors.primary.DEFAULT
   const primaryColorHover = tinycolor(primaryColor).lighten(10)
@@ -193,7 +203,8 @@ function SharePage ({ shareObject }) {
     setSharePageData({ name: SharePageState.PendingSolve })
 
     const solutionData = ethers.utils.toUtf8Bytes(JSON.stringify(formData.solution))
-    const signer = biconomyState.biconomy.ethersProvider
+    const signer = isBiconomyTransaction ? biconomyState.biconomy.ethersProvider : walletSigner
+    const provider = isBiconomyTransaction ? new ethers.providers.Web3Provider(biconomyState.biconomy) : walletSigner.provider
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, shareObject.chainId)
     const { contractAddress } = getDeployedContractForChainId(shareObject.chainId)
     const { data: populateTransactionData } = await taskPortalContract.populateTransaction.addSolution(shareObject.path, solutionData)
@@ -208,11 +219,10 @@ function SharePage ({ shareObject }) {
         from: address
       }
     }
-    const biconomyProvider = new ethers.providers.Web3Provider(biconomyState.biconomy)
     let res
     try {
-      res = await biconomyProvider.send('eth_sendTransaction', [txParams])
-      console.log('RES', res)
+      // @ts-ignore
+      res = await provider.send('eth_sendTransaction', [txParams])
     } catch (e) {
       console.log('caught error ', e)
       const errorMessage = get(e, 'message') || e.error.message || (e.error && e.error.body && JSON.parse(e.error.body).error.message)
@@ -238,7 +248,7 @@ function SharePage ({ shareObject }) {
     }
 
     setSharePageData({
-      name: SharePageState.SuccessSubmitSolve,
+      name: SharePageState.PendingSolve,
       data
     })
   }
@@ -247,8 +257,8 @@ function SharePage ({ shareObject }) {
     setSharePageData({ name: SharePageState.PendingShare })
 
     const transactionData = ethers.utils.toUtf8Bytes(' ')
-    const signer = biconomyState.biconomy.ethersProvider
-
+    const signer = isBiconomyTransaction ? biconomyState.biconomy.ethersProvider : walletSigner
+    const provider = isBiconomyTransaction ? new ethers.providers.Web3Provider(biconomyState.biconomy) : walletSigner.provider
     const taskPortalContract = getTaskPortalContractInstanceViaActiveWallet(signer, shareObject.chainId)
 
     const { contractAddress } = getDeployedContractForChainId(shareObject.chainId)
@@ -266,10 +276,10 @@ function SharePage ({ shareObject }) {
       }
     }
 
-    const biconomyProvider = new ethers.providers.Web3Provider(biconomyState.biconomy)
     let res
     try {
-      res = await biconomyProvider.send('eth_sendTransaction', [txParams])
+      // @ts-ignore
+      res = await provider.send('eth_sendTransaction', [txParams])
     } catch (e) {
       console.log('caught error ', e)
       const errorMessage = get(e, 'message') || e.error.message || (e.error && e.error.body && JSON.parse(e.error.body).error.message)
@@ -361,7 +371,7 @@ function SharePage ({ shareObject }) {
             <button
               onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
               style={{ color: primaryColor }}
-              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-white bg-gray-100 hover:bg-gray-200 md:py-4 md:text-lg md:px-10"
+              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-white bg-gray-100 hover:bg-gray-200 md:py-4 md:text-lg"
             >
               {shareObject.ctaSolution || 'Solve task and earn'}
             </button>
@@ -375,7 +385,7 @@ function SharePage ({ shareObject }) {
               onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
               onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
               onClick={() => setSharePageData({ name: SharePageState.ShareIntent })}
-              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-gray-100 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+              className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-gray-100 bg-white hover:bg-gray-50 md:py-4 md:text-lg"
             >
               {shareObject.ctaReferral || 'Get referral link'}
 
@@ -460,7 +470,7 @@ function SharePage ({ shareObject }) {
                     style={{ backgroundColor: primaryColor }}
                     onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
                     onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-                    // disabled={!canSubmitActions}
+                    disabled={!canSubmitActions}
                     className={classNames(
                       'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white focus:outline-none')}
                   >
@@ -473,11 +483,11 @@ function SharePage ({ shareObject }) {
         </div>
       case SharePageState.PendingShare:
         return <div><p className="text-sm text-gray-500 animate-pulse">
-          Pending submission ...
+          Waiting for on-chain transaction...
         </p></div>
       case SharePageState.SuccessSubmitShare:
         return <div>
-          <p className="text-sm text-gray-500">
+          <p className="mb-4 text-md font-normal text-gray-500">
             You did it 🥳
           </p>
           <PresentActionLinksComponent data={sharePageData.data} />
@@ -563,13 +573,13 @@ function SharePage ({ shareObject }) {
           </div>
         </div>
       case SharePageState.PendingSolve:
-        return <div><p className="text-sm text-gray-500">
-          Pending submission
+        return <div><p className="text-sm text-gray-500 animate-pulse">
+          Waiting for on-chain transaction...
         </p></div>
       case SharePageState.SuccessSubmitSolve:
         return <div>
-          <p className="text-sm text-gray-500">
-            You did it 🥳 The poster has now received your answer and will be in touch.
+          <p className="mb-4 text-md font-normal text-gray-500">
+            You did it 🥳
           </p>
           <PresentActionLinksComponent data={sharePageData.data} />
         </div>
@@ -722,13 +732,13 @@ function SharePage ({ shareObject }) {
           {renderShareModal &&
             <ModalComponent
               renderContent={renderShareModalContent}
-              titleText="Share task and earn"
+              titleText="Share this task and earn"
               onClose={onModalClose}
             />}
           {renderSolveModal &&
             <ModalComponent
               renderContent={renderSolveModalContent}
-              titleText="Solve this task and earn"
+              titleText="Contribute to this task and earn"
               onClose={onModalClose}
             />}
           {renderPageContent()}

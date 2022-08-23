@@ -363,23 +363,23 @@ export default function TaskPage ({ taskObject }) {
   }
 
   function renderRow (nodeObject) {
-    const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
     const rowData = nodeObject.data
-
-    const viewShareLink = () => {
-      return (<a
-        href={`${getSiteUrl()}/${getSitePathForNode({
-          nodeType: 'share',
-          chainId: taskObject.chainId,
-          path: nodeObject.path
-        })}`}
-        target="_blank" rel="noopener noreferrer"
-        type="button"
-        className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
-      >
-        View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
-      </a>)
-    }
+    // const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
+    //
+    // const viewShareLink = () => {
+    //   return (<a
+    //     href={`${getSiteUrl()}/${getSitePathForNode({
+    //       nodeType: 'share',
+    //       chainId: taskObject.chainId,
+    //       path: nodeObject.path
+    //     })}`}
+    //     target="_blank" rel="noopener noreferrer"
+    //     type="button"
+    //     className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
+    //   >
+    //     View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
+    //   </a>)
+    // }
 
     return <tr key={`${nodeObject.owner}-${nodeObject.path}`} className="bg-white">
       <td className="max-w-sm px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
@@ -411,26 +411,26 @@ export default function TaskPage ({ taskObject }) {
           {nodeObject.isOpen ? 'Approved' : 'Rejected'}
         </p>
       </td>
-      <td className="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500">
-        <span className="relative z-0 inline-flex shadow-sm rounded-sm">
-          {isShareNode ? viewShareLink() : <p className="-ml-2 mr-24" />}
-          {/* {!nodeObject.isOpen */}
-          {/*   ? (<button */}
-          {/*     type="button" */}
-          {/*     className="relative inline-flex items-center px-4 py-2 rounded-l-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10" */}
-          {/*   > */}
-          {/*     <span className="sr-only">Approve</span> */}
-          {/*     <CheckCircleIcon className="h-5 w-5" aria-hidden="true" /> */}
-          {/*   </button>) */}
-          {/*   : (<button */}
-          {/*     type="button" */}
-          {/*     className="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10" */}
-          {/*   > */}
-          {/*     <span className="sr-only">Reject</span> */}
-          {/*     <XCircleIcon className="h-5 w-5" aria-hidden="true" /> */}
-          {/*   </button>)} */}
-        </span>
-      </td>
+      {/* <td className="px-6 py-4 text-right whitespace-nowrap text-sm text-gray-500"> */}
+      {/*   <span className="relative z-0 inline-flex shadow-sm rounded-sm"> */}
+      {/*     {isShareNode ? viewShareLink() : <p className="-ml-2 mr-24" />} */}
+      {/* {!nodeObject.isOpen */}
+      {/*   ? (<button */}
+      {/*     type="button" */}
+      {/*     className="relative inline-flex items-center px-4 py-2 rounded-l-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10" */}
+      {/*   > */}
+      {/*     <span className="sr-only">Approve</span> */}
+      {/*     <CheckCircleIcon className="h-5 w-5" aria-hidden="true" /> */}
+      {/*   </button>) */}
+      {/*   : (<button */}
+      {/*     type="button" */}
+      {/*     className="-ml-px relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10" */}
+      {/*   > */}
+      {/*     <span className="sr-only">Reject</span> */}
+      {/*     <XCircleIcon className="h-5 w-5" aria-hidden="true" /> */}
+      {/*   </button>)} */}
+      {/*   </span> */}
+      {/* </td> */}
     </tr>
   }
 
@@ -647,12 +647,12 @@ export default function TaskPage ({ taskObject }) {
                               >
                                 Status
                               </th>
-                              <th
-                                className="px-6 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                scope="col"
-                              >
-                                Actions
-                              </th>
+                              {/* <th */}
+                              {/*   className="px-6 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider" */}
+                              {/*   scope="col" */}
+                              {/* > */}
+                              {/*   Actions */}
+                              {/* </th> */}
                             </>
                           )}
                         </tr>

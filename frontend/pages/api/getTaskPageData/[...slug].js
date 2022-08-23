@@ -7,7 +7,7 @@ import {
   taskPortalContractAbi
 } from '../../../src/constDeployedContracts'
 import { getObjectInIPFS } from '../../../src/storageUtils'
-import { map, split } from 'lodash'
+import { map, merge, split } from 'lodash'
 import { getIpfsPathFromOnChainTaskData, getReadOnlyProviderForChainId } from '../../../src/apiUtils'
 import { withSentry } from '@sentry/nextjs'
 
@@ -29,13 +29,12 @@ async function handler (req, res) {
 
     const taskObject = await getObjectInIPFS(cid, fname)
     const nestedNodesObject = await getRecursiveNodes(taskPortalContract, taskId)
-    const returnPayload = {
-      // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...taskObject, // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...taskNodeData, // eslint-disable-next-line node/no-unsupported-features/es-syntax
-      ...nestedNodesObject,
-      chainId
-    }
+    const returnPayload = merge(
+      taskObject,
+      taskNodeData,
+      nestedNodesObject,
+      { chainId }
+    )
     res.status(200).json(returnPayload)
   } catch (err) {
     console.log('err when getting task page data for id', taskId, err)

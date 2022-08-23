@@ -25,7 +25,7 @@ const PresentActionLinksComponent = ({
     <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
       {data.sharePath && (<div className="sm:col-span-2">
         <dt className="text-md font-medium text-gray-500">
-          Your search task link for your friends
+          Your shareable link
         </dt>
         <dd className="mt-1 text-md text-gray-900 truncate underline">
           <a href={taskShareLink} target="_blank" rel="noopener noreferrer">
@@ -63,7 +63,7 @@ const PresentActionLinksComponent = ({
         <dt className="text-md font-medium text-gray-500">What can you do now?!</dt>
         <dd className="mt-1 text-md text-gray-900">
           Share your search task link with your community and friends on Twitter, Disord, Whatsapp, mail… wherever you
-          want. Lean back and check your dashboard for results. ☕️
+          want
         </dd>
       </div>)}
     </dl>
