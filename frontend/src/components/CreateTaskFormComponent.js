@@ -185,23 +185,26 @@ export default function CreateTaskFormComponent ({
   }, [isConnected])
 
   const renderFormSubmitButton = () => {
-    return currState === CreateTaskState.PendingUserBountyInput
-      ? <button
-        disabled={!isEmpty(errors)}
-        onClick={handleSubmit(handleFormSubmit)}
-        type="submit"
-        className={classNames(isConnected && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
-      >
-        Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
-        {/* Submit Task & Bounty */}
-      </button>
-      : <button
-        onClick={(event) => onNextStepSubmit(event)}
-        disabled={!isEmpty(errors)}
-        className={classNames(isReadyToSubmit ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
-      >
-        Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" />
-      </button>
+    const buttonText = <>Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" /></>
+
+    return !isConnected
+      ? <WalletConnectButtonForForm />
+      : currState === CreateTaskState.PendingUserBountyInput
+        ? <button
+          disabled={!isEmpty(errors)}
+          onClick={handleSubmit(handleFormSubmit)}
+          type="submit"
+          className={classNames(isConnected && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
+        >
+          {buttonText}
+        </button>
+        : <button
+          onClick={(event) => onNextStepSubmit(event)}
+          disabled={!isEmpty(errors)}
+          className={classNames(isReadyToSubmit ? 'hover:bg-primary-light focus:outline-none' : '', 'bg-primary w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white ')}
+        >
+          {buttonText}
+        </button>
   }
 
   const renderBackButton = () => {

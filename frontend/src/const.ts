@@ -3,7 +3,7 @@ import { concat } from 'lodash'
 export const TASK_ADVANCED_FORM_FIELDS = [
   'ctaReferral', 'subtitleReferral',
   'ctaSolution', 'subtitleSolution', 'headerSolutionModal',
-  'subtitleSolutionModal', 'primaryColorHex'
+  'subtitleSolutionModal', 'primaryColorHex', 'hideShareButton'
 ]
 
 export const TASK_ALL_FORM_FIELDS = concat([

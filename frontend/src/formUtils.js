@@ -30,7 +30,7 @@ export const renderFormField = ({
   validateFunction = undefined
 }) => {
   return (
-    <div>
+    <div className="">
       <label
         htmlFor={name}
         className="block text-md font-medium text-gray-700"
@@ -52,9 +52,9 @@ export const renderFormField = ({
           get(errors, name)
             ? 'border-red-300 text-red-800 placeholder-red-400 focus:outline-none focus:ring-red-500 focus:border-red-500'
             : 'text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300',
-          ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
+          type === 'checkbox' ? 'h-4 w-4' : ' w-full',
+          'sm:text-sm mt-1 block shadow-sm rounded-sm'
         )}
-
       />
     </div>
   )

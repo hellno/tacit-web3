@@ -88,6 +88,14 @@ export default function TaskAdvancedInputFields ({
         placeholder: '#0072D0',
         defaultValue: get(values, 'primaryColorHex')
       })}
+      {renderFormField({
+        register,
+        name: 'hideShareButton',
+        type: 'checkbox',
+        label: 'Hide Share Button',
+        placeholder: 'true',
+        defaultValue: get(values, 'hideShareButton')
+      })}
     </div>)}
   </>
 }

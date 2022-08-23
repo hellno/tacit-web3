@@ -364,9 +364,13 @@ function SharePage ({ shareObject }) {
   }
 
   const renderActionButtons = () => {
+    console.log(shareObject)
+    const showShareButton = !get(shareObject, 'hideShareButton', false)
+    console.log('showShareButton', showShareButton)
+
     return (
-      <div className="mx-auto py-12 md:mx-6">
-        <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mx-0 md:mt-8">
+      <div className={classNames(showShareButton && 'md:ml-6', 'mx-auto py-12')}>
+        <div className={classNames(showShareButton && 'sm:flex sm:justify-center', 'mt-5 max-w-md md:mx-0 md:mt-8')}>
           <div className="rounded-sm shadow">
             <button
               onClick={() => setSharePageData({ name: SharePageState.SolveIntent })}
@@ -375,11 +379,12 @@ function SharePage ({ shareObject }) {
             >
               {shareObject.ctaSolution || 'Solve task and earn'}
             </button>
-            <span className="md:w-60 md:text-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-100">
+            <span
+              className={classNames(showShareButton && 'md:w-60', 'md:text-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-100')}>
               {shareObject.subtitleSolution || 'Enter requested results to become eligible for a reward'}
             </span>
           </div>
-          <div className="mt-3 rounded-sm shadow sm:mt-0 sm:ml-3">
+          {showShareButton && (<div className="mt-3 rounded-sm shadow sm:mt-0 sm:ml-3">
             <button
               style={{ backgroundColor: primaryColor }}
               onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
@@ -391,10 +396,10 @@ function SharePage ({ shareObject }) {
 
             </button>
             <span
-              className="md:w-60 md:text-center items-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-100">
+              className={classNames(showShareButton && 'md:w-60', 'md:text-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-100')}>
               {shareObject.subtitleReferral || 'Invite others to earn and get a share of their reward'}
             </span>
-          </div>
+          </div>)}
         </div>
 
         {/* <div className="mt-4 flex grid grid-cols-2 gap-x-2"> */}
