@@ -167,6 +167,9 @@ export default function CreateTaskFormComponent ({
   }
 
   const onNextStepSubmit = async (event) => {
+    window.scrollTo({
+      top: 0
+    })
     event.preventDefault()
     const res = await trigger(['email', 'title', 'description'])
     if (res) {
@@ -242,6 +245,10 @@ export default function CreateTaskFormComponent ({
   }
 
   const handleFormSubmit = async (formData) => {
+    window.scrollTo({
+      top: 0
+    })
+
     setState({
       name: CreateTaskState.PendingUploadToIpfs,
       data: formData

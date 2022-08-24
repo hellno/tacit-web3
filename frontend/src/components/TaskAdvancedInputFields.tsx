@@ -2,6 +2,7 @@ import { renderFormField } from '../formUtils'
 import { useState } from 'react'
 import { MinusSmIcon, PlusSmIcon } from '@heroicons/react/outline'
 import { get } from 'lodash'
+import { classNames } from '../utils'
 
 export default function TaskAdvancedInputFields ({
   register,
@@ -80,6 +81,30 @@ export default function TaskAdvancedInputFields ({
         placeholder: 'Submit your solution',
         defaultValue: get(values, 'subtitleSolutionModal')
       })}
+      <div>
+        <label
+          htmlFor="multiQuestionField"
+          className="block text-md font-medium text-gray-700"
+        >
+          Questions to answer when submitting a solution
+        </label>
+        <div>
+            <textarea
+              {...register('multiQuestionField')}
+              id="multiQuestionField"
+              name="multiQuestionField"
+              rows={8}
+              className={classNames(
+                get(values, 'multiQuestionField')
+                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
+                  : 'text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300',
+                ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
+              )}
+              defaultValue={''}
+              placeholder="Questions go here, type one question per line. The UI will show separate answer fields for each question."
+            />
+        </div>
+      </div>
       {renderFormField({
         register,
         name: 'primaryColorHex',

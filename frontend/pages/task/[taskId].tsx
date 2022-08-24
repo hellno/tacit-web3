@@ -10,7 +10,7 @@ import {
   ShareIcon,
   SwitchHorizontalIcon
 } from '@heroicons/react/outline'
-import { constant, filter, findIndex, get, isEmpty, isNil, map, pullAt, times, trim, uniq } from 'lodash'
+import { constant, filter, findIndex, get, isEmpty, isNil, isString, map, pullAt, times, trim, uniq } from 'lodash'
 import {
   getDefaultTransactionGasOptions,
   getTaskPortalContractInstanceViaActiveWallet,
@@ -18,7 +18,6 @@ import {
 } from '../../src/walletUtils'
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
-import BlockiesComponent from '../../src/components/BlockiesComponent'
 import {
   classNames,
   flattenNodesRecursively,
@@ -363,7 +362,18 @@ export default function TaskPage ({ taskObject }) {
   }
 
   function renderRow (nodeObject) {
-    const rowData = nodeObject.data
+    let rowData = nodeObject.data
+    try {
+      rowData = JSON.parse(rowData)
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        rowData = rowData.split('\\n')
+        console.log(error)
+      } else {
+        throw error
+      }
+    }
+
     // const isShareNode = NodeType[nodeObject.nodeType] === 'Share'
     //
     // const viewShareLink = () => {
@@ -384,7 +394,7 @@ export default function TaskPage ({ taskObject }) {
     return <tr key={`${nodeObject.owner}-${nodeObject.path}`} className="bg-white">
       <td className="max-w-sm px-6 py-4 whitespace-nowrap text-sm text-gray-900 group-hover:text-gray-800">
         <div className="flex">
-          <div className="group relative flex-col">
+          <div className="group relative">
             <p className="text-gray-600">
               <a target="_blank" rel="noopener noreferrer"
                  href={`${blockExplorer}/address/${nodeObject.owner}`}>
@@ -396,9 +406,9 @@ export default function TaskPage ({ taskObject }) {
       </td>
       <td className="max-w-sm px-6 py-4 text-right text-sm text-gray-500">
         <div className="text-gray-900 font-medium text-left break-words ">
-          {map(rowData.split('\\n'), (item, idx) => (
+          {map(rowData, (item, idx) => (
             <span key={`row-data-${idx}`}>
-                {item}
+              {isString(item) ? item : <><p>{`Q: ${item.question}`}</p><p>{`A: ${item.answer}`}</p></>}
               <br />
             </span>
           ))}
@@ -446,23 +456,13 @@ export default function TaskPage ({ taskObject }) {
                 <div className="flex-1 min-w-0">
                   {/* Profile */}
                   <div className="flex items-center ">
-                    <div className="hidden h-12 w-12 rounded-full sm:block">
-                      <BlockiesComponent
-                        opts={{
-                          seed: taskObject.ownerAddress,
-                          color: '#dfe'
-                          // size: 15
-                          // scale: 3,
-                        }} />
-                    </div>
-                    <div className="ml-2 flex items-center">
+                    <div className="flex items-center">
                       <div>
                         <h1
-                          className="ml-3 mb-1 text-xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
+                          className="mb-1 text-xl font-bold leading-7 text-gray-900 sm:leading-9 sm:truncate">
                           gm 👋🏼
-                          {/* {taskObject.ownerAddress} */}
                         </h1>
-                        <dl className="mt-6 flex flex-col sm:ml-3 sm:mt-1 sm:flex-row sm:flex-wrap">
+                        <dl className="mt-6 flex flex-col sm:mt-1 sm:flex-row sm:flex-wrap">
                           {/* <dt className="sr-only">Created at</dt> */}
                           {/* <dd className="flex items-center text-sm text-gray-400 font-medium capitalize sm:mr-6"> */}
                           {/*   <ClockIcon */}
