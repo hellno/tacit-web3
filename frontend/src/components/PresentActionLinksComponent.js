@@ -62,8 +62,7 @@ const PresentActionLinksComponent = ({
       {data.sharePath && (<div className="sm:col-span-2">
         <dt className="text-md font-medium text-gray-500">What can you do now?!</dt>
         <dd className="mt-1 text-md text-gray-900">
-          Share your search task link with your community and friends on Twitter, Disord, Whatsapp, mail… wherever you
-          want
+          Share this with someone who should contribute to the bounty
         </dd>
       </div>)}
     </dl>
