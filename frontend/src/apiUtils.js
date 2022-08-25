@@ -1,5 +1,4 @@
 import { ethers } from 'ethers'
-import { getSiteUrl } from './utils'
 import { get } from 'lodash'
 
 export const chainIdToRpcUrl = {
@@ -63,10 +62,4 @@ export const getIpfsPathFromOnChainTaskData = (taskData) => {
     ipfsPath = ipfsPath.split('\\')[1].split('\x00')[0]
   }
   return ipfsPath
-}
-
-export const refreshVercelPage = async (pathToPage) => {
-  const apiEndpoint = getSiteUrl()
-  const apiUrl = `${apiEndpoint}/api/revalidate/${pathToPage}?secret=${process.env.TACIT_SERVER_TOKEN}`
-  return await fetch(apiUrl)
 }

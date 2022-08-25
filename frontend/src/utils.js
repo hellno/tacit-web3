@@ -1,5 +1,5 @@
 import { getDeployedContractForChainId, getNameToTokenAddressObjectForChainId } from './constDeployedContracts'
-import { get, invert } from 'lodash'
+import { get, invert, startsWith } from 'lodash'
 
 export const classNames = (...classes) => {
   return classes.filter(Boolean).join(' ')
@@ -44,7 +44,11 @@ export const isProdEnv = () => process.env.NODE_ENV === 'production'
 export const isDevEnv = () => process.env.NODE_ENV === 'development'
 
 export const refreshVercelPage = async (pathToPage) => {
+  if (!startsWith(pathToPage, '/')) {
+    pathToPage = `/${pathToPage}`
+  }
+
   const apiEndpoint = getSiteUrl()
-  const apiUrl = `${apiEndpoint}/api/revalidate/${pathToPage}?secret=${process.env.TACIT_SERVER_TOKEN}`
+  const apiUrl = `${apiEndpoint}/api/revalidate?path=${pathToPage}&secret=${process.env.TACIT_SERVER_TOKEN}`
   return await fetch(apiUrl)
 }
