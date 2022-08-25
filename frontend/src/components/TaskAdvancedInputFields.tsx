@@ -2,7 +2,6 @@ import { renderFormField } from '../formUtils'
 import { useState } from 'react'
 import { MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { get } from 'lodash'
-import { classNames } from '../utils'
 
 export default function TaskAdvancedInputFields ({
   register,
@@ -94,12 +93,7 @@ export default function TaskAdvancedInputFields ({
               id="multiQuestionField"
               name="multiQuestionField"
               rows={8}
-              className={classNames(
-                get(values, 'multiQuestionField')
-                  ? 'border-red-300 text-red-900 placeholder-red-300 focus:outline-none focus:ring-red-500 focus:border-red-500'
-                  : 'text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300',
-                ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
-              )}
+              className="text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300 sm:text-sm mt-1 block w-full shadow-sm rounded-sm"
               defaultValue={get(values, 'multiQuestionField')}
               placeholder="Questions go here, type one question per line. The UI will show separate answer fields for each question."
             />
