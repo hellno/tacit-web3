@@ -508,7 +508,7 @@ export async function getStaticProps ({ params }) {
     props: {
       shareObject
     },
-    revalidate: 3600 // every hour
+    revalidate: 86400 // once per day
   }
 }
 

@@ -14,10 +14,11 @@ export default async function handler (req, res) {
   if (secret !== process.env.TACIT_SERVER_TOKEN) {
     return res.status(401).json({ message: 'Invalid token' })
   }
+  console.log('query path', path)
 
   try {
     const revalidatePath = join(path, '/')
-    await res.unstable_revalidate(revalidatePath)
+    await res.revalidate(revalidatePath)
     return res.json({ revalidated: true })
   } catch (err) {
     // If there was an error, Next.js will continue
