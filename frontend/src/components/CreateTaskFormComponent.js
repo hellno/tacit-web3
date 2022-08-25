@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/24/solid'
+import { ArrowUpIcon, ChevronLeftIcon, ChevronRightIcon, InformationCircleIcon } from '@heroicons/react/24/solid'
 import { useForm } from 'react-hook-form'
 import { getTokenAddressToMaxAmounts, useMainnetEnsName } from '../walletUtils'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
@@ -94,7 +94,7 @@ export default function CreateTaskFormComponent ({
     disabled={true}
     className="mt-1 w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary"
   >
-    Switch to supported chain <ArrowSmUpIcon className="rounded-full w-6 h-6 animate-bounce" />
+    Switch to supported chain <ArrowUpIcon className="rounded-full w-6 h-6 animate-bounce" />
   </button>
 
   const renderTaskDescriptionFormPart = () => {
@@ -176,6 +176,7 @@ export default function CreateTaskFormComponent ({
       setState({ name: CreateTaskState.PendingUserBountyInput })
     }
   }
+
   useEffect(() => {
     if (isConnected) {
       clearErrors('walletAddress')
@@ -188,10 +189,11 @@ export default function CreateTaskFormComponent ({
   }, [isConnected])
 
   const renderFormSubmitButton = () => {
-    const buttonText = <>Next <ArrowSmRightIcon className="ml-1 mt-px h-5 w-5" /></>
-
+    const buttonText = <>Next <ChevronRightIcon className="ml-1 mt-0.5 h-4 w-4" /></>
     return !isConnected
-      ? <WalletConnectButtonForForm />
+      ? <>
+        <WalletConnectButtonForForm />
+      </>
       : currState === CreateTaskState.PendingUserBountyInput
         ? <button
           disabled={!isEmpty(errors)}
