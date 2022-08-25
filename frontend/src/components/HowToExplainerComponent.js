@@ -16,7 +16,7 @@ export default function HowToExplainerComponent () {
             <div>
               {/* <div> */}
               {/*   <span className="h-12 w-12 rounded-sm flex items-center justify-center bg-indigo-600"> */}
-              {/*     <InboxIcon className="h-6 w-6 text-white" aria-hidden="true" /> */}
+              {/*     <InboXMarkIcon className="h-6 w-6 text-white" aria-hidden="true" /> */}
               {/*   </span> */}
               {/* </div> */}
               <div className="mt-6">

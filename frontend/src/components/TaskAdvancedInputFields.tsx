@@ -1,6 +1,6 @@
 import { renderFormField } from '../formUtils'
 import { useState } from 'react'
-import { MinusSmIcon, PlusSmIcon } from '@heroicons/react/outline'
+import { MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { get } from 'lodash'
 import { classNames } from '../utils'
 
@@ -26,8 +26,8 @@ export default function TaskAdvancedInputFields ({
         >
           {showAdvancedFields ? 'Hide' : 'Show'} Advanced Options
           {showAdvancedFields
-            ? <MinusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
-            : <PlusSmIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />}
+            ? <MinusIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />
+            : <PlusIcon className="ml-2 -mr-0.5 h-4 w-4" aria-hidden="true" />}
         </button>
       </div>
     </div>)}
@@ -100,7 +100,7 @@ export default function TaskAdvancedInputFields ({
                   : 'text-gray-900 focus:ring-gray-500 focus:border-gray-500 border-gray-300',
                 ' sm:text-sm mt-1 block w-full shadow-sm rounded-sm'
               )}
-              defaultValue={''}
+              defaultValue={get(values, 'multiQuestionField')}
               placeholder="Questions go here, type one question per line. The UI will show separate answer fields for each question."
             />
         </div>

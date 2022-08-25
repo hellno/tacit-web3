@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Popover, Transition } from '@headlessui/react'
-import { MenuIcon, XIcon } from '@heroicons/react/outline'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { renderWalletConnectComponent } from '../walletUtils'
 import Image from 'next/image'
 
@@ -10,12 +10,8 @@ const navigation = [// {name: 'Product', href: '#'},
   // {name: 'Company', href: '#'},
 ]
 
-const Web3NavBar = () => {
-  const renderWalletAction = () => {
-    return renderWalletConnectComponent()
-  }
-
-  return <Popover>
+const Web3NavBar = () =>
+  <Popover>
     <nav
       className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6"
       aria-label="Global"
@@ -36,7 +32,7 @@ const Web3NavBar = () => {
             <Popover.Button
               className="bg-background rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
               <span className="sr-only">Open main menu</span>
-              <MenuIcon className="h-6 w-6" aria-hidden="true" />
+              <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             </Popover.Button>
           </div>
         </div>
@@ -51,7 +47,7 @@ const Web3NavBar = () => {
         </div>
       </div>
       <div className="hidden md:flex">
-        {renderWalletAction()}
+        {renderWalletConnectComponent()}
       </div>
     </nav>
 
@@ -71,13 +67,13 @@ const Web3NavBar = () => {
         <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5">
           <div className="px-5 py-2 flex items-center justify-between">
             <div className="block w-full">
-              {renderWalletAction()}
+              {renderWalletConnectComponent()}
             </div>
             <div className="-mr-2">
               <Popover.Button
                 className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
                 <span className="sr-only">Close menu</span>
-                <XIcon className="h-7 w-7" aria-hidden="true" />
+                <XMarkIcon className="h-7 w-7" aria-hidden="true" />
               </Popover.Button>
             </div>
           </div>
@@ -91,6 +87,5 @@ const Web3NavBar = () => {
       </Popover.Panel>
     </Transition>
   </Popover>
-}
 
 export default Web3NavBar

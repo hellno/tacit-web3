@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
-import { CashIcon, CheckCircleIcon } from '@heroicons/react/solid'
+import { BanknotesIcon, CheckCircleIcon } from '@heroicons/react/24/solid'
 import {
-  BadgeCheckIcon,
-  ExternalLinkIcon,
+  ArrowPathIcon,
+  ArrowsRightLeftIcon,
+  ArrowTopRightOnSquareIcon,
+  CheckBadgeIcon,
   HomeIcon,
   LightBulbIcon,
   PencilIcon,
   PlusCircleIcon,
-  ShareIcon,
-  SwitchHorizontalIcon
-} from '@heroicons/react/outline'
+  ShareIcon
+} from '@heroicons/react/24/outline'
 import { constant, filter, findIndex, get, isEmpty, isNil, isString, map, pullAt, times, trim, uniq } from 'lodash'
 import {
   getDefaultTransactionGasOptions,
@@ -23,7 +24,9 @@ import {
   flattenNodesRecursively,
   getBountyAmountWithCurrencyStringFromTaskObject,
   getSitePathForNode,
-  getSiteUrl
+  getSiteUrl,
+  refreshVercelPage,
+  sleep
 } from '../../src/utils'
 import { BountyPayoutState, IncreaseBountyState, NodeType } from '../../src/const'
 import { ethers } from 'ethers'
@@ -96,6 +99,7 @@ export default function TaskPage ({ taskObject }) {
   const [renderIncreaseBountyModal, setRenderIncreaseBountyModal] = useState(false)
   const [renderEditTaskModal, setRenderEditTaskModal] = useState(false)
   const [renderTransferTaskModal, setRenderTransferTaskModal] = useState(false)
+  const [isRefreshingTaskPage, setIsRefreshingTaskPage] = useState(false)
 
   // @ts-ignore
   useEffect(async () => {
@@ -174,7 +178,7 @@ export default function TaskPage ({ taskObject }) {
     {
       name: taskObject.bounties.length > 1 ? 'Bounties' : 'Bounty',
       href: '#',
-      icon: CashIcon,
+      icon: BanknotesIcon,
       value: map(taskObject.bounties, (bounty, idx) =>
         <p key={`bounty-${idx}`}>
           {getBountyAmountWithCurrencyStringFromTaskObject(bounty, taskObject.chainId)}
@@ -190,7 +194,7 @@ export default function TaskPage ({ taskObject }) {
     {
       name: 'Accepted Solutions',
       href: '#',
-      icon: BadgeCheckIcon,
+      icon: CheckBadgeIcon,
       value: filter(allNodes, (node) => node.nodeType === NodeType.Solution).length
     }
   ]
@@ -387,7 +391,7 @@ export default function TaskPage ({ taskObject }) {
     //     type="button"
     //     className="-ml-px relative inline-flex items-center px-4 py-2 rounded-r-sm border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:z-10"
     //   >
-    //     View <ExternalLinkIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
+    //     View <ArrowTopRightOnSquareIcon className="ml-1.5 mt-0.5 w-4 h-4 text-gray-600" />
     //   </a>)
     // }
 
@@ -444,6 +448,21 @@ export default function TaskPage ({ taskObject }) {
     </tr>
   }
 
+  const onSubmitRefreshButton = async () => {
+    if (isRefreshingTaskPage) {
+      return
+    }
+    setIsRefreshingTaskPage(true)
+    await refreshVercelPage(getSitePathForNode({
+      nodeType: 'task',
+      chainId,
+      path: taskObject.path
+    }))
+    await sleep(7000)
+    setIsRefreshingTaskPage(false)
+    window.location.reload()
+  }
+
   const renderPageContent = () => {
     return (
       <>
@@ -496,6 +515,15 @@ export default function TaskPage ({ taskObject }) {
                 <div className="mt-6 flex space-x-3 md:mt-0 md:ml-4">
                   {isUserOnCorrectChain
                     ? <>
+                      <button
+                        type="button"
+                        disabled={isRefreshingTaskPage}
+                        onClick={onSubmitRefreshButton}
+                        className={classNames(isRefreshingTaskPage ? 'animate-pulse bg-gray-200' : 'bg-white hover:bg-gray-50', 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700')}
+                      >
+                        <ArrowPathIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
+                        Refresh
+                      </button>
                       <a href={`${getSiteUrl()}/${getSitePathForNode({
                         nodeType: 'share',
                         chainId: taskObject.chainId,
@@ -505,7 +533,7 @@ export default function TaskPage ({ taskObject }) {
                          type="button"
                          className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        <ExternalLinkIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
+                        <ArrowTopRightOnSquareIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
                         Share
                       </a>
                       <button
@@ -521,7 +549,7 @@ export default function TaskPage ({ taskObject }) {
                         onClick={() => setRenderTransferTaskModal(true)}
                         className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-sm text-gray-700 bg-white hover:bg-gray-50"
                       >
-                        <SwitchHorizontalIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
+                        <ArrowsRightLeftIcon className="-ml-1 mr-2 h-4 w-4 text-gray-400" aria-hidden="true" />
                         Transfer
                       </button>
                       <button

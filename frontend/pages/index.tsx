@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowSmDownIcon } from '@heroicons/react/solid'
+import { ArrowDownIcon } from '@heroicons/react/20/solid'
 import Web3NavBar from '../src/components/Web3NavBar'
 import CreateTaskFormComponent from '../src/components/CreateTaskFormComponent'
 import CreateTaskOnChainComponent from '../src/components/SubmitTaskOnChainComponent'
@@ -141,7 +141,7 @@ export default function Index () {
                   <a
                     href="#how-to"
                     className="hidden lg:mt-4 lg:row-span-1 lg:flex 2xl:hidden">
-                    <ArrowSmDownIcon
+                    <ArrowDownIcon
                       className="rounded-full w-6 h-6 text-gray-200 animate-bounce" />
                     <span className="ml-4 text-gray-200 shadow">Learn more</span>
                   </a>

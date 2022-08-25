@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
-import { ClockIcon, HomeIcon, MenuAlt1Icon, ViewListIcon, XIcon } from '@heroicons/react/outline'
-import { ChevronRightIcon, SearchIcon } from '@heroicons/react/solid'
+import { Bars3CenterLeftIcon, Bars4Icon, ClockIcon, HomeIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid'
 import { classNames } from '../src/utils'
 
 const navigation = [
@@ -15,7 +15,7 @@ const navigation = [
   {
     name: 'My tasks',
     href: '#',
-    icon: ViewListIcon,
+    icon: Bars4Icon,
     current: false
   },
   {
@@ -152,7 +152,7 @@ export default function Home () {
                       onClick={() => setSidebarOpen(false)}
                     >
                       <span className="sr-only">Close sidebar</span>
-                      <XIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                      <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
                     </button>
                   </div>
                 </Transition.Child>
@@ -376,7 +376,7 @@ export default function Home () {
           {/*       className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none" */}
           {/*       aria-hidden="true" */}
           {/*     > */}
-          {/*       <SearchIcon className="mr-3 h-4 w-4 text-gray-400" aria-hidden="true" /> */}
+          {/*       <MagnifyingGlassIcon className="mr-3 h-4 w-4 text-gray-400" aria-hidden="true" /> */}
           {/*     </div> */}
           {/*     <input */}
           {/*       type="text" */}
@@ -448,7 +448,7 @@ export default function Home () {
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
-            <MenuAlt1Icon className="h-6 w-6" aria-hidden="true" />
+            <Bars3CenterLeftIcon className="h-6 w-6" aria-hidden="true" />
           </button>
           <div className="flex-1 flex justify-between px-4 sm:px-6 lg:px-8">
             <div className="flex-1 flex">
@@ -458,7 +458,7 @@ export default function Home () {
                 </label>
                 <div className="relative w-full text-gray-400 focus-within:text-gray-600">
                   <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-                    <SearchIcon className="h-5 w-5" aria-hidden="true" />
+                    <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
                   </div>
                   <input
                     id="search-field"

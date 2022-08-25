@@ -42,6 +42,7 @@ export const getSiteUrl = () => process.env.NODE_ENV === 'development' ? 'http:/
 export const isProdEnv = () => process.env.NODE_ENV === 'production'
 
 export const isDevEnv = () => process.env.NODE_ENV === 'development'
+
 export const refreshVercelPage = async (pathToPage) => {
   const apiEndpoint = getSiteUrl()
   const apiUrl = `${apiEndpoint}/api/revalidate/${pathToPage}?secret=${process.env.TACIT_SERVER_TOKEN}`

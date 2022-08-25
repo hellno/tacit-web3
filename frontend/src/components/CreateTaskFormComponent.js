@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/solid'
+import { ArrowSmRightIcon, ArrowSmUpIcon, ChevronLeftIcon, InformationCircleIcon } from '@heroicons/react/24/solid'
 import { useForm } from 'react-hook-form'
 import { getTokenAddressToMaxAmounts, useMainnetEnsName } from '../walletUtils'
 import { renderAmountAndCurrencyFormFields, renderFormField, renderWalletAddressInputField } from '../formUtils'
@@ -10,7 +10,7 @@ import {
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
 import { classNames, getSiteUrl, isDevEnv, sleep } from '../utils'
-import { XIcon } from '@heroicons/react/outline'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
 import TaskAdvancedInputFields from './TaskAdvancedInputFields'
 import Head from 'next/head'
@@ -81,7 +81,7 @@ export default function CreateTaskFormComponent ({
               onClick={() => setShowUserMessage(false)}
               className="bg-white rounded-md p-1 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
               <span className="sr-only">Close menu</span>
-              <XIcon className="h-4 w-4" aria-hidden="true" />
+              <XMarkIcon className="h-4 w-4" aria-hidden="true" />
             </button>
           </p>
         </div>

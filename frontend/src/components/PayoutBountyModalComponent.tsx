@@ -5,7 +5,7 @@ import {
   getNameToTokenAddressObjectForChainId,
   NATIVE_CHAIN_CURRENCY_AS_TOKEN_ADDRESS_FOR_CONTRACT
 } from '../constDeployedContracts'
-import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/outline'
+import { MinusCircleIcon, PlusCircleIcon } from '@heroicons/react/24/outline'
 import { concat, filter, get, includes, invert, isEmpty, map, pickBy, sum, uniq, uniqBy, zipObject } from 'lodash'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useAccount } from 'wagmi'

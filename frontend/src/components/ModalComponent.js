@@ -1,7 +1,7 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { ArrowsExpandIcon, XIcon } from '@heroicons/react/outline'
+import { ArrowsExpandIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
 export default function ModalComponent ({
   renderContent,
@@ -53,7 +53,7 @@ export default function ModalComponent ({
                       onClick={() => onClickClose(false)}
                     >
                       <span className="sr-only">Close</span>
-                      <XIcon className="h-6 w-6" aria-hidden="true" />
+                      <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                     </button>
                   </div>
                   <div className="sm:flex sm:items-start">

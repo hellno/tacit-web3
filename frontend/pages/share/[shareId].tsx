@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CheckCircleIcon } from '@heroicons/react/solid'
+import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { escape, get, includes, isEmpty, map, merge } from 'lodash'
 import { colors } from '../../colors'
 import tinycolor from 'tinycolor2'

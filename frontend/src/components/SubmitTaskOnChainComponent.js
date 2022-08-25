@@ -12,7 +12,7 @@ import {
   usePrepareContractWrite
 } from 'wagmi'
 import { defaultsDeep, filter, get, isEmpty } from 'lodash'
-import { CheckCircleIcon } from '@heroicons/react/solid'
+import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { analyticsTrackEvent } from '../analyticsUtils'
 import { useState } from 'react'
 import { makeIpfsPathForOnChainTask } from '../apiUtils'
