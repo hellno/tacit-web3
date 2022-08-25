@@ -133,7 +133,7 @@ export default function TaskPage ({ taskObject }) {
     })
 
   const taskCreationShareIndex = findIndex(allNodes, ({ data }) => data === 'TaskCreatorShare')
-  const [taskCreationNode]: Array<IContractNode> = pullAt(allNodes, taskCreationShareIndex)
+  const [taskCreationShareNode]: Array<IContractNode> = pullAt(allNodes, taskCreationShareIndex)
   const hasContentForTable = !isEmpty(allNodes)
   const walletAddresses = uniq(map(allNodes, 'owner'))
 
@@ -458,6 +458,12 @@ export default function TaskPage ({ taskObject }) {
       chainId,
       path: taskObject.path
     }))
+    await refreshVercelPage(getSitePathForNode({
+      nodeType: 'share',
+      chainId: taskObject.chainId,
+      path: taskCreationShareNode.path
+    }))
+
     await sleep(7000)
     setIsRefreshingTaskPage(false)
     window.location.reload()
@@ -527,7 +533,7 @@ export default function TaskPage ({ taskObject }) {
                       <a href={`${getSiteUrl()}/${getSitePathForNode({
                         nodeType: 'share',
                         chainId: taskObject.chainId,
-                        path: taskCreationNode.path
+                        path: taskCreationShareNode.path
                       })}`}
                          target="_blank" rel="noopener noreferrer"
                          type="button"
