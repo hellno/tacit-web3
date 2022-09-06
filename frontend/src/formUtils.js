@@ -46,7 +46,8 @@ export const renderFormField = ({
         name={name}
         id={name}
         placeholder={placeholder || label || startCase(name)}
-        defaultValue={defaultValue}
+        defaultValue={type !== 'checkbox' && defaultValue}
+        defaultChecked={type === 'checkbox' && defaultValue}
         required={required}
         className={classNames(
           get(errors, name)

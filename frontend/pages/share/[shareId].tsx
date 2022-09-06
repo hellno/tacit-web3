@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CheckCircleIcon } from '@heroicons/react/24/solid'
-import { escape, get, includes, isEmpty, map, merge } from 'lodash'
+import { escape, get, includes, isEmpty, isString, map, merge } from 'lodash'
 import { colors } from '../../colors'
 import tinycolor from 'tinycolor2'
 import {
@@ -173,10 +173,7 @@ function SharePage ({ shareObject }) {
     })
   }
 
-  console.log('isBiconomyTransaction', isBiconomyTransaction, 'walletSigner', walletSigner)
-
   const handleSolveFormSubmit = async (formData) => {
-    console.log({ formData })
     setPageState({ name: SharePageState.PendingSolve })
     const isSolutionForMultiQuestion = !isEmpty(formData.multiQuestionField)
     const solutionStr = JSON.stringify(isSolutionForMultiQuestion ? formData.multiQuestionField : formData.solution)
@@ -295,7 +292,11 @@ function SharePage ({ shareObject }) {
   }
 
   const renderActionButtons = () => {
-    const showShareButton = !get(shareObject, 'hideShareButton', false)
+    const hideShareButtonFormValue = get(shareObject, 'hideShareButton', false)
+    // can be true, false, undefined, "true", "false"
+    // true or "true" -> false
+    // false, undefined or "false" -> true
+    const showShareButton = isString(hideShareButtonFormValue) ? hideShareButtonFormValue !== 'true' : !hideShareButtonFormValue
 
     return (
       <div className={classNames(showShareButton && 'md:ml-6', 'mx-auto py-12')}>
@@ -347,7 +348,7 @@ function SharePage ({ shareObject }) {
       <div className="mx-auto max-w-7xl">
         <div className="lg:grid lg:grid-cols-6 lg:gap-8">
           <div
-            className="mx-4 sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
+            className="mx-4 md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:flex lg:items-center">
             <div>
               <div
                 className="inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base"

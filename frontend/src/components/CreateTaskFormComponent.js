@@ -114,7 +114,7 @@ export default function CreateTaskFormComponent ({
         name: 'title',
         type: 'text',
         required: true,
-        label: 'Search Title',
+        label: 'Task Title',
         placeholder: 'A short title of what you are looking for',
         errors
       })}

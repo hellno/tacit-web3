@@ -22,7 +22,6 @@ export default function EditTaskModalComponent ({
   taskObject,
   onClose
 }) {
-  taskObject = omitBy(taskObject, isEmpty)
   const chainId = useChainId()
   const { data: signer } = useSigner()
 
@@ -45,6 +44,8 @@ export default function EditTaskModalComponent ({
   })
 
   const onFormSubmit = async (formData) => {
+    console.log('formData', formData)
+
     try {
       setEditTaskState({
         name: EditTaskState.Loading
@@ -100,7 +101,7 @@ export default function EditTaskModalComponent ({
               name: 'title',
               type: 'text',
               required: true,
-              label: 'Search Title',
+              label: 'Task Title',
               placeholder: 'A short title of what you are looking for',
               errors
             })}
