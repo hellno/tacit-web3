@@ -481,7 +481,7 @@ function SharePage ({ shareObject }) {
             biconomyState={biconomyState}
             handleFormSubmit={handleShareFormSubmit}
             onModalClose={resetToDefaultState}
-            titleText="Share this task and earn"
+            titleText="Only one more step"
           />}
           {renderSolveModal && <SharePageModal
             shareObject={shareObject}
@@ -489,7 +489,7 @@ function SharePage ({ shareObject }) {
             biconomyState={biconomyState}
             handleFormSubmit={handleSolveFormSubmit}
             onModalClose={resetToDefaultState}
-            titleText="Solve this task and earn"
+            titleText="Only one more step"
           />}
           {renderPageContent()}
         </div>
