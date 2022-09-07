@@ -1,4 +1,4 @@
-import { renderFormField } from '../formUtils'
+import { renderCheckboxFormField, renderFormField } from '../formUtils'
 import { useState } from 'react'
 import { MinusIcon, PlusIcon } from '@heroicons/react/20/solid'
 import { get, isString } from 'lodash'
@@ -12,6 +12,7 @@ export default function TaskAdvancedInputFields ({
 
   const showFields = showAdvancedFields || !allowHide
   const hideShareButtonFormValue = get(values, 'hideShareButton', false)
+  console.log('hideShareButtonFormValue', hideShareButtonFormValue)
 
   return <>
     {allowHide && (<div className="relative">
@@ -108,12 +109,11 @@ export default function TaskAdvancedInputFields ({
         placeholder: '#0072D0',
         defaultValue: get(values, 'primaryColorHex')
       })}
-      {renderFormField({
+      {renderCheckboxFormField({
         register,
         name: 'hideShareButton',
         type: 'checkbox',
         label: 'Hide Share Button',
-        placeholder: 'true',
         defaultValue: isString(hideShareButtonFormValue) ? hideShareButtonFormValue === 'true' : hideShareButtonFormValue
       })}
     </div>)}
