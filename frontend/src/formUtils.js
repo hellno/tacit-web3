@@ -62,7 +62,6 @@ export const renderFormField = ({
 export const renderCheckboxFormField = ({
   register,
   name,
-  type,
   defaultValue = undefined,
   required = false,
   label = '',
@@ -79,10 +78,10 @@ export const renderCheckboxFormField = ({
       {...register(name, {
         required
       })}
-      type={type}
+      type="checkbox"
       name={name}
       id={name}
-      defaultChecked={type === 'checkbox' && defaultValue}
+      defaultChecked={defaultValue}
       required={required}
       className={classNames(
         get(errors, name)

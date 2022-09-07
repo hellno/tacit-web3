@@ -1,5 +1,5 @@
 import ModalComponent from './ModalComponent'
-import { get, intersection, isEmpty, keys, merge, omitBy, pick } from 'lodash'
+import { get, intersection, keys, merge, omitBy, pick } from 'lodash'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import TaskDescriptionInputField from './TaskDescriptionInputField'
@@ -44,14 +44,15 @@ export default function EditTaskModalComponent ({
   })
 
   const onFormSubmit = async (formData) => {
-    console.log('formData', formData)
+    console.log('formData 1', formData)
 
     try {
       setEditTaskState({
         name: EditTaskState.Loading
       })
 
-      formData = omitBy(formData, isEmpty)
+      formData = omitBy(formData, (value, _) => value === '')
+      console.log('formData 2', formData)
       const ipfsData = merge(pick(taskObject, TASK_ALL_FORM_FIELDS), formData)
       const dataPath = await uploadTaskDataToIpfs(ipfsData)
 

@@ -112,7 +112,6 @@ export default function TaskAdvancedInputFields ({
       {renderCheckboxFormField({
         register,
         name: 'hideShareButton',
-        type: 'checkbox',
         label: 'Hide Share Button',
         defaultValue: isString(hideShareButtonFormValue) ? hideShareButtonFormValue === 'true' : hideShareButtonFormValue
       })}
