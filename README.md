@@ -1,4 +1,5 @@
 # Tacit Web3
+![pika-1663256760767](https://user-images.githubusercontent.com/686075/190448686-a8aa197d-4500-418c-8512-44fc3d9bee17.jpeg)
 
 # Installation
 
