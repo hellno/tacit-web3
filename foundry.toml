@@ -1,0 +1,16 @@
+[default]
+src = 'src'
+out = 'artifacts'
+libs = ['node_modules', 'lib', ]
+gas_limit = 9223372036854775807
+gas_price = 0
+verbosity = 2
+# How to treat revert (and require) reason strings.
+# Possible values are: "default", "strip", "debug" and "verboseDebug".
+#  "default" does not inject compiler-generated revert strings and keeps user-supplied ones.
+# "strip" removes all revert strings (if possible, i.e. if literals are used) keeping side-effects
+# "debug" injects strings for compiler-generated internal reverts, implemented for ABI encoders V1 and V2 for now.
+# "verboseDebug" even appends further information to user-supplied revert strings (not yet implemented)
+revert_strings = "debug"
+
+# See all config options https://github.com/foundry-rs/foundry/tree/master/config

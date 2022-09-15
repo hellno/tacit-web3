@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+// nextjs default options
+//    "target": "es5",
+//    "module": "esnext",
+
+    // hardhat config
+    "target": "es2018",
+    "module": "commonjs",
+    "outDir": "dist",
+    "declaration": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "./scripts", "./test", "./typechain"],
+  "exclude": ["node_modules"],
+  "files": ["./hardhat.config.ts"]
+}
