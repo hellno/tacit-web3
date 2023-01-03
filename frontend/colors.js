@@ -5,8 +5,8 @@ module.exports = {
       DEFAULT: '#FF8788'
     },
     secondary: {
-      light: '#4d9dde',
-      DEFAULT: '#0072D0'
+      light: '#1E71B5',
+      DEFAULT: '#005397'
     },
     light: {
       DEFAULT: '#FBFBFB'
