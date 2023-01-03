@@ -3,7 +3,6 @@ import '@rainbow-me/rainbowkit/styles.css'
 
 import type { AppProps } from 'next/app'
 import { AppContextProvider } from '../src/context'
-import BannerComponent from '../src/components/BannerComponent'
 import { isProdEnv } from '../src/utils'
 import { chains, wagmiClient } from '../src/wagmiContext'
 import { WagmiConfig } from 'wagmi'
@@ -51,8 +50,6 @@ function MyApp ({
           borderRadius: 'small',
           fontStack: 'system'
         })}>
-        <BannerComponent
-          title={'This is an alpha release → you are early '} />
         <Component {...pageProps} />
         {isProdEnv() && renderAnalyticsScripts()}
       </RainbowKitProvider>

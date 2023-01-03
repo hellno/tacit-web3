@@ -98,7 +98,7 @@ const cards = [
     amount: '2342',
     cta: 'View latest referrals'
   }, {
-    name: 'User balance',
+    name: 'Remaining Reward Treasury',
     href: '#',
     icon: ScaleIcon,
     amount: '$30,659.45'
@@ -107,40 +107,40 @@ const cards = [
 const transactions = [
   {
     id: 1,
-    name: 'Payout to 0x',
+    name: 'Payout to 0x6dfc34609a05bc22319fa4cce1d1e2929548c0d7',
     href: '#',
-    amount: '$20,000',
-    currency: 'USD',
+    amount: '200',
+    currency: 'USDC',
     status: 'success',
-    date: 'July 11, 2020',
-    datetime: '2020-07-11'
+    date: 'July 11, 2022',
+    datetime: '2022-07-11'
   }, {
     id: 2,
-    name: 'Payment to Molly Sanders',
+    name: 'Payout to 0x34de6bdb58e5e78364aad778e0c0533b481c9afc',
     href: '#',
-    amount: '$20,000',
-    currency: 'USD',
+    amount: '1',
+    currency: 'WETH',
     status: 'success',
-    date: 'July 11, 2020',
-    datetime: '2020-07-11'
+    date: 'July 11, 2022',
+    datetime: '2022-07-11'
   }, {
     id: 3,
-    name: 'Payment to Molly Sanders',
+    name: 'Payout to 0x21a31ee1afc51d94c2efccaa2092ad1028285549',
     href: '#',
-    amount: '$20,000',
-    currency: 'USD',
+    amount: '2.1',
+    currency: 'ETH',
     status: 'success',
-    date: 'July 11, 2020',
-    datetime: '2020-07-11'
+    date: 'July 11, 2022',
+    datetime: '2022-07-11'
   }, {
     id: 4,
-    name: 'Payment to Molly Sanders',
+    name: 'Payout to 0x34de6bdb58e5e78364aad778e0c0533b481c9afc',
     href: '#',
-    amount: '$20,000',
-    currency: 'USD',
+    amount: '23',
+    currency: 'USDC',
     status: 'success',
-    date: 'July 11, 2020',
-    datetime: '2020-07-11'
+    date: 'July 11, 2022',
+    datetime: '2022-07-11'
   }
 ]
 const statusStyles = {
@@ -1202,8 +1202,8 @@ export default function Dashboard () {
                             <span className="flex flex-col truncate text-sm text-gray-500">
                               <span className="truncate">{transaction.name}</span>
                               <span>
-                                <span className="font-medium text-gray-900">{transaction.amount}</span>{' '}
-                                {transaction.currency}
+                                <span className="font-medium text-gray-900">{transaction.currency}</span>{' '}
+                                {transaction.amount}
                               </span>
                               <time dateTime={transaction.datetime}>{transaction.date}</time>
                             </span>
@@ -1287,8 +1287,8 @@ export default function Dashboard () {
                               </div>
                             </td>
                             <td className="whitespace-nowrap px-6 py-4 text-right text-sm text-gray-500">
-                              <span className="font-medium text-gray-900">{transaction.amount}</span>
-                              {transaction.currency}
+                              <span className="font-medium text-gray-900">{transaction.currency}{' '}</span>
+                              {transaction.amount}
                             </td>
                             <td className="hidden whitespace-nowrap px-6 py-4 text-sm text-gray-500 md:block">
                                 <span
