@@ -1,17 +1,9 @@
-/*
-  This example requires some changes to your config:
+// todo:
+// add box with graph of referrals over time
+// make transactions smaller
+// add if this then that into creation modal
+//    based on figma screenshot/how everyone does it
 
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
 import { Fragment, useRef, useState } from 'react'
 import { Combobox, Dialog, Menu, Transition } from '@headlessui/react'
 import {
@@ -101,7 +93,7 @@ const cards = [
     name: 'Remaining Reward Treasury',
     href: '#',
     icon: ScaleIcon,
-    amount: '$30,659.45'
+    amount: 'USDC 30,659.45'
   }
 ]
 const transactions = [
@@ -406,7 +398,7 @@ const DashboardModal = ({
                     <div className="col-span-1 mt-1 flex items-center">
                       <button
                         type="button"
-                        className="flex ml-5 rounded-md border border-gray-300 bg-white py-2.5 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+                        className="flex ml-5 rounded-md border border-gray-300 bg-white py-2.5 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
                       >
                         <PlusCircleIcon className="mr-1 h-4 w-4" aria-hidden="true" />Add
                       </button>
@@ -437,7 +429,7 @@ const DashboardModal = ({
                     <div className="flex text-sm text-gray-600">
                       <label
                         htmlFor="file-upload"
-                        className="relative cursor-pointer rounded-md bg-white font-medium text-cyan-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 hover:text-cyan-500"
+                        className="relative cursor-pointer rounded-md bg-white font-medium text-cyan-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-cyan-500 focus-within:ring-offset-2 hover:text-secondary-500"
                       >
                         <span>Upload a file</span>
                         <input id="file-upload" name="file-upload" type="file" className="sr-only" />
@@ -859,7 +851,7 @@ export default function Dashboard () {
                 leaveFrom="translate-x-0"
                 leaveTo="-translate-x-full"
               >
-                <Dialog.Panel className="relative flex w-full max-w-xs flex-1 flex-col bg-cyan-700 pt-5 pb-4">
+                <Dialog.Panel className="relative flex w-full max-w-xs flex-1 flex-col bg-secondary pt-5 pb-4">
                   <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-300"
@@ -882,8 +874,8 @@ export default function Dashboard () {
                   </Transition.Child>
                   <div className="flex flex-shrink-0 items-center px-4">
                     <img
-                      className="h-8 w-auto"
-                      src="./tacit_t.png"
+                      className="h-8 w-auto -m-1"
+                      src="./tacit_logo.png"
                       alt="Tacit logo"
                     />
                   </div>
@@ -898,8 +890,8 @@ export default function Dashboard () {
                           href={item.href}
                           className={classNames(
                             item.current
-                              ? 'bg-cyan-800 text-white'
-                              : 'text-cyan-100 hover:text-white hover:bg-cyan-600',
+                              ? 'bg-primary text-white'
+                              : 'text-cyan-100 hover:text-white hover:bg-secondary-light',
                             'group flex items-center px-2 py-2 text-base font-medium rounded-md'
                           )}
                           aria-current={item.current ? 'page' : undefined}
@@ -915,7 +907,7 @@ export default function Dashboard () {
                           <a
                             key={item.name}
                             href={item.href}
-                            className="group flex items-center rounded-md px-2 py-2 text-base font-medium text-cyan-100 hover:bg-cyan-600 hover:text-white"
+                            className="group flex items-center rounded-md px-2 py-2 text-base font-medium text-cyan-100 hover:bg-secondary-light hover:text-white"
                           >
                             <item.icon className="mr-4 h-6 w-6 text-cyan-200" aria-hidden="true" />
                             {item.name}
@@ -939,8 +931,8 @@ export default function Dashboard () {
           <div className="flex flex-grow flex-col overflow-y-auto bg-secondary pt-5 pb-4">
             <div className="flex flex-shrink-0 items-center px-4">
               <img
-                className="h-8 w-auto"
-                src="./tacit_t.png"
+                className="h-10 w-auto -m-2"
+                src="./tacit_logo.png"
                 alt="Tacit logo"
               />
             </div>
@@ -983,7 +975,7 @@ export default function Dashboard () {
           <div className="flex h-16 flex-shrink-0 border-b border-gray-200 bg-white lg:border-none">
             <button
               type="button"
-              className="border-r border-gray-200 px-4 text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-cyan-500 lg:hidden"
+              className="border-r border-gray-200 px-4 text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-secondary-500 lg:hidden"
               onClick={() => setSidebarOpen(true)}
             >
               <span className="sr-only">Open sidebar</span>
@@ -1013,7 +1005,7 @@ export default function Dashboard () {
               <div className="ml-4 flex items-center md:ml-6">
                 <button
                   type="button"
-                  className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+                  className="rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2"
                 >
                   <span className="sr-only">View notifications</span>
                   <BellIcon className="h-6 w-6" aria-hidden="true" />
@@ -1023,7 +1015,7 @@ export default function Dashboard () {
                 <Menu as="div" className="relative ml-3">
                   <div>
                     <Menu.Button
-                      className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 lg:rounded-md lg:p-2 lg:hover:bg-gray-50">
+                      className="flex max-w-xs items-center rounded-full bg-white text-sm focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2 lg:rounded-md lg:p-2 lg:hover:bg-gray-50">
                       <img
                         className="h-8 w-8 rounded-full"
                         src="https://images.unsplash.com/photo-1633421878789-30435a5f7ea8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
@@ -1137,13 +1129,13 @@ export default function Dashboard () {
                     <button
                       onClick={() => setModalOpen(true)}
                       type="button"
-                      className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+                      className="inline-flex items-center rounded-md border border-gray-300 bg-secondary px-4 py-2 text-sm font-medium text-gray-100 shadow-sm hover:bg-secondary-light focus:outline-none"
                     >
                       Add reward plan
                     </button>
                     <button
                       type="button"
-                      className="inline-flex items-center rounded-md border border-transparent bg-cyan-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2"
+                      className="inline-flex items-center rounded-md border border-transparent bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-light focus:outline-none "
                     >
                       Payout rewards
                     </button>
