@@ -637,7 +637,7 @@ export default function Dashboard () {
               <h2 className="mx-auto mt-8 max-w-6xl px-4 text-lg font-medium leading-6 text-gray-900 sm:px-6 lg:px-8">
                 Monthly User Growth
               </h2>
-              <div className="flex-grow mx-8">
+              <div className="flex-grow mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
                 <Line data={data} options={options} />
               </div>
               <h2 className="mx-auto mt-8 max-w-6xl px-4 text-lg font-medium leading-6 text-gray-900 sm:px-6 lg:px-8">
