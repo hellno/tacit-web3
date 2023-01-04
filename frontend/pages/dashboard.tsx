@@ -24,10 +24,23 @@ import {
 import Head from 'next/head'
 import { CreateRewardPlanModal } from '../src/components/CreateRewardPlanModal'
 import { RewardPlanManagerModal } from '../src/components/RewardPlanManagerModal'
-import { CategoryScale, Chart, Filler, Legend, LinearScale, LineElement, PointElement, Title, Tooltip } from 'chart.js'
+import {
+  CategoryScale,
+  Chart,
+  Filler,
+  InteractionModeMap,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  TimeScale,
+  Title,
+  Tooltip
+} from 'chart.js'
 import { Line } from 'react-chartjs-2'
+import { classNames } from '../src/utils'
 
-Chart.register(CategoryScale, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, Filler)
+Chart.register(TimeScale, CategoryScale, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, Filler)
 
 const navigation = [
   {
@@ -137,38 +150,21 @@ const statusStyles = {
   failed: 'bg-gray-100 text-gray-800'
 }
 
-function classNames (...classes) {
-  return classes.filter(Boolean).join(' ')
-}
+const formatThousands = (value) => Intl.NumberFormat('en-US', {
+  maximumSignificantDigits: 4,
+  notation: 'compact'
+}).format(value)
 
 export default function Dashboard () {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [rewardPlanModalOpen, setRewardPlanModalOpen] = useState(false)
   const [planManagerModalOpen, setPlanManagerModalOpen] = useState(false)
 
-  const formatThousands = (value) => Intl.NumberFormat('en-US', {
-    maximumSignificantDigits: 3,
-    notation: 'compact'
-  }).format(value)
-
   // Define Chart.js default settings
   Chart.defaults.font.family = '"Inter", sans-serif'
   Chart.defaults.font.weight = '500'
-  Chart.defaults.color = 'rgb(148, 163, 184)'
+  Chart.defaults.color = '#005397'
   Chart.defaults.scale.grid.color = 'rgb(241, 245, 249)'
-  // Chart.defaults.plugins.tooltip.titleColor = 'rgb(30, 41, 59)'
-  // Chart.defaults.plugins.tooltip.bodyColor = 'rgb(30, 41, 59)'
-  // Chart.defaults.plugins.tooltip.backgroundColor = '#FFF'
-  // Chart.defaults.plugins.tooltip.borderWidth = 1
-  // Chart.defaults.plugins.tooltip.borderColor = 'rgb(226, 232, 240)'
-  // Chart.defaults.plugins.tooltip.displayColors = false
-  // Chart.defaults.plugins.tooltip.mode = 'nearest'
-  // Chart.defaults.plugins.tooltip.intersect = false
-  // Chart.defaults.plugins.tooltip.position = 'nearest'
-  // Chart.defaults.plugins.tooltip.caretSize = 0
-  // Chart.defaults.plugins.tooltip.caretPadding = 20
-  // Chart.defaults.plugins.tooltip.cornerRadius = 4
-  // Chart.defaults.plugins.tooltip.padding = 8
 
   const data = {
     labels: [
@@ -194,12 +190,12 @@ export default function Dashboard () {
         ],
         fill: true,
         backgroundColor: 'rgba(59, 130, 246, 0.08)',
-        borderColor: 'rgb(99, 102, 241)',
+        borderColor: '#005397',
         borderWidth: 2,
         tension: 0,
         pointRadius: 0,
         pointHoverRadius: 3,
-        pointBackgroundColor: 'rgb(99, 102, 241)'
+        pointBackgroundColor: '#005397'
       },
       // Gray line
       {
@@ -220,57 +216,72 @@ export default function Dashboard () {
       }
     ]
   }
-  // const options = {
-  //   layout: {
-  //     padding: 20
-  //   },
-  //   scales: {
-  //     y: {
-  //       beginAtZero: true,
-  //       grid: {
-  //         drawBorder: false
-  //       },
-  //       ticks: {
-  //         callback: (value) => formatThousands(value)
-  //       }
-  //     },
-  //     x: {
-  //       type: 'time',
-  //       time: {
-  //         parser: 'MM-DD-YYYY',
-  //         unit: 'month',
-  //         displayFormats: {
-  //           month: 'MMM YY'
-  //         }
-  //       },
-  //       grid: {
-  //         display: false,
-  //         drawBorder: false
-  //       },
-  //       ticks: {
-  //         autoSkipPadding: 48,
-  //         maxRotation: 0
-  //       }
-  //     }
-  //   },
-  //   // plugins: {
-  //   //   legend: {
-  //   //     display: false
-  //   //   },
-  //   //   tooltip: {
-  //   //     callbacks: {
-  //   //       title: () => false, // Disable tooltip title
-  //   //       label: (context) => formatThousands(context.parsed.y)
-  //   //     }
-  //   //   }
-  //   // },
-  //   interaction: {
-  //     intersect: false,
-  //     mode: 'nearest'
-  //   },
-  //   maintainAspectRatio: false
-  // }
-  const options = {}
+  // @ts-ignore
+  const options = {
+    layout: {
+      padding: 20
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          drawBorder: false
+        },
+        ticks: {
+          callback: (value) => formatThousands(value)
+        }
+      },
+      x: {
+        // type: 'time',
+        // time: {
+        //   parser: 'MM-DD-YYYY',
+        //   unit: 'month',
+        //   displayFormats: {
+        //     month: 'MMM YY'
+        //   }
+        // },
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          autoSkipPadding: 48,
+          maxRotation: 0
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        callbacks: {
+          title: () => null, // Disable tooltip title
+          label: (context) => formatThousands(context.parsed.y)
+        }
+      }
+    },
+    interaction: {
+      intersect: false,
+      mode: 'nearest' as keyof InteractionModeMap
+    },
+    maintainAspectRatio: false
+  }
+
+  const renderGraph = () => {
+    return <>
+      <h2 className="mx-auto mt-8 max-w-6xl px-4 text-lg font-medium leading-6 text-gray-900 sm:px-6 lg:px-8">
+        Monthly User Growth
+      </h2>
+      <div className="flex-grow mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <Line data={data}
+          // @ts-ignore
+              options={options}
+              height={400} />
+      </div>
+    </>
+  }
+
   return (
     <>
       <Head>
@@ -634,12 +645,7 @@ export default function Dashboard () {
                 </div>
               </div>
 
-              <h2 className="mx-auto mt-8 max-w-6xl px-4 text-lg font-medium leading-6 text-gray-900 sm:px-6 lg:px-8">
-                Monthly User Growth
-              </h2>
-              <div className="flex-grow mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-                <Line data={data} options={options} />
-              </div>
+              {renderGraph()}
               <h2 className="mx-auto mt-8 max-w-6xl px-4 text-lg font-medium leading-6 text-gray-900 sm:px-6 lg:px-8">
                 Recent activity
               </h2>
