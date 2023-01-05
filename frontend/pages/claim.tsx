@@ -1,16 +1,44 @@
 import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { classNames } from '../src/utils'
-import Web3NavBar from '../src/components/Web3NavBar'
 import MarkdownComponent from '../src/components/MarkdownComponent'
+import { colors } from '../colors'
+import { get, truncate } from 'lodash'
+import tinycolor from 'tinycolor2'
+import { Fragment, useState } from 'react'
+import { Popover, Transition } from '@headlessui/react'
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { renderWalletConnectComponent } from '../src/walletUtils'
+import Image from 'next/image'
+import ModalComponent from '../src/components/ModalComponent'
+import { useAccount } from 'wagmi'
 
 function ClaimPage () {
-  const shareObject = {
+  const [showModal, setShowModal] = useState(false)
+  const {
+    address
+  } = useAccount()
+
+  const claimData = {
     title: 'PoolTogether <br />Referral Program',
     subtitle: 'Have you been referred to PoolTogether? <br /> Claim your reward and give a thank-you to your friend',
     description: 'These are the steps you have to follow to successfully claim your reward:\n1. Click on claim your reward\n2. Follow the instructions\n3. ... \n4. Profit\n\n That\'s it!',
     ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     claimButtonText: 'Claim your reward',
-    claimButtonSubtext: ''
+    claimButtonSubtext: '',
+    brandColor: '#6E3DD9',
+    brandImage: '/pooltogether.png',
+    brandName: 'PoolTogether'
+  }
+
+  const primaryColor = get(claimData, 'brandColor') || colors.primary.DEFAULT
+  const primaryColorHover = tinycolor(primaryColor).lighten(10)
+
+  const buttonBgPrimaryColorOnMouseOverEventHandler = (event: any) => {
+    event.target.style.backgroundColor = primaryColorHover
+  }
+
+  const buttonBgPrimaryColorOnMouseOutEventHandler = (event: any) => {
+    event.target.style.backgroundColor = primaryColor
   }
 
   const renderActionButtons = () => {
@@ -21,21 +49,22 @@ function ClaimPage () {
         <div className={classNames(showShareButton && 'sm:flex sm:justify-center', 'mt-5 max-w-md md:mx-0 md:mt-8')}>
           <div className="rounded-sm">
             <button
-              onClick={() => null}
+              onClick={() => setShowModal(true)}
+              style={{ backgroundColor: claimData.brandColor }}
+              onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+              onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
               className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
             >
-              {shareObject.claimButtonText}
+              {claimData.claimButtonText}
             </button>
-            {shareObject.claimButtonSubtext && (<span
+            {claimData.claimButtonSubtext && (<span
               className={classNames('md:text-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-600')}>
-              {shareObject.claimButtonSubtext}
+              {claimData.claimButtonSubtext}
             </span>)}
           </div>
         </div>
       </div>)
   }
-
-  const bountyDescription = 'yoyoyoyoy bounty description'
 
   function renderPageContent () {
     return <main className="mt-16 sm:mt-24">
@@ -47,27 +76,27 @@ function ClaimPage () {
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-gray-700 sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                 <span className="md:block">Welcome to the</span>{' '}
-                <span className="md:block text-primary">
-                  <div dangerouslySetInnerHTML={{ __html: shareObject.title }} />
+                <span style={{ color: claimData.brandColor }} className="md:block text-primary">
+                  <div dangerouslySetInnerHTML={{ __html: claimData.title }} />
                 </span>
               </h1>
               <h3
                 className="mt-3 text-base text-gray-500 sm:mx-auto sm:mt-5 sm:max-w-xl sm:text-lg md:mt-5 md:text-2xl lg:mx-0">
-                <div dangerouslySetInnerHTML={{ __html: shareObject.subtitle }} />
+                <div dangerouslySetInnerHTML={{ __html: claimData.subtitle }} />
               </h3>
               <div
                 className="sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6">
                 {renderActionButtons()}
               </div>
               <div className="mt-5 text-base text-gray-800 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
-                <MarkdownComponent content={shareObject.description} />
+                <MarkdownComponent content={claimData.description} />
               </div>
               <div className="lg:max-w-6xl lg:mx-auto">
                 <div
                   className="mt-6 inline-flex items-center text-white bg-gray-900 rounded-full p-1 pr-2 sm:text-base lg:text-sm xl:text-base"
                 >
                 <span
-                  className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-secondary rounded-full">
+                  className="px-3 py-0.5 text-white text-xs font-semibold leading-5 uppercase tracking-wide bg-primary rounded-full">
                   WAGMI
                 </span>
                   <span className="ml-4 mr-2 text-sm">
@@ -90,7 +119,7 @@ function ClaimPage () {
                         <div className="flex items-center">
                           <h1
                             className="text-xl font-mediumleading-7 text-gray-800 sm:leading-9 sm:truncate">
-                            {shareObject.ownerAddress}
+                            {claimData.ownerAddress}
                           </h1>
                         </div>
                       </div>
@@ -105,11 +134,132 @@ function ClaimPage () {
     </main>
   }
 
+  const renderModalContent = () => {
+    return <form className="space-y-8 divide-y divide-gray-200">
+      <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+        <div className="space-y-6 sm:space-y-5">
+          <div>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              Check your own address and your referrers address to make sure you used those with PoolTogether.
+            </p>
+          </div>
+
+          <div className="space-y-6 sm:space-y-5">
+            <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Your Address
+              </label>
+              <div className="mt-1 sm:col-span-2 sm:mt-0">
+                <div className="flex max-w-lg rounded-md shadow-sm">
+                  <span
+                    className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-1.5 text-gray-500 sm:text-sm">
+                    {truncate(address, { length: 36 })}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
+                Your Referrers Address
+              </label>
+              <div className="mt-1 sm:col-span-2 sm:mt-0">
+                <input
+                  type="text"
+                  name="first-name"
+                  id="first-name"
+                  autoComplete="given-name"
+                  className="block w-full max-w-lg rounded-sm border-gray-300 shadow-sm sm:max-w-xs sm:text-sm"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-5">
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            style={{ backgroundColor: claimData.brandColor }}
+            onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+            onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+            className="ml-3 inline-flex justify-center rounded-sm border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            Claim your reward
+          </button>
+        </div>
+      </div>
+    </form>
+  }
+
   return (
     <>
       <div className="relative bg-gray-100 overflow-hidden min-h-screen">
         <div className="relative pt-6 pb-16 sm:pb-24">
-          <Web3NavBar />
+          <Popover>
+            <nav
+              className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6"
+              aria-label="Global"
+            >
+              <div className="flex items-center flex-1">
+                <div className="flex items-center justify-between w-full md:w-auto">
+                  <span className="sr-only">Tacit</span>
+                  <Image
+                    className="h-8 w-40 sm:h-10"
+                    src={claimData.brandImage}
+                    height="56px"
+                    width="98px"
+                    alt=""
+                  />
+                  <div className="-mr-2 flex items-center md:hidden">
+                    <Popover.Button
+                      className="bg-background rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
+                      <span className="sr-only">Open main menu</span>
+                      <Bars3Icon className="h-6 w-6" aria-hidden="true" />
+                    </Popover.Button>
+                  </div>
+                </div>
+              </div>
+              <div className="hidden md:flex">
+                {renderWalletConnectComponent()}
+              </div>
+            </nav>
+
+            <Transition
+              as={Fragment}
+              enter="duration-150 ease-out"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="duration-100 ease-in"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+            >
+              <Popover.Panel
+                focus
+                className="absolute z-10 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
+              >
+                <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5">
+                  <div className="px-5 py-2 flex items-center justify-between">
+                    <div className="block w-full">
+                      {renderWalletConnectComponent()}
+                    </div>
+                    <div className="-mr-2">
+                      <Popover.Button
+                        className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
+                        <span className="sr-only">Close menu</span>
+                        <XMarkIcon className="h-7 w-7" aria-hidden="true" />
+                      </Popover.Button>
+                    </div>
+                  </div>
+                </div>
+              </Popover.Panel>
+            </Transition>
+          </Popover>
+          {showModal && (<ModalComponent
+            renderContent={renderModalContent}
+            titleText={`Claim your ${claimData.brandName} reward`}
+            onClose={() => setShowModal(false)}
+          />)}
           {renderPageContent()}
         </div>
       </div>

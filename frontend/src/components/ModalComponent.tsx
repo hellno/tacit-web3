@@ -1,6 +1,6 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import { ArrowsPointingOutIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 
 export default function ModalComponent ({
   renderContent,
@@ -56,10 +56,10 @@ export default function ModalComponent ({
                     </button>
                   </div>
                   <div className="sm:flex sm:items-start">
-                    <div
-                      className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10">
-                      <ArrowsPointingOutIcon className="h-6 w-6 text-green-600" aria-hidden="true" />
-                    </div>
+                    {/* <div */}
+                    {/*   className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-green-100 sm:mx-0 sm:h-10 sm:w-10"> */}
+                    {/*   <ArrowsPointingOutIcon className="h-6 w-6 text-green-600" aria-hidden="true" /> */}
+                    {/* </div> */}
                     <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                       <Dialog.Title as="h3" className="text-lg leading-6 font-medium text-gray-900">
                         {titleText}
