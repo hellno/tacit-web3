@@ -3,6 +3,7 @@ import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { find } from 'lodash'
 import { ArrowTopRightOnSquareIcon, PlusCircleIcon } from '@heroicons/react/24/outline'
+import { RewardPlanManager } from './RewardPlanManager'
 
 const steps = [
   {
@@ -19,6 +20,12 @@ const steps = [
   },
   {
     id: 2,
+    name: 'Reward Plan Manager',
+    title: 'Set up your reward plan',
+    description: ''
+  },
+  {
+    id: 3,
     name: 'Done step',
     title: 'Done',
     description: 'Your reward program is ready to go'
@@ -56,8 +63,10 @@ export const CreateRewardPlanModal = ({
       case 0:
         return 'Continue'
       case 1:
-        return 'Create Reward program'
+        return 'Next'
       case 2:
+        return 'Create Reward program'
+      case 3:
       default:
         return 'Done'
     }
@@ -237,6 +246,8 @@ export const CreateRewardPlanModal = ({
           </div>
         </form>
       case 2:
+        return <RewardPlanManager />
+      case 3:
         return <div className="relative bg-gray-800">
           <div className="h-56 bg-indigo-600">
             <img

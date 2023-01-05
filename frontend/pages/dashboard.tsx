@@ -1,6 +1,3 @@
-// add manifold branding as fallback
-// https://manifold.xyz/home/
-
 import { Fragment, useState } from 'react'
 import { Dialog, Menu, Transition } from '@headlessui/react'
 import {
@@ -26,7 +23,7 @@ import {
 } from '@heroicons/react/20/solid'
 import Head from 'next/head'
 import { CreateRewardPlanModal } from '../src/components/CreateRewardPlanModal'
-import { RewardPlanManagerModal } from '../src/components/RewardPlanManagerModal'
+import { RewardPlanManager } from '../src/components/RewardPlanManager'
 import {
   CategoryScale,
   Chart,
@@ -43,6 +40,7 @@ import { classNames } from '../src/utils'
 import { MockGraph } from '../src/components/MockGraph'
 import { useRouter } from 'next/router'
 import { isEmpty } from 'lodash'
+import ModalComponent from '../src/components/ModalComponent'
 
 Chart.register(TimeScale, CategoryScale, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, Filler)
 
@@ -163,6 +161,10 @@ export default function Dashboard () {
   const brandImage = useDtravel ? './dtravel.png' : './manifold.png'
   const brandName = useDtravel ? 'Dtravel' : 'Manifold'
 
+  const renderRewardPlanManagerContent = () => {
+    return <div><RewardPlanManager /></div>
+  }
+
   return (
     <>
       <Head>
@@ -172,7 +174,11 @@ export default function Dashboard () {
         <meta property="og:type" content="website" />
       </Head>
       <CreateRewardPlanModal open={rewardPlanModalOpen} setOpen={setRewardPlanModalOpen} />
-      <RewardPlanManagerModal open={planManagerModalOpen} setOpen={setPlanManagerModalOpen} />
+      {planManagerModalOpen && (<ModalComponent
+        renderContent={renderRewardPlanManagerContent}
+        titleText="Reward Plan Manager"
+        onClose={() => setPlanManagerModalOpen(false)}
+      />)}
       <div className="min-h-full">
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog as="div" className="relative z-40 lg:hidden" onClose={setSidebarOpen}>
