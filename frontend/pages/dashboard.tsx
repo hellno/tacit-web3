@@ -39,7 +39,6 @@ import {
 import { classNames } from '../src/utils'
 import { MockGraph } from '../src/components/MockGraph'
 import { useRouter } from 'next/router'
-import { isEmpty } from 'lodash'
 import ModalComponent from '../src/components/ModalComponent'
 
 Chart.register(TimeScale, CategoryScale, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, Filler)
@@ -152,14 +151,37 @@ const statusStyles = {
   failed: 'bg-gray-100 text-gray-800'
 }
 
+const getBrandImageFromQueryBrand = (query) => {
+  switch (query) {
+    case 'pool':
+      return './pooltogether.png'
+    case 'manifold':
+      return './manifold.png'
+    case 'dtravel':
+      return './dtravel.png'
+    default:
+      return './dtravel.png'
+  }
+}
+
+const getBrandNameFromQueryBrand = (query) => {
+  switch (query) {
+    case 'pool':
+      return 'PoolTogether'
+    case 'manifold':
+      return 'Manifold'
+    default:
+      return 'Dtravel'
+  }
+}
+
 export default function Dashboard () {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [rewardPlanModalOpen, setRewardPlanModalOpen] = useState(false)
   const [planManagerModalOpen, setPlanManagerModalOpen] = useState(false)
   const router = useRouter()
-  const useDtravel = isEmpty(router.query.brand)
-  const brandImage = useDtravel ? './dtravel.png' : './manifold.png'
-  const brandName = useDtravel ? 'Dtravel' : 'Manifold'
+  const brandImage = getBrandImageFromQueryBrand(router.query.brand)
+  const brandName = getBrandNameFromQueryBrand(router.query.brand)
 
   const renderRewardPlanManagerContent = () => {
     return <div><RewardPlanManager /></div>
@@ -372,7 +394,6 @@ export default function Dashboard () {
                       <img
                         className="h-8 w-8 rounded-full"
                         src="https://images.unsplash.com/photo-1633421878789-30435a5f7ea8?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                        // src="./dtravel.png"
                         alt=""
                       />
                       <span className="ml-3 hidden text-sm font-medium text-gray-700 lg:block">
