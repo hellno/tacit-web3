@@ -52,3 +52,9 @@ export const refreshVercelPage = async (pathToPage) => {
   const apiUrl = `${apiEndpoint}/api/revalidate?path=${pathToPage}&secret=${process.env.TACIT_SERVER_TOKEN}`
   return await fetch(apiUrl)
 }
+
+export const getReferralCodeForUser = async (address) => {
+  const apiEndpoint = getSiteUrl()
+  const apiUrl = `${apiEndpoint}/api/createReferralCode?address=${address}&secret=${process.env.TACIT_SERVER_TOKEN}`
+  return await fetch(apiUrl)
+}

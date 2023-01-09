@@ -18,7 +18,6 @@ import { BiconomyLoadingState, NodeType, SharePageState, shareStates, solveState
 import Web3NavBar from '../../src/components/Web3NavBar'
 import LoadingScreenComponent from '../../src/components/LoadingScreenComponent'
 import { ethers } from 'ethers'
-import { addUserToDatabase } from '../../src/supabase'
 import { Biconomy } from '@biconomy/mexa'
 import {
   chainIdToBiconomyApiKey,
@@ -214,13 +213,13 @@ function SharePage ({ shareObject }) {
       transactionHash: res
     }
 
-    const { email } = formData
-    if (email) {
-      await addUserToDatabase({
-        walletAddress: address,
-        email
-      })
-    }
+    // const { email } = formData
+    // if (email) {
+    //   await addUserToDatabase({
+    //     walletAddress: address,
+    //     email
+    //   })
+    // }
 
     setPageState({
       name: SharePageState.PendingSolve,
@@ -274,13 +273,13 @@ function SharePage ({ shareObject }) {
       }
     })
 
-    const { email } = formData
-    if (email) {
-      await addUserToDatabase({
-        walletAddress: address,
-        email
-      })
-    }
+    // const { email } = formData
+    // if (email) {
+    //   await addUserToDatabase({
+    //     walletAddress: address,
+    //     email
+    //   })
+    // }
   }
 
   const buttonBgPrimaryColorOnMouseOverEventHandler = (event: any) => {

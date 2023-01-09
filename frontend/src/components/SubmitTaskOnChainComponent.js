@@ -1,7 +1,6 @@
 import { getDeployedContractForChainId, isNativeChainCurrency, taskPortalContractAbi } from '../constDeployedContracts'
 import { useChainId } from '../useChainId'
 import { CreateTaskState, NodeType } from '../const'
-import { addUserToDatabase } from '../supabase'
 import PresentActionLinksComponent from './PresentActionLinksComponent'
 import {
   erc20ABI,
@@ -34,7 +33,7 @@ export default function SubmitTaskOnChainComponent ({
   const { data: formData } = localState
 
   const {
-    email,
+    // email,
     tokenAmount,
     tokenAddress,
     ipfsDataPath
@@ -197,21 +196,21 @@ export default function SubmitTaskOnChainComponent ({
 
   console.log('addTaskTransactionStatus', addTaskTransactionStatus)
 
-  const uploadUserDataToOffChainDatabase = async () => {
-    const userUploadStatus = await addUserToDatabase({
-      walletAddress: address,
-      email
-    })
-
-    if (!userUploadStatus.success && userUploadStatus.error) {
-      console.log('ERROR IN UPLOADING USER DATA TO OFF-CHAIN DB')
-      setState({
-        name: CreateTaskState.ErrorCreatingTask,
-        data: formData,
-        error: userUploadStatus.error
-      })
-    }
-  }
+  // const uploadUserDataToOffChainDatabase = async () => {
+  //   const userUploadStatus = await addUserToDatabase({
+  //     walletAddress: address,
+  //     email
+  //   })
+  //
+  //   if (!userUploadStatus.success && userUploadStatus.error) {
+  //     console.log('ERROR IN UPLOADING USER DATA TO OFF-CHAIN DB')
+  //     setState({
+  //       name: CreateTaskState.ErrorCreatingTask,
+  //       data: formData,
+  //       error: userUploadStatus.error
+  //     })
+  //   }
+  // }
 
   const addTask = () => {
     try {
@@ -247,9 +246,9 @@ export default function SubmitTaskOnChainComponent ({
       name: CreateTaskState.PendingUserApproval,
       data: formData
     })
-    if (email) {
-      await uploadUserDataToOffChainDatabase()
-    }
+    // if (email) {
+    //   await uploadUserDataToOffChainDatabase()
+    // }
 
     if (isERC20TokenTask) {
       setState({

@@ -22,9 +22,7 @@ export const addUserToDatabase = async ({
     email
   }
 
-  const { error } = await supabase.from('Web3User').insert([data], {
-    returning: 'minimal' // Don't return the value after inserting
-  })
+  const { error } = await supabase.from('Web3User').insert([data])
   if (error) {
     console.log(error)
     return {
@@ -35,12 +33,12 @@ export const addUserToDatabase = async ({
   return { success: true }
 }
 
-type SupabaseWeb3User = {
-  id: number
-  created_at: string
-  wallet_address: string
-  email: string
-}
+// type SupabaseWeb3User = {
+//   id: number
+//   created_at: string
+//   wallet_address: string
+//   email: string
+// }
 
 export const getUserInfoFromDatabase = async (walletAddresses: string[]) => {
   if (isEmpty(walletAddresses)) {
@@ -55,7 +53,7 @@ export const getUserInfoFromDatabase = async (walletAddresses: string[]) => {
     data,
     error
   } = await supabase
-    .from <SupabaseWeb3User>('Web3User')
+    .from('Web3User')
     .select('wallet_address, email')
     .in('wallet_address', walletAddresses)
 

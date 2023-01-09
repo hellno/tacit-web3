@@ -12,6 +12,7 @@ import Image from 'next/image'
 import ModalComponent from '../src/components/ModalComponent'
 import { useAccount } from 'wagmi'
 import { ClaimReferralRewardComponent } from '../src/components/ClaimReferralRewardComponent'
+import { CreateReferralCodeComponent } from '../src/components/CreateReferralCodeComponent'
 
 function ClaimPage () {
   const [showClaimModal, setShowClaimModal] = useState(false)
@@ -46,6 +47,7 @@ function ClaimPage () {
   const buttonBgPrimaryColorOnMouseOutEventHandler = (event: any) => {
     event.target.style.backgroundColor = primaryColor
   }
+
 
   const renderActionButtons = () => {
     const showShareButton = false
@@ -99,7 +101,7 @@ function ClaimPage () {
                     'relative inline-flex items-center rounded-l-md border px-5 py-3 text-md font-medium '
                   )}
                 >
-                  New users
+                  Claim reward
                 </button>
                 <button
                   type="button"
@@ -198,7 +200,6 @@ function ClaimPage () {
                 {renderWalletConnectComponent()}
               </div>
             </nav>
-
             <Transition
               as={Fragment}
               enter="duration-150 ease-out"
@@ -233,11 +234,13 @@ function ClaimPage () {
             renderContent={() => <ClaimReferralRewardComponent primaryColor={primaryColor} />}
             titleText={`Claim your ${claimData.brandName} reward`}
             onClose={() => setShowClaimModal(false)}
+            renderCloseButton={false}
           />)}
           {showReferralCodeModal && (<ModalComponent
-            renderContent={() => <><span>...cool things coming soon...</span></>}
+            renderContent={() => <CreateReferralCodeComponent primaryColor={primaryColor} onClose={() => setShowReferralCodeModal(false)}/>}
             titleText={`Create your ${claimData.brandName} referral code`}
             onClose={() => setShowReferralCodeModal(false)}
+            renderCloseButton={false}
           />)}
           {renderPageContent()}
         </div>
