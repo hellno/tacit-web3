@@ -2,7 +2,7 @@ import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { classNames } from '../src/utils'
 import MarkdownComponent from '../src/components/MarkdownComponent'
 import { colors } from '../colors'
-import { get, truncate } from 'lodash'
+import { get } from 'lodash'
 import tinycolor from 'tinycolor2'
 import { Fragment, useState } from 'react'
 import { Popover, Transition } from '@headlessui/react'
@@ -11,20 +11,26 @@ import { renderWalletConnectComponent } from '../src/walletUtils'
 import Image from 'next/image'
 import ModalComponent from '../src/components/ModalComponent'
 import { useAccount } from 'wagmi'
+import { ClaimReferralRewardComponent } from '../src/components/ClaimReferralRewardComponent'
 
 function ClaimPage () {
-  const [showModal, setShowModal] = useState(false)
+  const [showClaimModal, setShowClaimModal] = useState(false)
+  const [showReferralCodeModal, setShowReferralCodeModal] = useState(false)
+  const [showSectionNewUser, setShowSectionNewUser] = useState(true)
+
   const {
-    address
+    address,
+    isConnected
   } = useAccount()
 
   const claimData = {
     title: 'PoolTogether <br />Referral Program',
-    subtitle: 'Have you been referred to PoolTogether? <br /> Claim your reward and give a thank-you to your friend',
+    subtitleClaim: 'Have you been referred to PoolTogether? <br /> Claim your reward and give a thank-you to your friend',
+    subtitleReferralCode: 'Create your personal referral code to invite your friends to PoolTogether below',
     description: 'These are the steps you have to follow to successfully claim your reward:\n1. Click on claim your reward\n2. Follow the instructions\n3. ... \n4. Profit\n\n That\'s it!',
     ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     claimButtonText: 'Claim your reward',
-    claimButtonSubtext: '',
+    referralCodeButtonText: 'Create your referral code',
     brandColor: '#6E3DD9',
     brandImage: '/pooltogether.png',
     brandName: 'PoolTogether'
@@ -45,22 +51,27 @@ function ClaimPage () {
     const showShareButton = false
 
     return (
-      <div className={classNames(showShareButton && 'md:ml-6', 'mx-auto py-12')}>
+      <div className={classNames(showShareButton && 'md:ml-6', 'mx-auto pb-12')}>
         <div className={classNames(showShareButton && 'sm:flex sm:justify-center', 'mt-5 max-w-md md:mx-0 md:mt-8')}>
-          <div className="rounded-sm">
-            <button
-              onClick={() => setShowModal(true)}
-              style={{ backgroundColor: claimData.brandColor }}
-              onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
-              onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-              className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-sm text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
-            >
-              {claimData.claimButtonText}
-            </button>
-            {claimData.claimButtonSubtext && (<span
-              className={classNames('md:text-center inline-flex mt-2 pr-4 md:pr-0 text-base font-normal text-gray-600')}>
-              {claimData.claimButtonSubtext}
-            </span>)}
+          <div className="rounded-md">
+            {showSectionNewUser ? <button
+                onClick={() => setShowClaimModal(true)}
+                style={{ backgroundColor: claimData.brandColor }}
+                onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+                onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+                className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
+              >
+                {claimData.claimButtonText}
+              </button>
+              : <button
+                onClick={() => setShowReferralCodeModal(true)}
+                style={{ backgroundColor: claimData.brandColor }}
+                onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+                onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+                className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
+              >
+                {claimData.referralCodeButtonText}
+              </button>}
           </div>
         </div>
       </div>)
@@ -80,9 +91,30 @@ function ClaimPage () {
                   <div dangerouslySetInnerHTML={{ __html: claimData.title }} />
                 </span>
               </h1>
+              <div className="my-16 isolate inline-flex rounded-md shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setShowSectionNewUser(true)}
+                  className={classNames(showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
+                    'relative inline-flex items-center rounded-l-md border px-5 py-3 text-md font-medium '
+                  )}
+                >
+                  New users
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSectionNewUser(false)}
+                  className={classNames(!showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
+                    'relative -ml-px inline-flex items-center rounded-r-md border px-5 py-3 text-md font-medium'
+                  )}
+                >
+                  Create referral code
+                </button>
+              </div>
               <h3
-                className="mt-3 text-base text-gray-500 sm:mx-auto sm:mt-5 sm:max-w-xl sm:text-lg md:mt-5 md:text-2xl lg:mx-0">
-                <div dangerouslySetInnerHTML={{ __html: claimData.subtitle }} />
+                className="mt-2 text-base text-gray-500 sm:mx-auto sm:mt-5 sm:max-w-xl sm:text-lg md:mt-5 md:text-2xl lg:mx-0">
+                <div
+                  dangerouslySetInnerHTML={{ __html: showSectionNewUser ? claimData.subtitleClaim : claimData.subtitleReferralCode }} />
               </h3>
               <div
                 className="sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6">
@@ -132,64 +164,6 @@ function ClaimPage () {
         </div>
       </div>
     </main>
-  }
-
-  const renderModalContent = () => {
-    return <form className="space-y-8 divide-y divide-gray-200">
-      <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
-        <div className="space-y-6 sm:space-y-5">
-          <div>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
-              Check your own address and your referrers address to make sure you used those with PoolTogether.
-            </p>
-          </div>
-
-          <div className="space-y-6 sm:space-y-5">
-            <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                Your Address
-              </label>
-              <div className="mt-1 sm:col-span-2 sm:mt-0">
-                <div className="flex max-w-lg rounded-md shadow-sm">
-                  <span
-                    className="inline-flex items-center rounded-md border border-gray-300 bg-gray-50 px-3 py-1.5 text-gray-500 sm:text-sm">
-                    {truncate(address, { length: 36 })}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-                Your Referrers Address
-              </label>
-              <div className="mt-1 sm:col-span-2 sm:mt-0">
-                <input
-                  type="text"
-                  name="first-name"
-                  id="first-name"
-                  autoComplete="given-name"
-                  className="block w-full max-w-lg rounded-sm border-gray-300 shadow-sm sm:max-w-xs sm:text-sm"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-5">
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            style={{ backgroundColor: claimData.brandColor }}
-            onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
-            onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-            className="ml-3 inline-flex justify-center rounded-sm border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            Claim your reward
-          </button>
-        </div>
-      </div>
-    </form>
   }
 
   return (
@@ -255,10 +229,15 @@ function ClaimPage () {
               </Popover.Panel>
             </Transition>
           </Popover>
-          {showModal && (<ModalComponent
-            renderContent={renderModalContent}
+          {showClaimModal && (<ModalComponent
+            renderContent={() => <ClaimReferralRewardComponent primaryColor={primaryColor} />}
             titleText={`Claim your ${claimData.brandName} reward`}
-            onClose={() => setShowModal(false)}
+            onClose={() => setShowClaimModal(false)}
+          />)}
+          {showReferralCodeModal && (<ModalComponent
+            renderContent={() => <><span>...cool things coming soon...</span></>}
+            titleText={`Create your ${claimData.brandName} referral code`}
+            onClose={() => setShowReferralCodeModal(false)}
           />)}
           {renderPageContent()}
         </div>

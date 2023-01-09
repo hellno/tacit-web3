@@ -38,7 +38,7 @@ export default function EditTaskModalComponent ({
   } = useForm({
     defaultValues: {
       title: taskObject.title,
-      subtitle: taskObject.subtitle,
+      subtitleClaim: taskObject.subtitle,
       description: taskObject.description
     }
   })
