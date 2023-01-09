@@ -48,7 +48,6 @@ function ClaimPage () {
     event.target.style.backgroundColor = primaryColor
   }
 
-
   const renderActionButtons = () => {
     const showShareButton = false
 
@@ -237,7 +236,8 @@ function ClaimPage () {
             renderCloseButton={false}
           />)}
           {showReferralCodeModal && (<ModalComponent
-            renderContent={() => <CreateReferralCodeComponent primaryColor={primaryColor} onClose={() => setShowReferralCodeModal(false)}/>}
+            renderContent={() => <CreateReferralCodeComponent primaryColor={primaryColor}
+                                                              onClose={() => setShowReferralCodeModal(false)} />}
             titleText={`Create your ${claimData.brandName} referral code`}
             onClose={() => setShowReferralCodeModal(false)}
             renderCloseButton={false}
