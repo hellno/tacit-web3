@@ -19,7 +19,7 @@ export const addUserToDatabase = async ({
   const supabase = getSupabaseClient()
   const data = {
     wallet_address: walletAddress,
-    email: address
+    email
   }
 
   const { error } = await supabase.from('Web3User').insert([data])
