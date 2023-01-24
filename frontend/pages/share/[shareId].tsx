@@ -138,8 +138,8 @@ function SharePage ({ shareObject }) {
   }
 
   useContractEvent({
-    addressOrName: contractAddress,
-    contractInterface: taskPortalContractAbi,
+    address: contractAddress,
+    abi: taskPortalContractAbi,
     eventName: 'NodeUpdated',
     listener: NodeUpdatedEventListener
   })

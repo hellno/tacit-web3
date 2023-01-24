@@ -53,8 +53,8 @@ export default function SubmitTaskOnChainComponent ({
       // error: errorLoadingERC20ContractSpending,
       // success: isSuccessLoadingERC20ContractSpending
     } = useContractRead({
-      addressOrName: tokenAddress,
-      contractInterface: erc20ABI,
+      address: tokenAddress,
+      abi: erc20ABI,
       functionName: 'allowance',
       args: [address, contractAddress],
       onSettled (data, error) {
@@ -71,8 +71,8 @@ export default function SubmitTaskOnChainComponent ({
     // console.log('erc20ContractAllowance.isZero()', erc20ContractAllowance.isZero(), 'tokenAmountBigNumber', tokenAmountBigNumber, 'erc20ContractAllowance', erc20ContractAllowance)
 
     const { config: approveERC20ContractAllowanceConfig } = usePrepareContractWrite({
-      addressOrName: tokenAddress, // changing this breaks shit
-      contractInterface: ['function approve(address,uint256)'],
+      address: tokenAddress, // changing this breaks shit
+      abi: ['function approve(address,uint256)'],
       functionName: 'approve',
       args: [contractAddress, approvalTokenAmount.toString()]
     })
@@ -135,15 +135,15 @@ export default function SubmitTaskOnChainComponent ({
   }
 
   useContractEvent({
-    addressOrName: contractAddress,
-    contractInterface: taskPortalContractAbi,
+    address: contractAddress,
+    abi: taskPortalContractAbi,
     eventName: 'NodeUpdated',
     listener: NodeUpdatedEventListener
   })
 
   const addTaskOptions = {
-    addressOrName: contractAddress,
-    contractInterface: taskPortalContractAbi,
+    address: contractAddress,
+    abi: taskPortalContractAbi,
     functionName: 'addTask',
     args: [makeIpfsPathForOnChainTask(ipfsDataPath), tokenAddress, tokenAmountBigNumber.toString()],
     overrides: {
@@ -302,8 +302,7 @@ export default function SubmitTaskOnChainComponent ({
         <button
           onClick={() => onButtonSubmit()}
           disabled={!canSubmitButton}
-          className={classNames(canSubmitButton && 'hover:bg-primary-light',
-            'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
+          className={classNames(canSubmitButton && 'hover:bg-primary-light', 'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary focus:outline-none')}
         >
           Submit Task & Bounty
         </button>
@@ -326,8 +325,7 @@ export default function SubmitTaskOnChainComponent ({
       name: 'Step 2 - Upload public data to IPFS',
       href: '#',
       status: 'current'
-    }, isERC20TokenTask ? erc20ApprovalStep : {},
-    {
+    }, isERC20TokenTask ? erc20ApprovalStep : {}, {
       name: `Step ${isERC20TokenTask ? 4 : 3} - Approve and wait for task creation`,
       href: '#',
       status: 'upcoming'
@@ -356,24 +354,24 @@ export default function SubmitTaskOnChainComponent ({
                       {step.name}
                     </span>
                   </span>
-              </div>)
+            </div>)
               : idx === currStepId
                 ? (<div className="flex items-start" aria-current="step">
                   <span className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center" aria-hidden="true">
                     <span className="absolute h-4 w-4 rounded-full animate-pulse bg-secondary-light" />
                     <span className="relative block w-2 h-2 bg-white rounded-full" />
                   </span>
-                  <span className="ml-3 text-sm font-medium text-secondary">{step.name}</span>
-                </div>)
+              <span className="ml-3 text-sm font-medium text-secondary">{step.name}</span>
+            </div>)
                 : (<div className="group">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center"
-                         aria-hidden="true">
-                      <div className="h-2 w-2 bg-gray-300 rounded-full" />
-                    </div>
-                    <p className="ml-3 text-sm font-medium text-gray-500">{step.name}</p>
-                  </div>
-                </div>)}
+              <div className="flex items-start">
+                <div className="flex-shrink-0 h-5 w-5 relative flex items-center justify-center"
+                     aria-hidden="true">
+                  <div className="h-2 w-2 bg-gray-300 rounded-full" />
+                </div>
+                <p className="ml-3 text-sm font-medium text-gray-500">{step.name}</p>
+              </div>
+            </div>)}
           </li>))}
         </ol>
       </nav>
@@ -435,8 +433,7 @@ export default function SubmitTaskOnChainComponent ({
         className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm font-medium rounded-sm text-white bg-primary hover:bg-primary-light focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:text-sm"
       >
         Go back
-      </button>
-      }
+      </button>}
     </div>
   </div>
 }
