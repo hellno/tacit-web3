@@ -125,7 +125,9 @@ export default function RootLayout ({
           accentColorForeground: 'white',
           borderRadius: 'small',
           fontStack: 'system'
-        })}>
+        })}
+        modalSize="compact"
+      >
         {renderLayout()}
       </RainbowKitProvider>
     </WagmiConfig>
