@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ArrowDownIcon } from '@heroicons/react/20/solid'
-import Web3NavBar from '../src/components/Web3NavBar'
 import CreateTaskFormComponent from '../src/components/CreateTaskFormComponent'
 import CreateTaskOnChainComponent from '../src/components/SubmitTaskOnChainComponent'
 import { get } from 'lodash'
@@ -107,7 +106,7 @@ export default function Index () {
     <div className="relative bg-background overflow-hidden min-h-screen">
       {/* <div className="relative bg-gradient-to-tr from-red-500 via-gray-700 to-gray-800 overflow-hidden min-h-screen"> */}
       <div className="relative pt-6 pb-16">
-        <Web3NavBar />
+        {/* <Web3NavBar /> */}
         <main className="mt-16 sm:mt-20">
           <div className="mx-auto max-w-7xl">
             <div className="lg:grid lg:grid-cols-12 lg:gap-8">

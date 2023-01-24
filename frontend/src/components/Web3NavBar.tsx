@@ -23,8 +23,8 @@ const Web3NavBar = () =>
             <Image
               className="h-8 w-auto sm:h-10"
               src="/tacit_t.png"
-              height="35px"
-              width="35px"
+              height="35"
+              width="35"
               alt=""
             />
           </a>

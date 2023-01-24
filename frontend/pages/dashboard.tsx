@@ -40,6 +40,8 @@ import { classNames } from '../src/utils'
 import { MockGraph } from '../src/components/MockGraph'
 import { useRouter } from 'next/router'
 import ModalComponent from '../src/components/ModalComponent'
+import QueueListIcon from '@heroicons/react/24/solid/QueueListIcon'
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid'
 
 Chart.register(TimeScale, CategoryScale, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, Filler)
 
@@ -54,6 +56,18 @@ const navigation = [
     name: 'Reward History',
     href: '#',
     icon: ClockIcon,
+    current: false
+  },
+  {
+    name: 'Leaderboard',
+    href: '/test',
+    icon: QueueListIcon,
+    current: false
+  },
+  {
+    name: 'Referral',
+    href: '/referral',
+    icon: ChatBubbleLeftRightIcon,
     current: false
   },
   {

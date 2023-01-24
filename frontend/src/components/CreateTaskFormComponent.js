@@ -39,12 +39,16 @@ export default function CreateTaskFormComponent ({
   const walletAddress = ensName || address
   const currState = localState.name
 
-  useEffect(async () => {
-    if (chainId) {
+  useEffect(() => {
+    async function fetchData () {
       const nameToTokenAddr = getNameToTokenAddressObjectForChainId(chainId)
       setNameToTokenAddress(nameToTokenAddr)
       const provider = getReadOnlyProviderForChainId(chainId)
       setTokenAddressToMaxAmount(await getTokenAddressToMaxAmounts(nameToTokenAddr, provider, address))
+    }
+
+    if (chainId) {
+      fetchData()
     }
   }, [chainId])
 
@@ -58,7 +62,7 @@ export default function CreateTaskFormComponent ({
     formState: { errors }
   } = useForm({
     defaultValues: {
-      email: isDevEnv() ? 'test@test.com' : '',
+      address: isDevEnv() ? 'test@test.com' : '',
       title: isDevEnv() ? 'Create content for the community' : '',
       description: isDevEnv() ? 'description 123' : '',
       tokenAmount: 0.001,

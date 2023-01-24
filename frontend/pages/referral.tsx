@@ -14,7 +14,7 @@ import { useAccount } from 'wagmi'
 import { ClaimReferralRewardComponent } from '../src/components/ClaimReferralRewardComponent'
 import { CreateReferralCodeComponent } from '../src/components/CreateReferralCodeComponent'
 
-function ClaimPage () {
+export default function Referral () {
   const [showClaimModal, setShowClaimModal] = useState(false)
   const [showReferralCodeModal, setShowReferralCodeModal] = useState(false)
   const [showSectionNewUser, setShowSectionNewUser] = useState(true)
@@ -180,10 +180,10 @@ function ClaimPage () {
                 <div className="flex items-center justify-between w-full md:w-auto">
                   <span className="sr-only">Tacit</span>
                   <Image
-                    className="h-8 w-40 sm:h-10"
+                    className="h-8 sm:h-10"
                     src={claimData.brandImage}
-                    height="56px"
-                    width="98px"
+                    height="56"
+                    width="98"
                     alt=""
                   />
                   <div className="-mr-2 flex items-center md:hidden">
@@ -248,5 +248,3 @@ function ClaimPage () {
     </>
   )
 }
-
-export default ClaimPage
