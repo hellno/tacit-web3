@@ -3,6 +3,7 @@ import { Popover, Transition } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 import { renderWalletConnectComponent } from '../walletUtils'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const navigation = [// {name: 'Product', href: '#'},
   // {name: 'Features', href: '#'},
@@ -18,7 +19,7 @@ const Web3NavBar = () =>
     >
       <div className="flex items-center flex-1">
         <div className="flex items-center justify-between w-full md:w-auto">
-          <a href="/">
+          <Link href="/">
             <span className="sr-only">Tacit</span>
             <Image
               className="h-8 w-auto sm:h-10"
@@ -27,7 +28,7 @@ const Web3NavBar = () =>
               width="35"
               alt=""
             />
-          </a>
+          </Link>
           <div className="-mr-2 flex items-center md:hidden">
             <Popover.Button
               className="bg-background rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
