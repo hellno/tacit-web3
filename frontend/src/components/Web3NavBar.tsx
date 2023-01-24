@@ -5,7 +5,8 @@ import { renderWalletConnectComponent } from '../walletUtils'
 import Image from 'next/image'
 import Link from 'next/link'
 
-const navigation = [// {name: 'Product', href: '#'},
+const navigation = [
+  // {name: 'Product', href: '#'},
   // {name: 'Features', href: '#'},
   // {name: 'Marketplace', href: '#'},
   // {name: 'Company', href: '#'},

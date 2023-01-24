@@ -1,18 +1,6 @@
 'use client'
 
-import { Fragment } from 'react'
-import { Popover, Transition } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import { renderWalletConnectComponent } from '../../src/walletUtils'
-import Image from 'next/image'
-import { WagmiConfig } from 'wagmi'
-import { chains, wagmiClient } from '../../src/wagmiContext'
-import { AppContextProvider } from '../../src/context'
-import '../../styles/globals.css'
-import '@rainbow-me/rainbowkit/styles.css'
-import { lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
-
-function Leaderboard () {
+export default function Leaderboard () {
   // const {
   //   address,
   //   isConnected
@@ -24,8 +12,6 @@ function Leaderboard () {
       position: '1',
       value: '123',
       ensName: 'vitalik.eth',
-      department: 'Optimization',
-      role: 'Member',
       image:
         'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
@@ -33,8 +19,6 @@ function Leaderboard () {
       address: '0x36a2ba411848ae2fdac40f117b47c0d7f382d4fb',
       position: '2',
       value: '110',
-      department: 'Optimization',
-      role: 'Member',
       image:
         'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
@@ -42,16 +26,12 @@ function Leaderboard () {
       address: '0xC93e3d37FCBD498Cb0E12EEACE0099e7372d8a5d',
       position: '3',
       value: '80',
-      department: 'Optimization',
-      role: 'Member',
       image: 'https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
     {
       address: '0xdd4d117723C257CEe402285D3aCF218E9A8236E1',
       position: '4',
       value: '51',
-      department: 'Optimization',
-      role: 'Member',
       image:
         'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     },
@@ -59,8 +39,6 @@ function Leaderboard () {
       address: '0x0434Ba7f2F795C083bF1f8692acd36721cD34799',
       position: '5',
       value: '12',
-      department: 'Optimization',
-      role: 'Member',
       image:
         'https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
     }
@@ -175,92 +153,5 @@ function Leaderboard () {
     </main>
   }
 
-  return (
-    <>
-      <div className="relative bg-gray-100 overflow-hidden min-h-screen">
-        <div className="relative pt-6 pb-16 sm:pb-24">
-          <Popover>
-            <nav
-              className="relative max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6"
-              aria-label="Global"
-            >
-              <div className="flex items-center flex-1">
-                <div className="flex items-center justify-between w-full md:w-auto">
-                  <span className="sr-only">Tacit</span>
-                  <Image
-                    className="h-8 w-24 sm:h-10"
-                    width={489}
-                    height={284}
-                    src={claimData.brandImage}
-                    alt=""
-                  />
-                  <div className="-mr-2 flex items-center md:hidden">
-                    <Popover.Button
-                      className="bg-background rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus-ring-inset focus:ring-white">
-                      <span className="sr-only">Open main menu</span>
-                      <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-                    </Popover.Button>
-                  </div>
-                </div>
-              </div>
-              <div className="hidden md:flex">
-                {renderWalletConnectComponent()}
-              </div>
-            </nav>
-            <Transition
-              as={Fragment}
-              enter="duration-150 ease-out"
-              enterFrom="opacity-0 scale-95"
-              enterTo="opacity-100 scale-100"
-              leave="duration-100 ease-in"
-              leaveFrom="opacity-100 scale-100"
-              leaveTo="opacity-0 scale-95"
-            >
-              <Popover.Panel
-                focus
-                className="absolute z-10 top-0 inset-x-0 p-2 transition transform origin-top-right md:hidden"
-              >
-                <div className="rounded-lg shadow-md bg-white ring-1 ring-black ring-opacity-5">
-                  <div className="px-5 py-2 flex items-center justify-between">
-                    <div className="block w-full">
-                      {renderWalletConnectComponent()}
-                    </div>
-                    <div className="-mr-2">
-                      <Popover.Button
-                        className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:bg-gray-100 focus:outline-none">
-                        <span className="sr-only">Close menu</span>
-                        <XMarkIcon className="h-7 w-7" aria-hidden="true" />
-                      </Popover.Button>
-                    </div>
-                  </div>
-                </div>
-              </Popover.Panel>
-            </Transition>
-          </Popover>
-          {renderPageContent()}
-        </div>
-      </div>
-    </>
-  )
-}
-
-export default function Page () {
-  return <AppContextProvider>
-    <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider
-        appInfo={{
-          appName: 'Tacit Web3',
-          learnMoreUrl: 'https://www.tacit.so'
-        }}
-        chains={chains}
-        theme={lightTheme({
-          accentColor: '#FF8788',
-          accentColorForeground: 'white',
-          borderRadius: 'small',
-          fontStack: 'system'
-        })}>
-        <Leaderboard />
-      </RainbowKitProvider>
-    </WagmiConfig>
-  </AppContextProvider>
+  return renderPageContent()
 }
