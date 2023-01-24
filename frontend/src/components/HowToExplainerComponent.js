@@ -131,8 +131,8 @@ export default function HowToExplainerComponent () {
                 <Image
                   className=""
                   src="/HowToConnectGoerli2.png"
-                  width="1332px"
-                  height="840px"
+                  width="1332"
+                  height="840"
                   alt=""
                 />
               </div>

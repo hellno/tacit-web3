@@ -16,7 +16,7 @@ export const getRpcProviderUrlForChainId = (chainId) => {
   if (rpcUrl) {
     return rpcUrl
   } else {
-    throw new Error(`No provider for chainId: ${chainId}`)
+    // throw new Error(`No provider for chainId: ${chainId}`)
   }
 }
 

@@ -6,6 +6,8 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 })
 
 const moduleExports = {
+  experimental: { appDir: true },
+  sentry: { hideSourceMaps: true },
   reactStrictMode: true,
   env: {
     WEB3STORAGE_TOKEN: process.env.WEB3STORAGE_TOKEN,
@@ -33,7 +35,6 @@ const sentryWebpackPluginOptions = {
   // recommended:
   //   release, url, org, project, authToken, configFile, stripPrefix,
   //   urlPrefix, include, ignore
-
   // only run sentry in production:
   dryRun: process.env.NEXT_PUBLIC_VERCEL_ENV !== 'production',
   silent: true // Suppresses all logs

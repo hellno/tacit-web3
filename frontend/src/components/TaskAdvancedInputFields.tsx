@@ -12,7 +12,6 @@ export default function TaskAdvancedInputFields ({
 
   const showFields = showAdvancedFields || !allowHide
   const hideShareButtonFormValue = get(values, 'hideShareButton', false)
-  console.log('hideShareButtonFormValue', hideShareButtonFormValue)
 
   return <>
     {allowHide && (<div className="relative">
