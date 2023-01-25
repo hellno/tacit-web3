@@ -154,7 +154,7 @@ export default function TransferTaskModalComponent ({
           <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6 max-w-sm">
             <div className="flex bg-yellow-50 p-4">
               <div className="flex-shrink-0">
-                <ExclaimationCircleIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
+                <ExclamationCircleIcon className="h-5 w-5 text-yellow-400" aria-hidden="true" />
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-yellow-800">Attention needed</h3>
