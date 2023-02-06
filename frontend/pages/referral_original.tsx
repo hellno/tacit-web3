@@ -230,7 +230,8 @@ export default function Referral () {
             </Transition>
           </Popover>
           {showClaimModal && (<ModalComponent
-            renderContent={() => <ClaimReferralRewardComponent primaryColor={primaryColor} />}
+            renderContent={() => <ClaimReferralRewardComponent primaryColor={primaryColor}
+                                                               onClose={() => setShowClaimModal(false)} />}
             titleText={`Claim your ${claimData.brandName} reward`}
             onClose={() => setShowClaimModal(false)}
             renderCloseButton={false}
