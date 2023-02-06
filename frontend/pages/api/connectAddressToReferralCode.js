@@ -1,29 +1,32 @@
-import { customAlphabet } from 'nanoid'
 import { getSupabaseClient } from '../../src/supabase'
 import { isEmpty } from 'lodash'
-import { isDevEnv } from '../../src/utils'
-
-const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-const nanoid = customAlphabet(alphabet, 10)
 
 const poolTogetherCampaignId = 23
-const TABLE_NAME = 'ReferralCodes'
+const TABLE_NAME = 'ReferredUser'
 
 export default async function handler (req, res) {
-  if (isDevEnv()) {
-    return res.json({ referralCode: 'W92bWK7pzX' })
-  }
+  // if (isDevEnv()) {
+  //   return res.json({ referralCode: 'W92bWK7pzX' })
+  // }
 
-  const { secret } = req.query
+  const {
+    referralCode,
+    secret
+  } = req.query
 
   if (secret !== process.env.TACIT_SERVER_TOKEN) {
     return res.status(401).json({ message: 'Invalid token' })
   }
 
+  if (isEmpty(referralCode)) {
+    return res.status(400).json({
+      message: 'Empty referral code'
+    })
+  }
+
   const address = req.query.address.toLowerCase()
 
   try {
-    let referralCode
     const supabase = getSupabaseClient()
     const {
       data: dataRead,
@@ -39,8 +42,26 @@ export default async function handler (req, res) {
       return res.status(500).send('Error when getting data from supabase')
     }
 
+    console.log('dataRead', dataRead)
+
     if (isEmpty(dataRead)) {
-      referralCode = nanoid()
+      const {
+        data: referralCodeRead,
+        error: errorReferralCodeRead
+      } = await supabase
+        .from('ReferralCodes')
+        .select('*')
+        .eq('referral_code', referralCode)
+        .eq('campaign_id', poolTogetherCampaignId)
+
+      if (errorReferralCodeRead) {
+        console.log(errorReferralCodeRead)
+        return res.status(500).send('Error when getting referral code data from supabase')
+      }
+      if (isEmpty(referralCodeRead)) {
+        return res.status(400).json({ message: `Referral code ${referralCode} not registered` })
+      }
+
       const {
         error: errorInsert
       } = await supabase
@@ -56,7 +77,7 @@ export default async function handler (req, res) {
         return res.status(500).send('Error when inserting data to supabase')
       }
     } else {
-      referralCode = dataRead[0].referral_code
+      return res.status(200).json({ message: `Address already connected with referral code ${dataRead[0].referral_code}` })
     }
 
     return res.status(200).json({ referralCode })

@@ -58,3 +58,9 @@ export const getReferralCodeForUser = async (address) => {
   const apiUrl = `${apiEndpoint}/api/createReferralCode?address=${address}&secret=${process.env.TACIT_SERVER_TOKEN}`
   return await fetch(apiUrl)
 }
+
+export const connectAddressToReferralCode = async (address, referralCode) => {
+  const apiEndpoint = getSiteUrl()
+  const apiUrl = `${apiEndpoint}/api/connectAddressToReferralCode?address=${address}&referralCode=${referralCode}&secret=${process.env.TACIT_SERVER_TOKEN}`
+  return await fetch(apiUrl)
+}

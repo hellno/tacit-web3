@@ -56,7 +56,7 @@ import { useEnsName } from 'wagmi'
 // }
 
 export const renderWalletConnectComponent = () => {
-  return <ConnectButton label="Connect Your Wallet" showBalance={false} />
+  return <ConnectButton label="Connect Your Wallet" chainStatus="icon" showBalance={false} />
 }
 
 export const getDefaultTransactionGasOptions = () => {

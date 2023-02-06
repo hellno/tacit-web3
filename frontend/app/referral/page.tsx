@@ -7,6 +7,9 @@ import { colors } from '../../colors'
 import { get } from 'lodash'
 import tinycolor from 'tinycolor2'
 import { useState } from 'react'
+import ModalComponent from '../../src/components/ModalComponent'
+import { ClaimReferralRewardComponent } from '../../src/components/ClaimReferralRewardComponent'
+import { CreateReferralCodeComponent } from '../../src/components/CreateReferralCodeComponent'
 
 export default function Referral () {
   const [showClaimModal, setShowClaimModal] = useState(false)
@@ -82,7 +85,7 @@ export default function Referral () {
                   <div dangerouslySetInnerHTML={{ __html: claimData.title }} />
                 </span>
               </h1>
-              <div className="my-16 isolate inline-flex rounded-md shadow-sm">
+              <div className="mt-8 mb-16 isolate inline-flex rounded-md shadow-sm">
                 <button
                   type="button"
                   onClick={() => setShowSectionNewUser(true)}
@@ -157,5 +160,21 @@ export default function Referral () {
     </main>
   }
 
-  return renderPageContent()
+  return <>
+    {showClaimModal && (<ModalComponent
+      renderContent={() => <ClaimReferralRewardComponent primaryColor={primaryColor}
+                                                         onClose={() => setShowClaimModal(false)} />}
+      titleText={`Claim your ${claimData.brandName} reward`}
+      onClose={() => setShowClaimModal(false)}
+      renderCloseButton={false}
+    />)}
+    {showReferralCodeModal && (<ModalComponent
+      renderContent={() => <CreateReferralCodeComponent primaryColor={primaryColor}
+                                                        onClose={() => setShowReferralCodeModal(false)} />}
+      titleText={`Create your ${claimData.brandName} referral code`}
+      onClose={() => setShowReferralCodeModal(false)}
+      renderCloseButton={false}
+    />)}
+    {renderPageContent()}
+  </>
 }
