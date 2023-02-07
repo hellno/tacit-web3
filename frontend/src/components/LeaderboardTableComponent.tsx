@@ -1,5 +1,3 @@
-// import { extend, map } from 'lodash'
-
 import { assign, get, map } from 'lodash'
 
 // const config = {
@@ -47,7 +45,7 @@ async function getLeaderboardData ({
     headers,
     body: JSON.stringify(requestBody),
     next: {
-      revalidate: 3600 // refetch every hour
+      revalidate: 120 // refetch every 2mins
     }
   }
   const res = await (await fetch(process.env.GRAPHQL_BACKEND, options)).json()
