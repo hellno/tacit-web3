@@ -45,7 +45,10 @@ async function getLeaderboardData ({
   const options = {
     method: 'POST',
     headers,
-    body: JSON.stringify(requestBody)
+    body: JSON.stringify(requestBody),
+    next: {
+      revalidate: 3600 // refetch every hour
+    }
   }
   const res = await (await fetch(process.env.GRAPHQL_BACKEND, options)).json()
   // Recommendation: handle errors
