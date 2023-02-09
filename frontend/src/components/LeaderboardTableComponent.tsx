@@ -1,4 +1,4 @@
-import { assign, get, map } from 'lodash'
+import { assign, get, map, take } from 'lodash'
 
 // const config = {
 //   apiKey: process.env.ALCHEMY_API_KEY,
@@ -25,7 +25,7 @@ async function getLeaderboardData ({
 
   const requestBody = {
     query: `query q($rewardPlanId: UUID!, $startDate: Date!, $endDate: Date!, $isReferral: Boolean) {
-          leaderboard(rewardPlanId: $rewardPlanId, startDate: $startDate, endDate: $endDate, limit: 10, isReferral: $isReferral) {
+          leaderboard(rewardPlanId: $rewardPlanId, startDate: $startDate, endDate: $endDate, isReferral: $isReferral) {
             position
             address
             value
@@ -80,12 +80,14 @@ export default async function LeaderboardTableComponent ({
   subtitle,
   isReferral
 }) {
-  const leaderboard = await getLeaderboardData({
+  let leaderboard = await getLeaderboardData({
     rewardPlanId: 'fec2f259-a76d-4abe-838e-3e1da4684e73',
     startDate: '2023-01-14',
-    endDate: '2023-03-01',
+    endDate: '2023-03-06',
     isReferral: isReferral
   })
+
+  leaderboard = take(leaderboard, 25)
 
   return (
     <div className="">
