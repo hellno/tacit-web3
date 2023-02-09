@@ -3,7 +3,6 @@
 import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { classNames } from '../../src/utils'
 import MarkdownComponent from '../../src/components/MarkdownComponent'
-import { colors } from '../../colors'
 import { get } from 'lodash'
 import tinycolor from 'tinycolor2'
 import { useState } from 'react'
@@ -17,19 +16,25 @@ export default function Referral () {
   const [showSectionNewUser, setShowSectionNewUser] = useState(true)
 
   const claimData = {
-    title: 'PoolTogether <br />Referral Program',
-    subtitleClaim: 'Have you been referred to PoolTogether? <br /> Claim your reward and give a thank-you to your friend',
+    title: 'Great ETHDenver <br />Depositoor Challenge',
+    subtitleClaim: 'PoolyCon and ETHDenver are exceptional opportunities to increase PoolTogether depositooors. Let’s have a competition to see who can bring the most Poolers into the Pool! Both top referrers and top new depositoors win massive prizes – 80 USDC (Optimism) and 40k USDC (Polygon) in delegation.<br /><br /> ' +
+      'This is a competition within the PoolTogether Community and this competition is a way for the protocol to grow organically at ETHDenver 2023. So get your referral code and get as many people as you can to deposit into PoolTogether from Feb 27th until March 6th.<br /><br /> ' +
+      'Depositors have until March 6th to deposit $10 or more on Polygon to enter the competition.',
     subtitleReferralCode: 'Create your personal referral code to invite your friends to PoolTogether below',
-    description: 'These are the steps you have to follow to successfully claim your reward:\n1. Click on claim your reward\n2. Follow the instructions\n3. ... \n4. Profit\n\n That\'s it!',
+    description: '**Important details**\n\n' +
+      '- Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC)\n' +
+      '- The top 4 referrers win 20k USDC (Optimism) in delegation each. \n' +
+      '- The top 4 depositoors win 10k USDC (Polygon) in delegation each. \n\n\n' +
+      'LFG!%^&*()',
     ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    claimButtonText: 'Claim your reward',
-    referralCodeButtonText: 'Create your referral code',
+    claimButtonText: 'Enter competition',
+    referralCodeButtonText: 'Create referral code',
     brandColor: '#6E3DD9',
     brandImage: '/pooltogether.png',
     brandName: 'PoolTogether'
   }
 
-  const primaryColor = get(claimData, 'brandColor') || colors.primary.DEFAULT
+  const primaryColor = get(claimData, 'brandColor') //  || colors.primary.DEFAULT
   const primaryColorHover = tinycolor(primaryColor).lighten(10)
 
   const buttonBgPrimaryColorOnMouseOverEventHandler = (event: any) => {
@@ -41,34 +46,59 @@ export default function Referral () {
   }
 
   const renderActionButtons = () => {
-    const showShareButton = false
-
     return (
-      <div className={classNames(showShareButton && 'md:ml-6', 'mx-auto pb-12')}>
-        <div className={classNames(showShareButton && 'sm:flex sm:justify-center', 'mt-5 max-w-md md:mx-0 md:mt-8')}>
-          <div className="rounded-md">
-            {showSectionNewUser
-              ? <button
-                onClick={() => setShowClaimModal(true)}
-                style={{ backgroundColor: claimData.brandColor }}
-                onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
-                onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-                className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
-              >
-                {claimData.claimButtonText}
-              </button>
-              : <button
-                onClick={() => setShowReferralCodeModal(true)}
-                style={{ backgroundColor: claimData.brandColor }}
-                onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
-                onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
-                className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
-              >
-                {claimData.referralCodeButtonText}
-              </button>}
+      <div className="mx-auto pb-12">
+        <div
+          className="flex mt-5 max-w-2xl md:mx-0 md:mt-8">
+          <div className="rounded-md shadow">
+            <button
+              onClick={() => setShowClaimModal(true)}
+              style={{ backgroundColor: claimData.brandColor }}
+              onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+              onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+              className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
+            >
+              {claimData.claimButtonText}
+            </button>
+          </div>
+          <div className="rounded-md mt-3 rounded-sm shadow sm:mt-0 sm:ml-3">
+            <button
+              onClick={() => setShowReferralCodeModal(true)}
+              style={{ backgroundColor: claimData.brandColor }}
+              onMouseOver={buttonBgPrimaryColorOnMouseOverEventHandler}
+              onMouseOut={buttonBgPrimaryColorOnMouseOutEventHandler}
+              className="w-full shadow-sm flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-light md:py-4 md:text-lg"
+            >
+              {claimData.referralCodeButtonText}
+            </button>
           </div>
         </div>
       </div>)
+  }
+
+  const renderTabs = () => {
+    return <div className="mt-8 mb-16 isolate inline-flex rounded-md shadow-sm">
+      <button
+        type="button"
+        style={showSectionNewUser ? { backgroundColor: claimData.brandColor } : {}}
+        onClick={() => setShowSectionNewUser(true)}
+        className={classNames(showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
+          'relative inline-flex items-center rounded-l-md border px-5 py-3 text-md font-medium '
+        )}
+      >
+        New depositoor
+      </button>
+      <button
+        type="button"
+        style={!showSectionNewUser ? { backgroundColor: claimData.brandColor } : {}}
+        onClick={() => setShowSectionNewUser(false)}
+        className={classNames(!showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
+          'relative -ml-px inline-flex items-center rounded-r-md border px-5 py-3 text-md font-medium'
+        )}
+      >
+        Pooli OG/Referrer
+      </button>
+    </div>
   }
 
   function renderPageContent () {
@@ -80,36 +110,17 @@ export default function Referral () {
             <div>
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-gray-700 sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
-                <span className="md:block">Welcome to the</span>{' '}
+                {/* <span className="md:block">Welcome to the</span>{' '} */}
                 <span style={{ color: claimData.brandColor }} className="md:block text-primary">
                   <div dangerouslySetInnerHTML={{ __html: claimData.title }} />
-                </span>
+                  </span>
               </h1>
-              <div className="mt-8 mb-16 isolate inline-flex rounded-md shadow-sm">
-                <button
-                  type="button"
-                  onClick={() => setShowSectionNewUser(true)}
-                  className={classNames(showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
-                    'relative inline-flex items-center rounded-l-md border px-5 py-3 text-md font-medium '
-                  )}
-                >
-                  Claim reward
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowSectionNewUser(false)}
-                  className={classNames(!showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
-                    'relative -ml-px inline-flex items-center rounded-r-md border px-5 py-3 text-md font-medium'
-                  )}
-                >
-                  Create referral code
-                </button>
-              </div>
               <h3
-                className="mt-2 text-base text-gray-500 sm:mt-5 sm:max-w-xl sm:text-lg md:mt-5 md:text-2xl lg:mx-0">
+                className="mt-2 text-base text-gray-800 sm:mt-5 sm:max-w-xl sm:text-lg md:mt-5 md:text-lg lg:mx-0">
                 <div
                   dangerouslySetInnerHTML={{ __html: showSectionNewUser ? claimData.subtitleClaim : claimData.subtitleReferralCode }} />
               </h3>
+              {/* {renderTabs()} */}
               <div
                 className="sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6">
                 {renderActionButtons()}

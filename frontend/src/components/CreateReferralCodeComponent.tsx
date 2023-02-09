@@ -73,7 +73,8 @@ export function CreateReferralCodeComponent ({
       <div className="space-y-6 sm:space-y-5">
         <div>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            Instructions hello there are here
+            Create your referral code and share it with your friends together with the competition page. <br /><br />
+            The more frens you onboard to PoolTogether, the higher your rank will be on the Top Referrer leaderboard.
           </p>
         </div>
 

@@ -9,7 +9,7 @@ export default function WalletConnectButtonForForm ({
     return <button
       onClick={onClick} type="button"
       className={classNames(canHover && 'hover:bg-primary-light focus:outline-none',
-        'w-full flex justify-center py-2 px-4 border border-transparent rounded-sm shadow-sm text-sm font-medium text-white bg-primary'
+        'w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary'
       )}
     >
       {text}

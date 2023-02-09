@@ -4,8 +4,10 @@ import { classNames } from '../../../src/utils'
 import Link from 'next/link'
 
 const claimData = {
-  title: 'PoolTogether <br />Referral Leaderboard',
-  subtitleClaim: 'Have you been referred to PoolTogether? <br /> Claim your reward and give a thank-you to your friend',
+  title: 'Great ETHDenver Depositoor Challenge',
+  subtitleClaim: 'PoolyCon and ETHDenver are exceptional opportunities to increase PoolTogether depositooors. Let’s have a competition to see who can bring the most Poolers into the Pool! Both top referrers and top new depositoors win massive prizes – 80 USDC (Optimism) and 40k USDC (Polygon) in delegation.<br /> ' +
+    'This is a competition within the PoolTogether Community and this competition is a way for the protocol to grow organically at ETHDenver 2023. So get your referral code and get as many people as you can to deposit into PoolTogether from Feb 27th until March 6th.<br /> ' +
+    'Depositors have until March 6th to deposit $10 or more on Polygon to enter the competition.',
   subtitleReferralCode: 'Create your personal referral code to invite your friends to PoolTogether below',
   description: 'These are the steps you have to follow to successfully claim your reward:\n1. Click on claim your reward\n2. Follow the instructions\n3. ... \n4. Profit\n\n That\'s it!',
   ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
@@ -30,7 +32,7 @@ export default async function Leaderboard ({
       current: page === 'top'
     },
     {
-      name: 'Highest Stakers',
+      name: 'Top Depositoors',
       href: '/referral/leaderboard/stakers',
       current: page === 'stakers'
     }

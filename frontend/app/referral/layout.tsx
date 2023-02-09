@@ -145,7 +145,7 @@ export default function RootLayout ({
                   {/*     </div> */}
                   {/*   </div> */}
                 </div>
-                <div className="flex items-center md:absolute md:inset-y-0 md:right-0 lg:hidden">
+                <div className="flex items-center md:absolute md:inset-y-0 md:right-0 md:hidden">
                   {/* Mobile menu button */}
                   <Popover.Button
                     className="-mx-2 inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
@@ -159,10 +159,9 @@ export default function RootLayout ({
                         )}
                   </Popover.Button>
                 </div>
-                {pathname === '/referral' && (
-                  <div className="hidden md:flex md:items-center md:justify-end xl:col-span-4">
-                    {renderWalletConnectComponent()}
-                  </div>)}
+                <div className="hidden md:flex md:items-center md:justify-end xl:col-span-4">
+                  {pathname === '/referral' && renderWalletConnectComponent()}
+                </div>
               </div>
             </div>
 
