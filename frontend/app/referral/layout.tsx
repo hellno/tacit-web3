@@ -96,7 +96,7 @@ export default function RootLayout ({
               <div className="py-3 relative flex justify-between lg:gap-8 xl:grid xl:grid-cols-12">
                 <div className="flex xl:col-span-4">
                   <div className="flex flex-shrink-0 items-center">
-                    <a href="/referral">
+                    <Link href="/referral">
                       <Image
                         className="block h-8 w-auto"
                         src="/pooltogether.png"
@@ -104,7 +104,7 @@ export default function RootLayout ({
                         width="489"
                         height="284"
                       />
-                    </a>
+                    </Link>
                   </div>
                 </div>
 
@@ -159,9 +159,10 @@ export default function RootLayout ({
                         )}
                   </Popover.Button>
                 </div>
-                <div className="hidden md:flex md:items-center md:justify-end xl:col-span-4">
-                  {renderWalletConnectComponent()}
-                </div>
+                {pathname === '/referral' && (
+                  <div className="hidden md:flex md:items-center md:justify-end xl:col-span-4">
+                    {renderWalletConnectComponent()}
+                  </div>)}
               </div>
             </div>
 
@@ -252,7 +253,7 @@ export default function RootLayout ({
             </div>
             <div className="hidden md:flex space-x-4">
               {navigation.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className={classNames(
@@ -261,7 +262,7 @@ export default function RootLayout ({
                   )}
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </div>
             <div className="hidden md:flex">

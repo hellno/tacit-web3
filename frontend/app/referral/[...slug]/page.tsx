@@ -1,6 +1,7 @@
 import LeaderboardTableComponent from '../../../src/components/LeaderboardTableComponent'
 import React from 'react'
 import { classNames } from '../../../src/utils'
+import Link from 'next/link'
 
 const claimData = {
   title: 'PoolTogether <br />Referral Leaderboard',
@@ -56,7 +57,7 @@ export default async function Leaderboard ({
       <div className="">
         <nav className="isolate flex divide-x divide-gray-200 rounded-lg shadow" aria-label="Tabs">
           {tabs.map((tab, tabIdx) => (
-            <a
+            <Link
               key={tab.name}
               href={tab.href}
               className={classNames(
@@ -75,7 +76,7 @@ export default async function Leaderboard ({
                   'absolute inset-x-0 bottom-0 h-0.5'
                 )}
               />
-            </a>
+            </Link>
           ))}
         </nav>
       </div>
