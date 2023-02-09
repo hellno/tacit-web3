@@ -100,10 +100,12 @@ export function CreateReferralCodeComponent ({
             <dt className="text-md font-medium text-gray-700">
               Your referral code
             </dt>
-            <dd className="mt-1 text-md text-gray-900 truncate underline">
-              <a href={referralLink} target="_blank" rel="noopener noreferrer">
+            <dd className="mt-1 text-md text-gray-900 ">
+              <a href={referralLink} target="_blank" rel="noopener noreferrer"
+                 className="underline">
                 {referralCode}
-              </a>
+              </a><br />
+              (will have QR code and click-to-copy, this will be improved soon :)
             </dd>
           </div>)}
         </dl>
