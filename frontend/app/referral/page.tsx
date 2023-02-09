@@ -25,7 +25,7 @@ export default function Referral () {
       '- Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC)\n' +
       '- The top 4 referrers win 20k USDC (Optimism) in delegation each. \n' +
       '- The top 4 depositoors win 10k USDC (Polygon) in delegation each. \n\n\n' +
-      'LFG!%^&*()',
+      'LFG! 🤯💸🥳🌊😎🏆',
     ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     claimButtonText: 'Enter competition',
     referralCodeButtonText: 'Create referral code',

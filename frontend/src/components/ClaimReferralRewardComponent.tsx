@@ -96,7 +96,7 @@ export function ClaimReferralRewardComponent ({
         <div>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
             You've been invited to join Pool together! <br /><br />
-            Click "Enter competition", sign the message, then head over to
+            Enter your fren's referral code, click "Enter competition", sign the message, then head over to
             PoolTogether and deposit at least 10USCD on Polygon. The more you deposit, the higher your rank will
             be on
             the Top Depositoor leaderboard.
@@ -121,7 +121,7 @@ export function ClaimReferralRewardComponent ({
           </div>
           <div className="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
             <label htmlFor="username" className="block text-sm font-medium text-gray-700 sm:mt-px sm:pt-2">
-              Your frens referral code
+              Your fren's referral code
             </label>
             <div className="mt-1 sm:col-span-2 sm:mt-0">
               <input
