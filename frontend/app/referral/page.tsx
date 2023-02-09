@@ -49,7 +49,7 @@ export default function Referral () {
     return (
       <div className="mx-auto pb-12">
         <div
-          className="flex mt-5 max-w-2xl md:mx-0 md:mt-8">
+          className="md:flex mt-5 max-w-2xl md:mx-0 md:mt-8">
           <div className="rounded-md shadow">
             <button
               onClick={() => setShowClaimModal(true)}
@@ -110,22 +110,22 @@ export default function Referral () {
             <div>
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-gray-700 sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
-                {/* <span className="md:block">Welcome to the</span>{' '} */}
+                <span className="md:block">Welcome to the</span>{' '}
                 <span style={{ color: claimData.brandColor }} className="md:block text-primary">
                   <div dangerouslySetInnerHTML={{ __html: claimData.title }} />
                   </span>
               </h1>
-              <h3
-                className="mt-2 text-base text-gray-800 sm:mt-5 sm:max-w-xl sm:text-lg md:mt-5 md:text-lg lg:mx-0">
-                <div
-                  dangerouslySetInnerHTML={{ __html: showSectionNewUser ? claimData.subtitleClaim : claimData.subtitleReferralCode }} />
-              </h3>
-              {/* {renderTabs()} */}
               <div
                 className="sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6">
                 {renderActionButtons()}
               </div>
-              <div className="mt-5 text-base text-gray-800 sm:mt-5 sm:text-xl lg:text-lg xl:text-xl">
+              <h3
+                className="mt-2 text-base text-gray-800 sm:mt-5 sm:max-w-xl sm:text-xl md:mt-5 md:text-lg lg:mx-0">
+                <div
+                  dangerouslySetInnerHTML={{ __html: showSectionNewUser ? claimData.subtitleClaim : claimData.subtitleReferralCode }} />
+              </h3>
+              {/* {renderTabs()} */}
+              <div className="mt-5 text-base text-gray-800 sm:mt-5 sm:text-xl md:text-lg">
                 <MarkdownComponent content={claimData.description} />
               </div>
               <div className="lg:max-w-6xl lg:mx-auto">
