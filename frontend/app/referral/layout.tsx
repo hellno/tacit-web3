@@ -21,7 +21,6 @@ export default function RootLayout ({
   children: ReactNode;
 }) {
   const pathname = usePathname()
-  console.log('pathname', pathname)
   const navigation = [
     {
       name: 'Referral',

@@ -12,7 +12,7 @@ import { CreateReferralCodeComponent } from '../../src/components/CreateReferral
 
 export default function Referral () {
   const [showClaimModal, setShowClaimModal] = useState(false)
-  const [showReferralCodeModal, setShowReferralCodeModal] = useState(false)
+  const [showReferralCodeModal, setShowReferralCodeModal] = useState(true)
   const [showSectionNewUser, setShowSectionNewUser] = useState(true)
 
   const claimData = {
@@ -27,7 +27,7 @@ export default function Referral () {
       '- The top 4 depositoors win 10k USDC (Polygon) in delegation each. \n\n\n' +
       'LFG! 🤯💸🥳🌊😎🏆',
     ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
-    claimButtonText: 'Enter competition',
+    claimButtonText: 'Enter referral code',
     referralCodeButtonText: 'Create referral code',
     brandColor: '#6E3DD9',
     brandImage: '/pooltogether.png',

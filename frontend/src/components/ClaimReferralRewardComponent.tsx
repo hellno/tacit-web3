@@ -76,7 +76,7 @@ export function ClaimReferralRewardComponent ({
         return 'Done'
       case '':
       default:
-        return 'Enter competition'
+        return 'Enter referral code'
     }
   }
 
