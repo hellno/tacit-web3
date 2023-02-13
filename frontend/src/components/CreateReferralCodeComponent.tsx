@@ -97,7 +97,7 @@ export function CreateReferralCodeComponent ({
         </div>
 
         <div className="space-y-6 sm:space-y-5">
-          <div className="sm:grid sm:grid-cols-2 sm:items-start sm:gap-4 sm:border-t sm:border-gray-200 sm:pt-5">
+          <div className="sm:grid sm:grid-cols-2 sm:items-start sm:gap-2 sm:border-t sm:border-gray-200 sm:pt-5">
             <label htmlFor="username" className="block text-md font-medium text-gray-700 sm:mt-px">
               Your Address
             </label>
@@ -134,7 +134,7 @@ export function CreateReferralCodeComponent ({
                   id="referralLink"
                   disabled
                   value={split(referralLink, '//')[1]}
-                  className="block w-full rounded-md border-gray-300 pr-12 shadow-sm sm:text-sm"
+                  className="block w-full rounded-md bg-gray-50 border-gray-300 pr-12 shadow-sm sm:text-sm"
                 />
                 <Tippy
                   hideOnClick={false}
@@ -145,7 +145,7 @@ export function CreateReferralCodeComponent ({
                           onClick={() => handleLinkCopyClick(referralLink)}
                   >
                     <kbd
-                      className="inline-flex items-center rounded border border-gray-200 px-2 py-1.5 font-sans text-sm font-medium text-gray-800 hover:bg-gray-200 focus:ring-1 focus:ring-gray-500 focus:border-gray-500">
+                      className="bg-white hover:bg-white inline-flex items-center rounded border border-gray-200 px-2 py-1.5 font-sans text-sm font-medium text-gray-500 focus:ring-1 focus:ring-gray-500 focus:border-gray-500">
                       <DocumentDuplicateIcon className="block h-4 w-4" aria-hidden="true" />
                     </kbd>
                   </button>
