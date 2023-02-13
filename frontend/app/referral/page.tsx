@@ -1,7 +1,6 @@
 'use client'
 
 import { CheckCircleIcon } from '@heroicons/react/24/solid'
-import { classNames } from '../../src/utils'
 import MarkdownComponent from '../../src/components/MarkdownComponent'
 import { get } from 'lodash'
 import tinycolor from 'tinycolor2'
@@ -12,8 +11,7 @@ import { CreateReferralCodeComponent } from '../../src/components/CreateReferral
 
 export default function Referral () {
   const [showClaimModal, setShowClaimModal] = useState(false)
-  const [showReferralCodeModal, setShowReferralCodeModal] = useState(true)
-  const [showSectionNewUser, setShowSectionNewUser] = useState(true)
+  const [showReferralCodeModal, setShowReferralCodeModal] = useState(false)
 
   const claimData = {
     title: 'Great ETHDenver <br />Depositoor Challenge',
@@ -76,31 +74,6 @@ export default function Referral () {
       </div>)
   }
 
-  const renderTabs = () => {
-    return <div className="mt-8 mb-16 isolate inline-flex rounded-md shadow-sm">
-      <button
-        type="button"
-        style={showSectionNewUser ? { backgroundColor: claimData.brandColor } : {}}
-        onClick={() => setShowSectionNewUser(true)}
-        className={classNames(showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
-          'relative inline-flex items-center rounded-l-md border px-5 py-3 text-md font-medium '
-        )}
-      >
-        New depositoor
-      </button>
-      <button
-        type="button"
-        style={!showSectionNewUser ? { backgroundColor: claimData.brandColor } : {}}
-        onClick={() => setShowSectionNewUser(false)}
-        className={classNames(!showSectionNewUser ? 'text-white bg-secondary cursor-default border-secondary' : 'text-gray-700 bg-gray-100 hover:bg-gray-50 border-gray-300',
-          'relative -ml-px inline-flex items-center rounded-r-md border px-5 py-3 text-md font-medium'
-        )}
-      >
-        Pooli OG/Referrer
-      </button>
-    </div>
-  }
-
   function renderPageContent () {
     return <main className="mt-16 sm:mt-24">
       <div className="mx-auto max-w-7xl">
@@ -122,7 +95,7 @@ export default function Referral () {
               <h3
                 className="mt-2 text-base text-gray-800 sm:mt-5 sm:max-w-xl sm:text-xl md:mt-5 md:text-lg lg:mx-0">
                 <div
-                  dangerouslySetInnerHTML={{ __html: showSectionNewUser ? claimData.subtitleClaim : claimData.subtitleReferralCode }} />
+                  dangerouslySetInnerHTML={{ __html: claimData.subtitleClaim }} />
               </h3>
               {/* {renderTabs()} */}
               <div className="mt-5 text-base text-gray-800 sm:mt-5 sm:text-xl md:text-lg">

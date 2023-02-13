@@ -64,7 +64,7 @@ export function CreateReferralCodeComponent ({
       case 'pending':
         return '...'
       case 'done':
-        return 'Done'
+        return 'Awesome, thanks!'
       case '':
       default:
         return 'Get referral code'
