@@ -13,16 +13,20 @@ export default function Referral () {
   const [showClaimModal, setShowClaimModal] = useState(false)
   const [showReferralCodeModal, setShowReferralCodeModal] = useState(false)
 
+  // Important details
+  // Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC)
+  // The wallet that has invited the most depositoors wins 80k USDC delegation for a month on Optimism & a championships belt
+  // One of the depositoors wins 40k delegation on Polygon for a month – the winner is picked randomly
   const claimData = {
     title: 'Great ETHDenver <br />Depositoor Challenge',
-    subtitleClaim: 'PoolyCon and ETHDenver are exceptional opportunities to increase PoolTogether depositooors. Let’s have a competition to see who can bring the most Poolers into the Pool! Both top referrers and top new depositoors win massive prizes – 80 USDC (Optimism) and 40k USDC (Polygon) in delegation.<br /><br /> ' +
+    subtitleClaim: 'PoolyCon and ETHDenver are exceptional opportunities to increase PoolTogether depositooors. Let’s have a competition to see who can bring the most Poolers into the Pool! Both top referrers and top new depositoors win massive prizes – $80K USDC (Optimism) in delegation and $40K USDC (Polygon) in delegation.<br /><br /> ' +
       'This is a competition within the PoolTogether Community and this competition is a way for the protocol to grow organically at ETHDenver 2023. So get your referral code and get as many people as you can to deposit into PoolTogether from Feb 27th until March 6th.<br /><br /> ' +
       'Depositors have until March 6th to deposit $10 or more on Polygon to enter the competition.',
     subtitleReferralCode: 'Create your personal referral code to invite your friends to PoolTogether below',
     description: '**Important details**\n\n' +
-      '- Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC)\n' +
-      '- The top 4 referrers win 20k USDC (Optimism) in delegation each. \n' +
-      '- The top 4 depositoors win 10k USDC (Polygon) in delegation each. \n\n\n' +
+      '- Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC) \n' +
+      '- The wallet that has invited the most depositoors wins 80k USDC delegation for a month on Optimism & a championships belt \n' +
+      '- One of the depositoors wins 40k delegation on Polygon for a month – the winner is picked randomly \n\n\n' +
       'LFG! 🤯💸🥳🌊😎🏆',
     ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     claimButtonText: 'Enter referral code',
@@ -59,7 +63,7 @@ export default function Referral () {
               {claimData.claimButtonText}
             </button>
           </div>
-          <div className="rounded-md mt-3 rounded-sm shadow sm:mt-0 sm:ml-3">
+          <div className="rounded-md mt-3 shadow sm:mt-0 sm:ml-3">
             <button
               onClick={() => setShowReferralCodeModal(true)}
               style={{ backgroundColor: claimData.brandColor }}

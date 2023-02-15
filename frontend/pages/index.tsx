@@ -1,16 +1,13 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useState } from 'react'
 import { ArrowDownIcon } from '@heroicons/react/20/solid'
 import CreateTaskFormComponent from '../src/components/CreateTaskFormComponent'
 import CreateTaskOnChainComponent from '../src/components/SubmitTaskOnChainComponent'
 import { get } from 'lodash'
 import { CreateTaskState } from '../src/const'
 import dynamic from 'next/dynamic'
-import { isProdEnv } from '../src/utils'
 
 // eslint-disable-next-line node/no-unsupported-features/es-syntax
 const HowToExplainerComponent = dynamic(() => import('../src/components/HowToExplainerComponent'))
-// eslint-disable-next-line node/no-unsupported-features/es-syntax
-const LoomExplainerVideoComponent = dynamic(() => import('../src/components/LoomExplainerVideoComponent'))
 
 const exampleSuccessStateData = {
   transactionHash: '0xd852a40d8bd87f34315f7fc0280a31df974bf0089fed2c8f49df38759a43f755',
@@ -26,34 +23,6 @@ interface TaskSubmissionStateType {
 
 export default function Index () {
   const [taskSubmissionState, setTaskSubmissionState] = useState<TaskSubmissionStateType>({ name: CreateTaskState.PendingUserTaskInput })
-  const [didScroll, setDidScroll] = useState(false)
-
-  // useEffect(() => {
-  //   if (window.ethereum) {
-  //     // @ts-ignore
-  //     window.ethereum.on('chainChanged', () => {
-  //       window.location.reload()
-  //     })
-  //     // @ts-ignore
-  //     window.ethereum.on('accountsChanged', () => {
-  //       window.location.reload()
-  //     })
-  //   }
-  // })
-
-  // useEffect(() => {
-  //   loadWeb3Modal(dispatch)
-  // }, [])
-
-  const onScroll = useCallback(event => {
-    setDidScroll(true)
-    window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    window.addEventListener('scroll', onScroll, { passive: true })
-    // remove event on unmount to prevent a memory leak
-  }, [])
 
   const renderTaskComponent = () => {
     return (<div className="mt-16 sm:mt-24 lg:mt-0 lg:col-span-6">
@@ -171,7 +140,7 @@ export default function Index () {
                   {/* </div> */}
                 </div>
               </div>
-              {renderTaskComponent()}
+              {/* {renderTaskComponent()} */}
             </div>
           </div>
           <div id="how-to">
@@ -182,7 +151,6 @@ export default function Index () {
                     <span className="block">How to leverage Tacit</span>
                     <span className="block text-secondary">for your community</span>
                   </h1>
-                  {didScroll && isProdEnv() && <LoomExplainerVideoComponent />}
                 </div>
               </div>
             </div>

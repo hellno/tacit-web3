@@ -95,11 +95,8 @@ export function ClaimReferralRewardComponent ({
       <div className="space-y-6 sm:space-y-5">
         <div>
           <p className="mt-1 max-w-2xl text-sm text-gray-500">
-            You've been invited to join Pool together! <br /><br />
-            Enter your fren's referral code, click "Enter competition", sign the message, then head over to
-            PoolTogether and deposit at least 10USCD on Polygon. The more you deposit, the higher your rank will
-            be on
-            the Top Depositoor leaderboard.
+            You’ve been invited to join PoolTogether! <br /><br />
+            Enter your fren’s referral code, click "Enter competition", sign the message, then head over to PoolTogether and deposit at least 10USCD on Polygon. The more you deposit, the higher your rank will be on the Top Depositoor leaderboard.
           </p>
         </div>
 
