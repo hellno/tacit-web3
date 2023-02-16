@@ -14,6 +14,7 @@ import { chains, wagmiClient } from '../../src/wagmiContext'
 import { classNames } from '../../src/utils'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { includes } from 'lodash'
 
 export default function RootLayout ({
   children
@@ -25,7 +26,7 @@ export default function RootLayout ({
     {
       name: 'Referral',
       href: '/referral',
-      current: pathname === '/referral'
+      current: includes(['/', '/referral'], pathname)
     },
     {
       name: 'Leaderboard',
@@ -152,10 +153,10 @@ export default function RootLayout ({
                     {open
                       ? (
                         <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                        )
+                      )
                       : (
                         <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                        )}
+                      )}
                   </Popover.Button>
                 </div>
                 <div className="hidden md:flex md:items-center md:justify-end xl:col-span-4">

@@ -1,7 +1,6 @@
 import { customAlphabet } from 'nanoid'
 import { getSupabaseClient } from '../../src/supabase'
 import { isEmpty } from 'lodash'
-import { isDevEnv } from '../../src/utils'
 
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 const nanoid = customAlphabet(alphabet, 10)
@@ -9,10 +8,13 @@ const nanoid = customAlphabet(alphabet, 10)
 const poolTogetherCampaignId = 23
 const TABLE_NAME = 'ReferralCodes'
 
+// must be lower case
+const ALLOWLIST = []
+
 export default async function handler (req, res) {
-  if (isDevEnv()) {
-    return res.json({ referralCode: 'W92bWK7pzX' })
-  }
+  // if (isDevEnv()) {
+  //   return res.json({ referralCode: 'W92bWK7pzX' })
+  // }
 
   const { secret } = req.query
 
@@ -21,6 +23,9 @@ export default async function handler (req, res) {
   }
 
   const address = req.query.address.toLowerCase()
+  // if (!includes(ALLOWLIST, address)) {
+  //   return res.status(400).json({ message: `Address ${address} is not on allow list` })
+  // }
 
   try {
     let referralCode

@@ -55,7 +55,6 @@ export function ClaimReferralRewardComponent ({
   }
 
   const onSubmit = (formData) => {
-    console.log('onSubmit formData', formData)
     switch (status) {
       case 'pending':
         break
@@ -76,7 +75,7 @@ export function ClaimReferralRewardComponent ({
         return 'Done'
       case '':
       default:
-        return 'Enter referral code'
+        return 'Enter competition'
     }
   }
 

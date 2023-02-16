@@ -42,8 +42,6 @@ export default async function handler (req, res) {
       return res.status(500).send('Error when getting data from supabase')
     }
 
-    console.log('dataRead', dataRead)
-
     if (isEmpty(dataRead)) {
       const {
         data: referralCodeRead,
@@ -60,6 +58,8 @@ export default async function handler (req, res) {
       }
       if (isEmpty(referralCodeRead)) {
         return res.status(400).json({ message: `Referral code ${referralCode} not registered` })
+      } else if (referralCodeRead[0].address === address) {
+        return res.status(400).json({ message: 'You cannot refer yourself' })
       }
 
       const {
@@ -77,7 +77,7 @@ export default async function handler (req, res) {
         return res.status(500).send('Error when inserting data to supabase')
       }
     } else {
-      return res.status(200).json({ message: `Address already connected with referral code ${dataRead[0].referral_code}` })
+      return res.status(200).json({ message: `You've submitted the referral code ${dataRead[0].referral_code} before` })
     }
 
     return res.status(200).json({ referralCode })

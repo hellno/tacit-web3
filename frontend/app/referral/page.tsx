@@ -1,6 +1,5 @@
 'use client'
 
-import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import MarkdownComponent from '../../src/components/MarkdownComponent'
 import { get } from 'lodash'
 import tinycolor from 'tinycolor2'
@@ -13,10 +12,6 @@ export default function Referral () {
   const [showClaimModal, setShowClaimModal] = useState(false)
   const [showReferralCodeModal, setShowReferralCodeModal] = useState(false)
 
-  // Important details
-  // Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC)
-  // The wallet that has invited the most depositoors wins 80k USDC delegation for a month on Optimism & a championships belt
-  // One of the depositoors wins 40k delegation on Polygon for a month – the winner is picked randomly
   const claimData = {
     title: 'Great ETHDenver <br />Depositoor Challenge',
     subtitleClaim: 'PoolyCon and ETHDenver are exceptional opportunities to increase PoolTogether depositooors. Let’s have a competition to see who can bring the most Poolers into the Pool! Both top referrers and top new depositoors win massive prizes – $80K USDC (Optimism) in delegation and $40K USDC (Polygon) in delegation.<br /><br /> ' +
@@ -26,8 +21,7 @@ export default function Referral () {
     description: '**Important details**\n\n' +
       '- Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC) \n' +
       '- The wallet that has invited the most depositoors wins 80k USDC delegation for a month on Optimism & a championships belt \n' +
-      '- One of the depositoors wins 40k delegation on Polygon for a month – the winner is picked randomly \n\n\n' +
-      'LFG! 🤯💸🥳🌊😎🏆',
+      '- One of the depositoors wins 40k delegation on Polygon for a month – the winner is picked randomly \n\n\n',
     ownerAddress: '0xd8da6bf26964af9d7eed9e03e53415d37aa96045',
     claimButtonText: 'Enter referral code',
     referralCodeButtonText: 'Create referral code',
@@ -49,7 +43,7 @@ export default function Referral () {
 
   const renderActionButtons = () => {
     return (
-      <div className="mx-auto pb-12">
+      <div className="mx-auto">
         <div
           className="md:flex mt-5 max-w-2xl md:mx-0 md:mt-8">
           <div className="rounded-md shadow">
@@ -93,17 +87,19 @@ export default function Referral () {
                   </span>
               </h1>
               <div
-                className="sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6">
+                className="my-5 sm:my-12 lg:my-18 sm:px-0 sm:text-center md:max-w-3xl md:mx-auto lg:col-span-6">
                 {renderActionButtons()}
               </div>
               <h3
-                className="mt-2 text-base text-gray-800 sm:mt-5 sm:max-w-xl sm:text-xl md:mt-5 md:text-lg lg:mx-0">
+                className="mt-2 text-base text-gray-800 sm:mt-5 sm:max-w-xl sm:text-xl md:mt-8 md:text-lg lg:mx-0">
                 <div
                   dangerouslySetInnerHTML={{ __html: claimData.subtitleClaim }} />
               </h3>
               {/* {renderTabs()} */}
               <div className="mt-5 text-base text-gray-800 sm:mt-5 sm:text-xl md:text-lg">
                 <MarkdownComponent content={claimData.description} />
+                <br />
+                LFG! 🤯💸🥳🌊😎🏆
               </div>
               <div className="lg:max-w-6xl lg:mx-auto">
                 <div
@@ -117,29 +113,28 @@ export default function Referral () {
                   Thank you for being here
                 </span>
                 </div>
-                <div className="py-6 md:flex md:items-center">
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center">
-                      <div>
-                        <dd
-                          className="flex items-left text-sm text-gray-400 font-medium sm:mr-6 sm:mt-0">
-                          Created by verified account
-                          <CheckCircleIcon
-                            className="flex-shrink-0 ml-1 mt-0.5 h-4 w-4 text-green-400"
-                            aria-hidden="true"
-                          />
-                        </dd>
-                        <div className="flex items-center">
-                          <h1
-                            className="text-xl font-mediumleading-7 text-gray-800 sm:leading-9 sm:truncate">
-                            {claimData.ownerAddress}
-                          </h1>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                {/* <div className="py-6 md:flex md:items-center"> */}
+                {/*   <div className="flex-1 min-w-0"> */}
+                {/*     <div className="flex items-center"> */}
+                {/*       <div> */}
+                {/*         <dd */}
+                {/*           className="flex items-left text-sm text-gray-400 font-medium sm:mr-6 sm:mt-0"> */}
+                {/*           Created by verified account */}
+                {/*           <CheckCircleIcon */}
+                {/*             className="flex-shrink-0 ml-1 mt-0.5 h-4 w-4 text-green-400" */}
+                {/*             aria-hidden="true" */}
+                {/*           /> */}
+                {/*         </dd> */}
+                {/*         <div className="flex items-center"> */}
+                {/*           <h1 */}
+                {/*             className="text-xl font-mediumleading-7 text-gray-800 sm:leading-9 sm:truncate"> */}
+                {/*             {claimData.ownerAddress} */}
+                {/*           </h1> */}
+                {/*         </div> */}
+                {/*       </div> */}
+                {/*     </div> */}
+                {/*   </div> */}
+                {/* </div> */}
               </div>
             </div>
           </div>
