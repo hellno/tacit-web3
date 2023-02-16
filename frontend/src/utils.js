@@ -54,13 +54,13 @@ export const refreshVercelPage = async (pathToPage) => {
 }
 
 export const getReferralCodeForUser = async (address) => {
-  const apiEndpoint = getSiteUrl()
+  const apiEndpoint = 'https://pool.tacit.so'
   const apiUrl = `${apiEndpoint}/api/createReferralCode?address=${address}&secret=${process.env.TACIT_SERVER_TOKEN}`
   return await fetch(apiUrl)
 }
 
 export const connectAddressToReferralCode = async (address, referralCode) => {
-  const apiEndpoint = getSiteUrl()
+  const apiEndpoint = 'https://pool.tacit.so'
   const apiUrl = `${apiEndpoint}/api/connectAddressToReferralCode?address=${address}&referralCode=${referralCode}&secret=${process.env.TACIT_SERVER_TOKEN}`
   return await fetch(apiUrl)
 }
