@@ -3,10 +3,13 @@
 import MarkdownComponent from '../../src/components/MarkdownComponent'
 import { get } from 'lodash'
 import tinycolor from 'tinycolor2'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ModalComponent from '../../src/components/ModalComponent'
 import { ClaimReferralRewardComponent } from '../../src/components/ClaimReferralRewardComponent'
 import { CreateReferralCodeComponent } from '../../src/components/CreateReferralCodeComponent'
+import { getSupabaseClient } from '../../src/supabase'
+
+const poolTogetherCampaignId = 23
 
 export default function Referral () {
   const [showClaimModal, setShowClaimModal] = useState(false)
@@ -71,6 +74,33 @@ export default function Referral () {
         </div>
       </div>)
   }
+  const [activeUserCount, setActiveUserCount] = useState<number>(undefined)
+  const supabase = getSupabaseClient()
+
+  useEffect(() => {
+    async function getData () {
+      const {
+        count: dataCount,
+        data: dataRead,
+        error: errorRead
+      } = await supabase
+        .from('ReferredUser')
+        .select('*', {
+          count: 'exact',
+          head: true // only get count, no data
+        })
+        .eq('campaign_id', poolTogetherCampaignId)
+      console.log('read data')
+      console.log(dataCount)
+      console.log(dataRead)
+      console.log(errorRead)
+      if (!errorRead && dataCount) {
+        setActiveUserCount(dataCount)
+      }
+    }
+
+    getData()
+  }, [])
 
   function renderPageContent () {
     return <main className="mt-16 sm:mt-24">
@@ -79,6 +109,16 @@ export default function Referral () {
           <div
             className="mx-4 text-left md:max-w-2xl md:mx-auto lg:col-span-6 lg:flex">
             <div>
+              {activeUserCount &&
+                <div className="hidden sm:mb-8 sm:flex sm:justify-start">
+                  <div
+                    className="relative rounded-full py-1 px-3 text-md leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
+                  <span className="font-semibold text-indigo-600">
+                    {activeUserCount}
+                  </span>
+                    {' '}Poolies are participating in the challenge{' '}🥳
+                  </div>
+                </div>}
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-gray-700 sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                 <span className="md:block">Welcome to the</span>{' '}
