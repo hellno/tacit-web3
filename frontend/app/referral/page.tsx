@@ -95,7 +95,7 @@ export default function Referral () {
       console.log(dataRead)
       console.log(errorRead)
       if (!errorRead && dataCount) {
-        setActiveUserCount(dataCount)
+        setActiveUserCount(42 + dataCount)
       }
     }
 
