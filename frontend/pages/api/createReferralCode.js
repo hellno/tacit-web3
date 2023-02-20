@@ -8,8 +8,9 @@ const nanoid = customAlphabet(alphabet, 10)
 const poolTogetherCampaignId = 23
 const TABLE_NAME = 'ReferralCodes'
 
-// must be lower case
+// eslint-disable-next-line no-unused-vars
 const ALLOWLIST = []
+// must be lower case addresses
 
 export default async function handler (req, res) {
   // if (isDevEnv()) {
