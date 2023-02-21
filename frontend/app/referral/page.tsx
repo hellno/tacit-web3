@@ -19,7 +19,7 @@ export default function Referral () {
     title: 'Great ETHDenver <br />Depositoor Challenge',
     subtitleClaim: 'PoolyCon and ETHDenver are exceptional opportunities to increase PoolTogether depositooors. Let’s have a competition to see who can bring the most Poolers into the Pool! Both top referrers and top new depositoors win massive prizes – $80K USDC (Optimism) in delegation and $40K USDC (Polygon) in delegation.<br /><br /> ' +
       'This is a competition within the PoolTogether Community and this competition is a way for the protocol to grow organically at ETHDenver 2023. So get your referral code and get as many people as you can to deposit into PoolTogether from Feb 27th until March 6th.<br /><br /> ' +
-      'Depositors have until March 6th to <a className="MAKE THIS BLUE" href="https://app.pooltogether.com/" target="_blank" rel="noopener noreferrer">deposit $10 or more into the Prize Pool on Polygon</a> to enter the competition.',
+      'Depositors have until March 6th to <a className="font-semibold hover:text-gray-700 underline" href="https://app.pooltogether.com/" target="_blank" rel="noopener noreferrer">deposit $10 or more into the Prize Pool on Polygon</a> to enter the competition.',
     subtitleReferralCode: 'Create your personal referral code to invite your friends to PoolTogether below',
     description: '**Important details**\n\n' +
       '- Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC) \n' +
