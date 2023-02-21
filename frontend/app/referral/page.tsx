@@ -19,7 +19,7 @@ export default function Referral () {
     title: 'Great ETHDenver <br />Depositoor Challenge',
     subtitleClaim: 'PoolyCon and ETHDenver are exceptional opportunities to increase PoolTogether depositooors. Let’s have a competition to see who can bring the most Poolers into the Pool! Both top referrers and top new depositoors win massive prizes – $80K USDC (Optimism) in delegation and $40K USDC (Polygon) in delegation.<br /><br /> ' +
       'This is a competition within the PoolTogether Community and this competition is a way for the protocol to grow organically at ETHDenver 2023. So get your referral code and get as many people as you can to deposit into PoolTogether from Feb 27th until March 6th.<br /><br /> ' +
-      'Depositors have until March 6th to <a href="https://app.pooltogether.com/" target="_blank" rel="noopener noreferrer">deposit $10 or more on Polygon</a> to enter the competition.',
+      'Depositors have until March 6th to <a className="MAKE THIS BLUE" href="https://app.pooltogether.com/" target="_blank" rel="noopener noreferrer">deposit $10 or more into the Prize Pool on Polygon</a> to enter the competition.',
     subtitleReferralCode: 'Create your personal referral code to invite your friends to PoolTogether below',
     description: '**Important details**\n\n' +
       '- Deposits must stay deposited at least until March 6th, 2023 23:59 (UTC) \n' +
@@ -49,7 +49,7 @@ export default function Referral () {
       <div className="mx-auto">
         <div
           className="md:flex mt-5 max-w-2xl md:mx-0 md:mt-8">
-          <div className="rounded-md shadow">
+          <div className="rounded-md shadow sm:mt-2 lg:mt-0">
             <button
               onClick={() => setShowClaimModal(true)}
               style={{ backgroundColor: claimData.brandColor }}
@@ -60,7 +60,7 @@ export default function Referral () {
               {claimData.claimButtonText}
             </button>
           </div>
-          <div className="rounded-md mt-3 shadow sm:mt-0 sm:ml-3">
+          <div className="rounded-md mt-3 shadow sm:mt-2 lg:mt-0 md:ml-3">
             <button
               onClick={() => setShowReferralCodeModal(true)}
               style={{ backgroundColor: claimData.brandColor }}
@@ -81,7 +81,6 @@ export default function Referral () {
     async function getData () {
       const {
         count: dataCount,
-        data: dataRead,
         error: errorRead
       } = await supabase
         .from('ReferredUser')
@@ -90,17 +89,89 @@ export default function Referral () {
           head: true // only get count, no data
         })
         .eq('campaign_id', poolTogetherCampaignId)
-      console.log('read data')
-      console.log(dataCount)
-      console.log(dataRead)
-      console.log(errorRead)
+        .gte('created_at', '2023-02-27')
       if (!errorRead && dataCount) {
-        setActiveUserCount(42 + dataCount)
+        setActiveUserCount(dataCount)
       }
     }
 
     getData()
   }, [])
+
+  const [daysCountdown, setDays] = useState<number>(0)
+  const [hoursCountdown, setHours] = useState<number>(0)
+  const [minsCountdown, setMinutes] = useState<number>(0)
+  const [secsCountdown, setSeconds] = useState<number>(0)
+  const countDownDate = new Date('2023-02-27').getTime()
+
+  useEffect(() => {
+    const updateTime = setInterval(() => {
+      const now = new Date().getTime()
+
+      const difference = countDownDate - now
+
+      const newDays = Math.floor(difference / (1000 * 60 * 60 * 24))
+      const newHours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const newMinutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60))
+      const newSeconds = Math.floor((difference % (1000 * 60)) / 1000)
+
+      setDays(newDays)
+      setHours(newHours)
+      setMinutes(newMinutes)
+      setSeconds(newSeconds)
+
+      if (difference <= 0) {
+        clearInterval(updateTime)
+        setDays(0)
+        setHours(0)
+        setMinutes(0)
+        setSeconds(0)
+      }
+    })
+
+    return () => {
+      clearInterval(updateTime)
+    }
+  }, [])
+
+  const renderCountdown = () => {
+    const showCountdown: boolean = daysCountdown > 0 && hoursCountdown > 0 &&
+      minsCountdown > 0 && secsCountdown > 0
+    return showCountdown && <div className="flex gap-5">
+      <div>
+    <span className="countdown font-mono text-4xl">
+    {/* //
+    @ts-ignore */}
+      <span style={{ '--value': daysCountdown }}></span>
+    </span>
+        days
+      </div>
+      <div>
+    <span className="countdown font-mono text-4xl">
+      {/* //
+    @ts-ignore */}
+      <span style={{ '--value': hoursCountdown }}></span>
+    </span>
+        hours
+      </div>
+      <div>
+    <span className="countdown font-mono text-4xl">
+      {/* //
+    @ts-ignore */}
+      <span style={{ '--value': minsCountdown }}></span>
+    </span>
+        min
+      </div>
+      <div>
+    <span className="countdown font-mono text-4xl">
+      {/* //
+    @ts-ignore */}
+      <span style={{ '--value': secsCountdown }}></span>
+    </span>
+        sec
+      </div>
+    </div>
+  }
 
   function renderPageContent () {
     return <main className="mt-16 sm:mt-24">
@@ -109,8 +180,8 @@ export default function Referral () {
           <div
             className="mx-4 text-left md:max-w-2xl md:mx-auto lg:col-span-6 lg:flex">
             <div>
-              {activeUserCount &&
-                <div className="hidden sm:mb-8 sm:flex sm:justify-start">
+              {activeUserCount
+                ? <div className="sm:mb-8 sm:flex sm:justify-start">
                   <div
                     className="relative rounded-full py-1 px-3 text-md leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
                   <span className="font-semibold text-indigo-600">
@@ -118,7 +189,15 @@ export default function Referral () {
                   </span>
                     {' '}Poolies are participating in the challenge{' '}🥳
                   </div>
-                </div>}
+                </div>
+                : <div className="flex-col sm:mb-8 sm:flex sm:justify-start">
+                  <div
+                    className="relative py-@ text-md leading-6 text-gray-600">
+                    Countdown until Kickoff
+                  </div>
+                  {renderCountdown()}
+                </div>
+              }
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-gray-700 sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
                 <span className="md:block">Welcome to the</span>{' '}
