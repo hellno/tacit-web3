@@ -135,9 +135,7 @@ export default function Referral () {
   }, [])
 
   const renderCountdown = () => {
-    const showCountdown: boolean = daysCountdown > 0 && hoursCountdown > 0 &&
-      minsCountdown > 0 && secsCountdown > 0
-    return showCountdown && <div className="flex gap-5">
+    return <div className="flex gap-5">
       <div>
     <span className="countdown font-mono text-4xl">
     {/* //
@@ -174,6 +172,8 @@ export default function Referral () {
   }
 
   function renderPageContent () {
+    const showCountdown: boolean = daysCountdown > 0 && hoursCountdown > 0 &&
+      minsCountdown > 0 && secsCountdown > 0
     return <main className="mt-16 sm:mt-24">
       <div className="mx-auto max-w-7xl">
         <div className="lg:grid lg:grid-cols-6 lg:gap-8">
@@ -190,13 +190,14 @@ export default function Referral () {
                     {' '}Poolies are participating in the challenge{' '}🥳
                   </div>
                 </div>
-                : <div className="flex-col sm:mb-8 sm:flex sm:justify-start">
+                : showCountdown && (
+                <div className="flex-col sm:mb-8 sm:flex sm:justify-start">
                   <div
                     className="relative py-@ text-md leading-6 text-gray-600">
                     Countdown until Kickoff
                   </div>
                   {renderCountdown()}
-                </div>
+                </div>)
               }
               <h1
                 className="mt-4 text-4xl tracking-tight font-extrabold text-gray-700 sm:mt-5 sm:leading-none lg:mt-6 lg:text-5xl xl:text-6xl">
