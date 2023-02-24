@@ -18,6 +18,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "strictNullChecks": false,
     "plugins": [
       {
         "name": "next"
@@ -31,7 +32,6 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "./tacit-polygon-graph"
+    "node_modules"
   ]
 }

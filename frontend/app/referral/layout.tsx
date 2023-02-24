@@ -31,7 +31,7 @@ export default function RootLayout ({
     {
       name: 'Leaderboard',
       href: '/referral/leaderboard/top',
-      current: pathname?.indexOf('/leaderboard') > -1
+      current: pathname && pathname.indexOf('/leaderboard') > -1
     }
   ]
 
@@ -110,7 +110,7 @@ export default function RootLayout ({
 
                 <div className="hidden md:flex md:px-8 lg:px-0 xl:col-span-4">
                   <div className="flex space-x-4">
-                    {navigation.map((item) => (
+                    {navigation.map((item: {current: boolean, name: string, href: string}) => (
                       <Link
                         key={item.name}
                         href={item.href}
@@ -199,7 +199,7 @@ export default function RootLayout ({
                 {/*   </button> */}
                 {/* </div> */}
                 <div className="mx-auto mt-3 max-w-3xl space-y-1 px-2 sm:px-4">
-                  {userNavigation.map((item) => (
+                  {userNavigation.map((item: {current: boolean, name: string, href: string}) => (
                     <Link
                       key={item.name}
                       href={item.href}
