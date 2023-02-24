@@ -82,7 +82,7 @@ export default async function LeaderboardTableComponent ({
 }) {
   let leaderboard = await getLeaderboardData({
     rewardPlanId: 'fec2f259-a76d-4abe-838e-3e1da4684e73',
-    startDate: '2023-01-14',
+    startDate: '2023-02-27',
     endDate: '2023-03-06',
     isReferral: isReferral
   })
