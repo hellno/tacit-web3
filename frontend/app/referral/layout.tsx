@@ -31,7 +31,7 @@ export default function RootLayout ({
     {
       name: 'Leaderboard',
       href: '/referral/leaderboard/top',
-      current: pathname.indexOf('/leaderboard') > -1
+      current: pathname?.indexOf('/leaderboard') > -1
     }
   ]
 
