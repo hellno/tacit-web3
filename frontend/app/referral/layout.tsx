@@ -153,10 +153,10 @@ export default function RootLayout ({
                     {open
                       ? (
                         <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
-                      )
+                        )
                       : (
                         <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
-                      )}
+                        )}
                   </Popover.Button>
                 </div>
                 <div className="hidden md:flex md:items-center md:justify-end xl:col-span-4">
@@ -223,6 +223,7 @@ export default function RootLayout ({
       {children}
     </>
   )
+  // eslint-disable-next-line no-unused-vars
   const renderLayoutOld = () => (
     <div className="relative bg-white overflow-hidden min-h-screen">
       <div className="relative pt-6 pb-16 sm:pb-24">
