@@ -1,8 +1,13 @@
 'use client'
+export const dynamic = 'force-dynamic'
 
+// eslint-disable-next-line import/first
 import { isEmpty } from 'lodash'
+// eslint-disable-next-line import/first
 import { useQRCode } from 'next-qrcode'
+// eslint-disable-next-line import/first
 import { useRouter, useSearchParams } from 'next/navigation'
+// eslint-disable-next-line import/first
 import { getSiteUrl } from '../../../src/utils'
 
 export default function QR () {
