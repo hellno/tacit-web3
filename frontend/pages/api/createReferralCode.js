@@ -31,7 +31,8 @@ const ALLOWLIST = [
   '0xeaba588d42d7f13048bd5795372530ac98cbd34f',
   '0x0b58857708a6f84e7ee04beaef069a7e6d1d4a0b',
   '0xf77e2c9b9ea81843d97a034e50aaa61b54edcc92',
-  '0x11b9dd6d3129eb740011b1a948adcbcb67758a10'
+  '0x11b9dd6d3129eb740011b1a948adcbcb67758a10',
+  '0x5f1cecc3d3b366b6fc9f3c6bad389c8739735c48'
 ]
 
 export default async function handler (req, res) {
