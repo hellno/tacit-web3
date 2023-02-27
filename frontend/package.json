@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^12.2.5",
-    "@next/eslint-plugin-next": "^12.1.6",
+    "@next/eslint-plugin-next": "^13.2.1",
     "@typechain/hardhat": "^6.0.0",
     "@types/jest": "^29.2.6",
     "@types/lodash": "^4.14.182",
