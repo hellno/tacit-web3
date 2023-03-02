@@ -87,7 +87,7 @@ export default async function LeaderboardTableComponent ({
     isReferral: isReferral
   })
 
-  leaderboard = take(leaderboard, 25)
+  leaderboard = take(leaderboard, 10)
 
   return (
     <div className="">

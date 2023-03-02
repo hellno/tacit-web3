@@ -8,7 +8,7 @@ import { DocumentDuplicateIcon, QrCodeIcon } from '@heroicons/react/24/outline'
 import 'tippy.js/dist/tippy.css'
 import 'tippy.js/animations/shift-away.css'
 import Tippy from '@tippyjs/react'
-import { TelegramIcon, TelegramShareButton, WhatsappIcon } from 'next-share'
+import { TelegramIcon, TelegramShareButton } from 'next-share'
 import { CheckCircleIcon, XCircleIcon } from '@heroicons/react/20/solid'
 
 const DEFAULT_TOOLTIP_CONTENT = 'Click to copy'
@@ -114,8 +114,8 @@ export function CreateReferralCodeComponent ({
   const referralLink = `${site}/referral?code=${referralCode}`
 
   const renderForm = () => (
-      <div>
-    <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+    <div>
+      <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
         <div className="space-y-6 sm:space-y-5">
           <div>
             <p className="mt-1 max-w-2xl text-sm text-gray-500">
@@ -249,8 +249,7 @@ export function CreateReferralCodeComponent ({
                         <a href={`https://api.whatsapp.com/send?text=${referralLink}`}
                            target="_blank" rel="noopener noreferrer"
                            className="flex h-6 w-6 items-center justify-center text-gray-400 hover:text-gray-500">
-                          <span className="sr-only">Share via WhatsApp</span>
-                          <WhatsappIcon size={32} round />
+                          <span className="">via WhatsApp</span>
                         </a>
                       </div>
                     </li>

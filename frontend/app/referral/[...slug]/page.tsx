@@ -91,6 +91,7 @@ export default async function Leaderboard ({
         return <LeaderboardTableComponent
           title=""
           subtitle="Overview of users with the highest stakes"
+          isReferral={false}
         />
       default:
         return null
