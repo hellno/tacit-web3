@@ -33,7 +33,7 @@ export function CreateReferralCodeComponent ({
     address,
     chainId: 137 // polygon
   })
-
+  const noStakedUsdc = data?.formatted === '0.0'
   const [referralCode, setReferralCode] = useState('')
   const [status, setStatus] = useState('')
   const [tooltipContent, setTooltipContent] = useState(DEFAULT_TOOLTIP_CONTENT)
@@ -63,7 +63,7 @@ export function CreateReferralCodeComponent ({
   }
 
   const getReferralCode = async () => {
-    if (!address) {
+    if (!address || noStakedUsdc) {
       return null
     }
     setStatus('pending')
@@ -123,8 +123,6 @@ export function CreateReferralCodeComponent ({
   const site = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://pool.tacit.so'
   const referralLink = `${site}/referral?code=${referralCode}`
 
-  console.log('data', data)
-
   const renderForm = () => (
     <div>
       <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
@@ -142,7 +140,7 @@ export function CreateReferralCodeComponent ({
                 <span>
                   Your staked USDC balance in PoolTogether on Polygon: {data?.formatted}
                 </span>
-                  {data?.formatted === '0.0' && <span>
+                  {noStakedUsdc && <span>
                     <br />
                   You must have staked 10 USDC in PoolTogether to create your referral code
                 </span>}
