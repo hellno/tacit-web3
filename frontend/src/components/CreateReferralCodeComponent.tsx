@@ -1,5 +1,5 @@
 import { includes, split } from 'lodash'
-import { useAccount } from 'wagmi'
+import { useAccount, useBalance } from 'wagmi'
 import WalletConnectButtonForForm from '../components/WalletConnectButtonForForm'
 import tinycolor from 'tinycolor2'
 import { classNames, getReferralCodeForUser, getSiteUrl } from '../utils'
@@ -24,6 +24,16 @@ export function CreateReferralCodeComponent ({
     address,
     isConnected
   } = useAccount()
+
+  const {
+    data,
+    isSuccess
+  } = useBalance({
+    token: '0x6a304dfdb9f808741244b6bfee65ca7b3b3a6076', // ptUSDC
+    address,
+    chainId: 137 // polygon
+  })
+
   const [referralCode, setReferralCode] = useState('')
   const [status, setStatus] = useState('')
   const [tooltipContent, setTooltipContent] = useState(DEFAULT_TOOLTIP_CONTENT)
@@ -113,6 +123,8 @@ export function CreateReferralCodeComponent ({
   const site = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : 'https://pool.tacit.so'
   const referralLink = `${site}/referral?code=${referralCode}`
 
+  console.log('data', data)
+
   const renderForm = () => (
     <div>
       <div className="space-y-8 divide-y divide-gray-200 sm:space-y-5">
@@ -121,6 +133,21 @@ export function CreateReferralCodeComponent ({
             <p className="mt-1 max-w-2xl text-sm text-gray-500">
               Create your referral code and share it with your friends together with the competition page. <br /><br />
               The more frens you onboard to PoolTogether, the higher your rank will be on the Top Referrer leaderboard.
+            </p>
+          </div>
+          <div>
+            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              {isSuccess && (
+                <>
+                <span>
+                  Your staked USDC balance in PoolTogether on Polygon: {data?.formatted}
+                </span>
+                  {data?.formatted === '0.0' && <span>
+                    <br />
+                  You must have staked 10 USDC in PoolTogether to create your referral code
+                </span>}
+                </>
+              )}
             </p>
           </div>
 
